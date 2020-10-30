@@ -1,0 +1,6 @@
+#require "ounit2";;
+#require "graphics";;
+#require "ANSITerminal";;
+#directory "_build";;
+#load "map.cmo";;
+#load "player.cmo";;

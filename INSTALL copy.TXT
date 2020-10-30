@@ -1,0 +1,13 @@
+How to install and build the system.
+
+***Note: Our application uses an X11 GUI display. Windows Subsystem for Linux (WSL) is incapable of displaying the GUI directly. If you have a Windows machine, we recommend following the below instructions in a Linux VM instance (we tested our install with Ubuntu). Mac and Linux OS users should not have display issues.
+
+1. Follow the course guidelines for installing OCaml on your device. This includes having a local installation. You'll want to make sure you follow the directions for installing and initializing OPAM, installing XQuartz (Mac only), and having a package manager. 
+
+2. Install the OCaml Graphics package. You will need to install it using your operating system's package manager. The command [opam install graphics] should be sufficient. If it is not sufficient, the terminal should prompt you with an informative error message that should indicate how you should proceed.
+
+You may be prompted with an error message saying that you need to install [pkgconfig]. In this case, you should install this package using a package manager for your OS. If on a Mac, you will want to run the command [sudo port install pkgconfig] (if using MacPorts package manager) or [brew install pkg-config] (if using Homebrew package manager) and then try to run [opam install graphics]. If on Linux, you can try to run the command [sudo apt-get install pkg-config].
+
+3. Download the source code and navigate to that directory from your command line/terminal. Running the command [make play] will start the GUI. Note that at this point the GUI is only a visual representation of our vision. 
+
+4. Navigate to the directory containing the source code in VS Code to see our current progress.
