@@ -353,7 +353,3 @@ let map (map: t) : map_tile array array = map.tiles
    let tiles = map.tiles in 
    let tile = tiles.(0).(0) in 
    draw_tile tile *)
-
-
-
-
