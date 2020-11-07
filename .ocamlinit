@@ -4,3 +4,4 @@
 #directory "_build";;
 #load "map.cmo";;
 #load "player.cmo";;
+#load "sprite.cmo";;

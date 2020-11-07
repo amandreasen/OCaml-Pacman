@@ -1,3 +1,4 @@
 type t
 
-val new_sprite: string -> t
+(** [new_sprite] is the image to be displayed from a file directory. *)
+val make_sprite: string -> t

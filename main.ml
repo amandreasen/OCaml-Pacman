@@ -1,5 +1,6 @@
 open Graphics
 open Map
+open Player
 
 let window_width = 1500
 let window_height = 750
@@ -33,6 +34,7 @@ let main (settings: string) : unit =
   draw_rect 100 100 map_width map_height;
   let map = make_map map_width map_height (100,100) in 
   draw_map map;
+  draw_player new_player; 
   ignore (loop ());
   ()
 

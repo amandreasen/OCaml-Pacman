@@ -11,3 +11,6 @@ val get_position: t -> int * int
     change in coordinates: ex. (0,1) means the user moves +1 in the y 
     direction.*)
 val move: t -> int * int -> unit 
+
+
+val draw_player: t -> unit
