@@ -1,6 +1,6 @@
 open Graphics
 open Map
-(**open Player*)
+open Player
 
 let window_width = 1500
 let window_height = 750
@@ -15,25 +15,33 @@ let set_window (title: string) (color: Graphics.color) : unit =
 
 
 
-
-let parse_dir (dir: string) (plyr: Player.t)=
-  let dir_move = 
-    match dir with 
-    |"\033[A" -> (0,50)
-    |"\033[B" -> (0,-50)
-    |"\033[D" -> (-50,0)
-    |"\033[C" -> (50,0)
-    |_ -> (0,0)
-  in 
-  dir_move
-(**move plyr dir_move*)
+(* 
+let parse_dir (user: Player.t) (dir: string) =
+  match dir with 
+  |"\033[A" -> (0,50)
+  |"\033[B" -> (0,-50)
+  |"\033[D" -> (-50,0)
+  |"\033[C" -> (50,0)
+  |_ -> (0,0)  *)
 
 
-let rec loop () = (**plyr = *)
-  Unix.sleep(1);
-  (**ignore (parse_dir (read_line ()) plyr);
-     loop () plyr*)
-  loop ()
+let parse_dir (user: Player.t) (dir: char) =
+  match dir with 
+  |'w' ->  (0,50)
+  |'s' -> (0,-50)
+  |'a' -> (-50,0)
+  |'d' -> (50,0)
+  |_ -> (0,0)
+
+let rec loop () user = 
+  Unix.sleep(0);
+  let create_sprite dir = 
+    Player.move user dir;
+    Graphics.set_color (rgb 255 255 0); 
+    Graphics.fill_circle (fst (get_position user)) (snd (get_position user)) 25;
+  in
+  create_sprite (parse_dir user (Graphics.read_key ())); 
+  loop () user
 
 let main (settings: string) : unit = 
   open_graph settings;
@@ -44,12 +52,10 @@ let main (settings: string) : unit =
   draw_rect 100 100 map_width map_height;
   let map = make_map map_width map_height (100,100) in 
   draw_map map;
-  let create_sprite = 
-    Graphics.set_color (rgb 255 255 0);
-    Graphics.draw_circle 175 175 25;
-    Graphics.display_mode true in
-  create_sprite;
-  ignore (loop ());
+  Graphics.set_color (rgb 255 255 0); 
+  Graphics.fill_circle 175 175 25;
+  Graphics.display_mode true;
+  ignore (loop () new_player);
   ()
 
 
