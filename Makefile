@@ -1,5 +1,5 @@
 #add ghost and state once defined
-MODULES=player map test state sprite
+MODULES=player map test state ghost sprite
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)

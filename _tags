@@ -1,1 +1,1 @@
-true: package(ounit2),package(graphics),package(camlimages, camlimages.all_formats)
+true: package(ounit2), package(graphics), package(camlimages, camlimages.all_formats)

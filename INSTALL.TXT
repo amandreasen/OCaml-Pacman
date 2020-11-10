@@ -11,3 +11,11 @@ You may be prompted with an error message saying that you need to install [pkgco
 3. Download the source code and navigate to that directory from your command line/terminal. Running the command [make play] will start the GUI. Note that at this point the GUI is only a visual representation of our vision. 
 
 4. Navigate to the directory containing the source code in VS Code to see our current progress.
+
+***NEW: 
+Ubuntu:
+
+1. Install png support for Ubuntu by running "sudo apt-get install libpng-dev".
+2. Install camlimages library by running "opam install camlimages" (IMPORTANT:
+You must install the png library before camlimages. If you have reversed the order, 
+uninstall and then reinstall camlimages).

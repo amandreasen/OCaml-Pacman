@@ -9,3 +9,4 @@ type t = {
 
 let make_sprite str =
   {sprite = load ("./sprites/" ^ str) []; height = 50; width = 50}
+

@@ -1,5 +1,4 @@
 open Graphics
-open Images
 open Sprite
 
 type t = {
