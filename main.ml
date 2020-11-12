@@ -44,15 +44,11 @@ let main (settings: string) : unit =
   draw_rect 100 100 map_width map_height;
   let map = make_map map_width map_height (100,100) in 
   draw_map map;
-<<<<<<< HEAD
-  draw_player new_player;
-=======
   let create_sprite = 
     Graphics.set_color (rgb 255 255 0);
     Graphics.draw_circle 175 175 25;
     Graphics.display_mode true in
   create_sprite;
->>>>>>> 288fdbaff2c95fb5178989ad690c278339db2a02
   ignore (loop ());
   ()
 
