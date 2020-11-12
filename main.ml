@@ -41,7 +41,7 @@ let rec loop () user map =
     set_window "Pacman" black;
     set_color blue;
     draw_map map;
-    set_color (rgb 255 255 0); 
+    set_color yellow; 
     fill_circle (fst (get_position user)) (snd (get_position user)) 25;
   in
   create_sprite (parse_dir user (Graphics.read_key ())); 
@@ -56,9 +56,9 @@ let main (settings: string) : unit =
   draw_rect 100 100 map_width map_height;
   let map = make_map map_width map_height (100,100) in 
   draw_map map;
-  Graphics.set_color (rgb 255 255 0); 
-  Graphics.fill_circle 175 175 25;
-  Graphics.display_mode true;
+  set_color yellow; 
+  fill_circle 175 175 25;
+  display_mode true;
   ignore (loop () new_player map);
   ()
 
