@@ -33,15 +33,19 @@ let parse_dir (user: Player.t) (dir: char) =
   |'d' -> (50,0)
   |_ -> (0,0)
 
-let rec loop () user = 
+let rec loop () user map = 
   Unix.sleep(0);
   let create_sprite dir = 
     Player.move user dir;
+    clear_graph ();
+    set_window "Pacman" black;
+    set_color blue;
+    draw_map map;
     set_color (rgb 255 255 0); 
     fill_circle (fst (get_position user)) (snd (get_position user)) 25;
   in
   create_sprite (parse_dir user (Graphics.read_key ())); 
-  loop () user
+  loop () user map
 
 let main (settings: string) : unit = 
   open_graph settings;
@@ -55,7 +59,7 @@ let main (settings: string) : unit =
   Graphics.set_color (rgb 255 255 0); 
   Graphics.fill_circle 175 175 25;
   Graphics.display_mode true;
-  ignore (loop () new_player);
+  ignore (loop () new_player map);
   ()
 
 
