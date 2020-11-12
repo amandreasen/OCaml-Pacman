@@ -37,8 +37,8 @@ let rec loop () user =
   Unix.sleep(0);
   let create_sprite dir = 
     Player.move user dir;
-    Graphics.set_color (rgb 255 255 0); 
-    Graphics.fill_circle (fst (get_position user)) (snd (get_position user)) 25;
+    set_color (rgb 255 255 0); 
+    fill_circle (fst (get_position user)) (snd (get_position user)) 25;
   in
   create_sprite (parse_dir user (Graphics.read_key ())); 
   loop () user
