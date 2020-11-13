@@ -19,3 +19,6 @@ Ubuntu:
 2. Install camlimages library by running "opam install camlimages" (IMPORTANT:
 You must install the png library before camlimages. If you have reversed the order, 
 uninstall and then reinstall camlimages).
+
+Mac: 
+1. Install camlimages using "sudo port install camlimages" 
