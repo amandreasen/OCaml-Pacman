@@ -13,7 +13,7 @@ val update_map: t -> point -> t
 
 (** [make_map x y] is a hard-coded map with width x and height y and bottom left 
     corner at [point] *)
-val make_map: int -> int -> point -> t
+val make_map: point -> string -> t
 
 val draw_map: t -> unit
 

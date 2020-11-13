@@ -1,10 +1,5 @@
 open Graphics
 
-(* Idea: first run random map generation algorithm that will generate which 
-   kind of tile should be at each coordinate, then write function that will map 
-   coordinate to get this tile type and return the map_tile with the tile type 
-   and bottom left pixel coordinate, this will be function passed to init *)
-
 (* Constants *)
 let tile_size = 50
 let wall_width = 20
@@ -17,12 +12,12 @@ type point = int * int
 
 type coordinate = int * int
 
-type orientation = Top | Bottom | Left | Right
+type orientation = Top | Bot | Left | Right
 
 (* (y,x) where x is horizontal orientation and y is vertical orientation *)
 type corner = orientation * orientation 
 
-type wall = Vertical | Horizontal | Corner of corner | End of orientation
+type wall = Vert | Horz | Corner of corner | End of orientation
 
 type tile = Empty | Food | Special | Wall of wall
 
@@ -40,6 +35,14 @@ type t =
     bottom_left: point;
   }
 
+let standard_map = 
+  {
+    tiles = [||];
+    width = 1300;
+    height = 550;
+    bottom_left = (0,0)
+  } 
+
 let position_to_coordinate (position: point) : coordinate = 
   let x_position = fst position in 
   let y_position = snd position in 
@@ -53,102 +56,7 @@ let coordinate_to_position (coordinate: coordinate) (map_corner: point) :
   let y_coordinate = snd coordinate in 
   let x_position = x_coordinate * tile_size in 
   let y_position = y_coordinate * tile_size in 
-  (x_position, y_position) 
-
-(* let make_corners (x_dim: int) (y_dim: int) (map_corner: point)
-    (tile_array: map_tile array array) : unit = 
-   let corner_x = fst map_corner in 
-   let corner_y = snd map_corner in 
-   let right_x = corner_x + (x_dim - 1) * tile_size in 
-   let top_y = corner_y + (y_dim - 1) * tile_size in 
-   tile_array.(0).(0) <- 
-    {tile_type = Wall (Corner (Left, Bottom)); bottom_left = map_corner};
-   tile_array.(y_dim - 1).(0) <- 
-    {tile_type = Wall (Corner (Left, Top)); bottom_left = (corner_x, top_y)};
-   tile_array.(0).(x_dim - 1) <- 
-    {tile_type = Wall (Corner (Right, Bottom)); 
-     bottom_left = (right_x, corner_y)};
-   tile_array.(y_dim - 1).(x_dim - 1) <- 
-    {tile_type = Wall (Corner (Right, Top)); bottom_left = (right_x, top_y)};
-   ()
-
-   let make_shell (x_dim: int) (y_dim: int) (map_corner: point) 
-    (tile_array: map_tile array array) : unit =
-   make_corners x_dim y_dim map_corner tile_array;
-
-   () *)
-
-let standard_maze = 
-  [|[|Wall (Corner (Bottom, Left)); Wall Vertical; Wall Vertical; Wall Vertical;
-      Wall Vertical; Wall Vertical; Wall Vertical; Wall Vertical; Wall Vertical;
-      Wall Vertical; Wall(Corner (Top, Left))|];
-    [|Wall Horizontal; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
-      Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall (Corner (Bottom, Left)); Wall Vertical; 
-      Wall (End Top); Food; Wall (End Bottom); Wall Vertical; 
-      Wall (Corner (Top, Left)); Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall (End Right); Food; Food; Food; Food; Food; 
-      Wall (End Right); Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Food; Food; Wall (Corner (Bottom, Left)); 
-      Wall Vertical; Wall (Corner (Top, Left)); Food; Food; Food; 
-      Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall (End Left); Food; Wall Horizontal; Food;
-      Wall Horizontal; Food; Wall (End Left); Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall Horizontal; Food; Wall (End Right); Food; 
-      Wall (End Right); Food; Wall Horizontal; Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall (End Right); Food; Food; Food; Food; Food;
-      Wall (End Right); Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Food; Food; Wall (End Bottom); Wall Vertical; Wall
-        (End Top); Food; Food; Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall (End Left); Food; Food; Food; Food; Food; Wall 
-        (End Left); Food; Wall Horizontal|];    
-    [|Wall Horizontal; Food; Wall Horizontal; Food; Wall (Corner (Bottom, Left))
-     ; Wall Vertical; Wall (Corner (Top, Left)); Food; Wall Horizontal; Food;
-      Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall Horizontal; Food; Wall Horizontal; Empty; 
-      Wall (End Right); Food; Wall Horizontal; Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall Horizontal; Food; Wall Horizontal; Empty;
-      Empty; Food; Wall Horizontal; Food; Wall Horizontal;|];
-    [|Wall Horizontal; Food; Wall Horizontal; Food; Wall Horizontal; Empty;
-      Empty; Food; Wall Horizontal; Food; Wall Horizontal;|];
-    [|Wall Horizontal; Food; Wall Horizontal; Food; Wall Horizontal; Empty; 
-      Wall (End Left); Food; Wall Horizontal; Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall Horizontal; Food; 
-      Wall (Corner (Bottom, Right)); Wall Vertical; Wall (Corner (Top, Right)); 
-      Food; Wall Horizontal; Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall (End Right); Food; Food; Food; Food; Food; 
-      Wall (End Right); Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Food; Food; Wall (End Bottom); Wall Vertical; Wall
-        (End Top); Food; Food; Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall (End Left); Food; Food; Food; Food; Food;
-      Wall (End Left); Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall Horizontal; Food; Wall (End Left); Food; 
-      Wall (End Left); Food; Wall Horizontal; Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall (End Right); Food; Wall Horizontal; Food;
-      Wall Horizontal; Food; Wall (End Right); Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Food; Food; Wall (Corner (Bottom, Right)); 
-      Wall Vertical; Wall (Corner (Top, Right)); Food; Food; Food; 
-      Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall (End Left); Food; Food; Food; Food; Food; 
-      Wall (End Left); Food; Wall Horizontal|];
-    [|Wall Horizontal; Food; Wall (Corner (Bottom, Right)); Wall Vertical; 
-      Wall (End Top); Food; Wall (End Bottom); Wall Vertical; 
-      Wall (Corner (Top, Right)); Food; Wall Horizontal|];  
-    [|Wall Horizontal; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
-      Wall Horizontal|];
-    [|Wall (Corner (Bottom, Right)); Wall Vertical; Wall Vertical; 
-      Wall Vertical; Wall Vertical; Wall Vertical; Wall Vertical; Wall Vertical;
-      Wall Vertical;Wall Vertical; Wall(Corner (Top, Right))|];
-  |]
-
-let make_tile_types (x_dim: int) (y_dim: int) : tile array array = 
-  let tile_types = Array.make_matrix y_dim x_dim Food in 
-  for i = 0 to 25 do 
-    for j = 0 to x_dim - 1 do 
-      tile_types.(i).(j) <- standard_maze.(i).(j);
-    done;
-  done;
-  tile_types
+  (x_position, y_position)
 
 let make_tile (x: int) (y: int) (map_corner: point) (tile_type: tile) :
   map_tile = 
@@ -161,6 +69,126 @@ let make_tile (x: int) (y: int) (map_corner: point) (tile_type: tile) :
     bottom_left = shifted_position;
   }
 
+let standard_maze = 
+  [|
+    [|Wall (Corner (Bot, Left)); Wall Vert; Wall Vert; Wall Vert; Wall Vert; 
+      Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert; 
+      Wall(Corner (Top, Left))|];
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall (Corner (Bot, Left)); Wall Vert; Wall (End Top); 
+      Food; Wall (End Bot); Wall Vert; Wall (Corner (Top, Left)); Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Food; Food; Food; Food; 
+      Wall (End Right); Food; Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Wall (Corner (Bot, Left)); Wall Vert; 
+      Wall (Corner (Top, Left)); Food; Food; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Left); Food; Wall Horz; Food;
+      Wall Horz; Food; Wall (End Left); Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (End Right); Food; 
+      Wall (End Right); Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Food; Food; Food; Food;
+      Wall (End Right); Food; Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Wall (End Bot); Wall Vert; Wall
+        (End Top); Food; Food; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Left); Food; Food; Food; Food; Food; Wall 
+        (End Left); Food; Wall Horz|];    
+    [|Wall Horz; Food; Wall Horz; Food; Wall (Corner (Bot, Left)); Wall Vert; 
+      Wall (Corner (Top, Left)); Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Empty; Wall (End Right); 
+      Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Empty;
+      Empty; Food; Wall Horz; Food; Wall Horz;|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Empty;
+      Empty; Food; Wall Horz; Food; Wall Horz;|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Empty; 
+      Wall (End Left); Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; 
+      Wall (Corner (Bot, Right)); Wall Vert; Wall (Corner (Top, Right)); 
+      Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Food; Food; Food; Food; 
+      Wall (End Right); Food; Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Wall (End Bot); Wall Vert; Wall
+        (End Top); Food; Food; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Left); Food; Food; Food; Food; Food;
+      Wall (End Left); Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (End Left); Food; 
+      Wall (End Left); Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Wall Horz; Food;
+      Wall Horz; Food; Wall (End Right); Food; Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Wall (Corner (Bot, Right)); Wall Vert; 
+      Wall (Corner (Top, Right)); Food; Food; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Left); Food; Food; Food; Food; Food; 
+      Wall (End Left); Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (Corner (Bot, Right)); Wall Vert; Wall (End Top); 
+      Food; Wall (End Bot); Wall Vert; Wall (Corner (Top, Right)); Food; 
+      Wall Horz|];  
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
+      Wall Horz|];
+    [|Wall (Corner (Bot, Right)); Wall Vert; Wall Vert; 
+      Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
+      Wall Vert;Wall Vert; Wall(Corner (Top, Right))|];
+  |]
+
+let ocaml_maze = 
+  [| 
+    [|Wall (Corner (Bot, Left)); Wall Vert; Wall Vert; Wall Vert;
+      Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
+      Wall Vert; Wall(Corner (Top, Left))|];
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall (End Left); Food; Wall (Corner (Bot, Left)); 
+      Wall Vert; Wall (Corner (Top, Left)); Food; Wall (End Left); Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Empty; Wall Horz; Food; 
+      Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (Corner (Bot, Right)); Wall Vert; 
+      Wall (Corner (Top, Right)); Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; 
+      Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (Corner (Bot, Left)); Wall Vert; 
+      Wall (Corner (Top, Left)); Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Wall Horz; Food; Wall Horz;
+      Food; Wall (End Right); Food; Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Wall (End Right); Food; Wall (End Right);
+      Food; Food; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Left); Food; Food; Food; Food; Food; Wall (
+          End Left); Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (End Bot); Wall Vert; 
+      Wall (Corner (Top, Left)); Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Empty; Empty; Wall Horz; Food; Wall 
+        Horz; Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Empty; Empty; Wall Horz; Food; 
+      Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (End Bot); Wall Vert; 
+      Wall (Corner (Top, Right)); Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (End Bot); Wall Vert; 
+      Wall (Corner (Top, Left)); Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Food; Food; Wall Horz; Food; 
+      Wall (End Right); Food; Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Wall (End Bot); Wall Vert; Wall Horz; Food; 
+      Food; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Left); Food; Food; Food; Wall Horz; Food; 
+      Wall (End Left); Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (End Bot); Wall Vert; 
+      Wall (Corner (Top, Right)); Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (Corner (Bot, Left)); Wall Vert; 
+      Wall (End Top); Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Food; Food; Food; Wall Horz;
+      Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Wall (End Right); Food; Food; Food; 
+      Wall (End Right); Food; Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food;
+      Wall Horz|];
+    [|Wall (Corner (Bot, Right)); Wall Vert; Wall Vert; Wall Vert; Wall Vert;
+      Wall Vert; Wall Vert; Wall Vert; Wall Vert;Wall Vert; 
+      Wall(Corner (Top, Right))|];
+  |]
+
 let make_tiles (x_dim: int) (y_dim: int) (map_corner: point) 
     (tile_types : tile array array): map_tile array array = 
   let default_tile = 
@@ -169,22 +197,26 @@ let make_tiles (x_dim: int) (y_dim: int) (map_corner: point)
       bottom_left = map_corner;
     }
   in
-  (* let top_left = (fst map_corner, snd map_corner + y_dim * tile_size) in  *)
   let tile_array = Array.make_matrix y_dim x_dim default_tile in
-  (* make_shell x_dim y_dim map_corner tile_array; *)
-  for i = 0 to y_dim - 1 do 
+  for i = 0 to 25 do 
     for j = 0 to x_dim - 1 do 
       tile_array.(i).(j) <- make_tile i j map_corner tile_types.(i).(j)
     done;
   done;
   tile_array
 
-let make_map (width: int) (height: int) (corner: point): t =   
-  let tiles_x = width / tile_size in
-  let tiles_y = height / tile_size in  
-  let tile_types = make_tile_types tiles_y tiles_x in 
-  let tile_list = make_tiles tiles_y tiles_x corner tile_types in 
-  {tiles = tile_list; width = width; height = height; bottom_left = corner}
+let make_map (corner: point) (maze_name: string)
+  : t =   
+  let tile_list = 
+    match maze_name with 
+    | "standard" -> make_tiles 11 26 corner standard_maze
+    | "OCaml" -> make_tiles 11 26 corner ocaml_maze
+    | _ -> failwith "map not found"
+  in
+  match maze_name with
+  | "standard" -> {standard_map with bottom_left = corner; tiles = tile_list}
+  | "OCaml" -> {standard_map with bottom_left = corner; tiles = tile_list}
+  | _ -> failwith "map not found"
 
 let update_map (map: t) (pos: int * int) : t = 
   failwith "unimplemented"
@@ -210,7 +242,6 @@ let draw_corner_double (first: point) (second: point) (corner_type: corner) :
   let second_y = if fst corner_type = Top then snd_y - wall_width 
     else snd_y + wall_width in 
   draw_corner_single (first_x, fst_y) (snd_x, second_y)
-
 
 let draw_corner_full (tile: map_tile) (corner_type: corner) : unit = 
   let tile_x = fst tile.bottom_left in 
@@ -252,7 +283,7 @@ let draw_wall_cap (tile_x: int) (tile_y: int) (dir: orientation) : unit =
     let y_pos = tile_y + tile_size in
     moveto (tile_x + fst) y_pos;
     lineto (tile_x + snd) y_pos
-  | Bottom -> 
+  | Bot -> 
     moveto (tile_x + fst) tile_y;
     lineto (tile_x + snd) tile_y;
   | Left -> 
@@ -271,7 +302,7 @@ let draw_wall_end (tile: map_tile) (end_type: orientation) : unit =
   let first = margin in 
   let second = tile_size - margin in 
   match end_type with 
-  | Top | Bottom as dir -> 
+  | Top | Bot as dir -> 
     draw_wall_lines (tile_x + first, tile_y) (tile_x + second, tile_y);
     draw_wall_cap tile_x tile_y dir
 
@@ -287,10 +318,10 @@ let draw_wall_normal (tile: map_tile) (orientation: wall) : unit =
   let first = margin in 
   let second = tile_size - margin in 
   match orientation with 
-  | Vertical -> 
+  | Vert -> 
     draw_wall_lines (tile_x + first, tile_y) (tile_x + second, tile_y)
 
-  | Horizontal -> 
+  | Horz -> 
     draw_wall_lines (tile_x, tile_y + first) (tile_x, tile_y + second)
 
   | _ -> ()
@@ -298,8 +329,8 @@ let draw_wall_normal (tile: map_tile) (orientation: wall) : unit =
 let draw_wall (tile: map_tile) (wall_type: wall) : unit = 
   set_color wall_color;
   match wall_type with 
-  | Vertical -> draw_wall_normal tile wall_type
-  | Horizontal -> draw_wall_normal tile wall_type
+  | Vert -> draw_wall_normal tile wall_type
+  | Horz -> draw_wall_normal tile wall_type
   | Corner corner -> draw_corner_full tile corner
   | End endwall -> draw_wall_end tile endwall
 
@@ -335,21 +366,3 @@ let draw_map (map: t) : unit =
   ()
 
 let map (map: t) : map_tile array array = map.tiles
-
-(* let make_map_single (width: int) (height: int) (corner: point): t = 
-   let tile = 
-    {
-      tile_type = Wall (Corner (Right, Top));
-      bottom_left = corner
-    }
-   in 
-   let tile_list = Array.make_matrix 1 1 tile in 
-   {tiles = tile_list; width = width; height = height; bottom_left = corner}
-
-   (* temporary helper *)
-   let draw_tile_helper (map: t) : unit = 
-   let corner = map.bottom_left in 
-   draw_rect (fst corner) (snd corner) tile_size tile_size;
-   let tiles = map.tiles in 
-   let tile = tiles.(0).(0) in 
-   draw_tile tile *)
