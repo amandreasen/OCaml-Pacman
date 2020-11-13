@@ -7,7 +7,7 @@ let window_height = 750
 let map_width = 1300
 let map_height = 550
 
-let move_amt = 15
+let move_amt = 10
 
 let set_window (title: string) (color: Graphics.color) : unit = 
   set_window_title title;
@@ -23,10 +23,8 @@ let parse_dir (user: Player.t) (dir: char) =
   |_ -> (0,0)
 
 let rec loop () user map = 
-  Unix.sleepf(0.05);
+  Unix.sleepf(0.017);
   clear_graph();
-  (* set_color black;
-     fill_rect 0 0 (size_x ()) (size_y ()); *)
   draw_image map 0 0;
   let create_sprite dir = 
     Player.move user dir;
