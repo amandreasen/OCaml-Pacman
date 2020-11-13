@@ -23,12 +23,14 @@ let parse_dir (user: Player.t) (dir: char) =
   |_ -> (0,0)
 
 let rec loop () user map = 
-  Unix.sleepf(0.017);
-  clear_graph();
-  draw_image map 0 0;
+  Unix.sleep(0);
   let create_sprite dir = 
     Player.move user dir;
-    set_color (rgb 255 255 0); 
+    clear_graph ();
+    set_window "Pacman" black;
+    set_color blue;
+    draw_map map;
+    set_color yellow; 
     fill_circle (fst (get_position user)) (snd (get_position user)) 25;
   in
   create_sprite (parse_dir user (Graphics.read_key ())); 
@@ -43,11 +45,18 @@ let main (settings: string) : unit =
      draw_rect 100 100 map_width map_height; *)
   let map = make_map (100,100) "OCaml" in 
   draw_map map;
-  let map_image = get_image 0 0 window_width window_height in 
-  Graphics.set_color (rgb 255 255 0); 
-  Graphics.fill_circle 175 175 25;
-  Graphics.display_mode true;
-  ignore (loop () new_player map_image);
+  <<<<<<< HEAD
+let map_image = get_image 0 0 window_width window_height in 
+Graphics.set_color (rgb 255 255 0); 
+Graphics.fill_circle 175 175 25;
+Graphics.display_mode true;
+ignore (loop () new_player map_image);
+=======
+set_color yellow; 
+fill_circle 175 175 25;
+display_mode true;
+ignore (loop () new_player map);
+>>>>>>> 98db178c1c6fea7ffa5c81da0265a3afe2eb7d2b
   ()
 
 
