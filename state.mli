@@ -12,3 +12,6 @@ val ghosts: t -> Ghost.t list
 
 (** [current_level] is the current level of the player *)
 val current_level: t -> int
+
+(** [initial_state] initialies a new state for a new player *)
+val initial_state: Map.t -> Ghost.t list -> t

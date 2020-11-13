@@ -30,3 +30,10 @@ let ghosts state =
 
 let current_level state =
   state.current_level
+
+let initial_state map ghosts_entry=
+  {points = 0;
+   lives = 3;
+   ghosts = ghosts_entry;
+   current_level = 1;
+   map = map} 
