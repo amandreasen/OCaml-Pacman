@@ -29,7 +29,8 @@ let rec loop () user map =
     clear_graph ();
     set_window "Pacman" black;
     set_color blue;
-    draw_map map;
+    (**draw_map map;*)
+    draw_image map 0 0;
     set_color yellow; 
     fill_circle (fst (get_position user)) (snd (get_position user)) 25;
   in
@@ -45,18 +46,11 @@ let main (settings: string) : unit =
      draw_rect 100 100 map_width map_height; *)
   let map = make_map (100,100) "OCaml" in 
   draw_map map;
-  <<<<<<< HEAD
-let map_image = get_image 0 0 window_width window_height in 
-Graphics.set_color (rgb 255 255 0); 
-Graphics.fill_circle 175 175 25;
-Graphics.display_mode true;
-ignore (loop () new_player map_image);
-=======
-set_color yellow; 
-fill_circle 175 175 25;
-display_mode true;
-ignore (loop () new_player map);
->>>>>>> 98db178c1c6fea7ffa5c81da0265a3afe2eb7d2b
+  let map_image = get_image 0 0 window_width window_height in 
+  set_color yellow; 
+  fill_circle 175 175 25;
+  display_mode true;
+  ignore (loop () new_player map_image);
   ()
 
 

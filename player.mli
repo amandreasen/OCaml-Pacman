@@ -1,6 +1,7 @@
 type t
 
-(** [new_player] is a hard-coded player with initial coordinates (0,0). *)
+(** [new_player] is a hard-coded player with initial coordinates centered at 
+    (0,0). *)
 val new_player: t
 
 (** [get_position] returns the Player t's current position as a tuple (x, y).*)
