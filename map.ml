@@ -7,6 +7,7 @@ let food_radius = 3
 let special_radius = 6
 let food_color = rgb 255 184 245
 let wall_color = Graphics.blue
+let pacman_rad = 25
 
 type point = int * int
 
@@ -57,6 +58,116 @@ let coordinate_to_position (coordinate: coordinate) (map_corner: point) :
   let x_position = x_coordinate * tile_size in 
   let y_position = y_coordinate * tile_size in 
   (x_position, y_position)
+
+let check_contains pos bottom_left = 
+  if ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
+     ((fst) pos - pacman_rad <= (fst) bottom_left) &&
+     ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
+     ((snd) pos - pacman_rad <= (snd) bottom_left) then
+    true else false
+
+
+let get_tile_type2 pos (tile_array:map_tile array) = 
+  let h_list = Array.to_list tile_array in
+  let rec check_tile (list:map_tile list) =
+    match list with
+    | []-> ""
+    | h::t ->
+      if check_contains pos ((*position_to_coordinate*) h.bottom_left) then
+        match h.tile_type with
+        | Wall _ -> "Wall"
+        | Empty -> "Empty"
+        | Food -> "Food"
+        | Special -> "Special"
+
+      else check_tile t in
+  check_tile h_list
+
+let get_tile_type pos map=   
+  (* The position of the pacman is the center of the circle, each time it moves 
+     1/5 of a tile*)
+  let map_list = Array.to_list map.tiles in
+  let rec check_main map_l=
+    match map_l with
+    | []-> ""
+    | h::t -> 
+      match (get_tile_type2 pos h) with
+      | "" -> check_main t
+      | str-> str
+  in
+  check_main map_list
+
+let check_move2 pos (tile_array:map_tile array) = 
+  let h_list = Array.to_list tile_array in
+  let rec check_tile (list:map_tile list) =
+    match list with
+    | []-> ""
+    | h::t ->
+      if check_contains pos ((*position_to_coordinate*) h.bottom_left) then
+        match h.tile_type with
+        | Wall _ -> "Wall"
+        | Empty -> "Empty"
+        | Food -> "Food"
+        | Special ->"Special"
+
+      else check_tile t in
+  check_tile h_list
+
+let check_move pos map dir=   
+  (* The position of the pacman is the center of the circle, each time it moves 
+     1/5 of a tile*)
+  let new_pos = ((fst) pos + (fst) dir, (snd) pos + (snd) dir) in
+  let map_list = Array.to_list map.tiles in
+  let rec check_main map_l=
+    match map_l with
+    | []-> false
+    | h::t -> 
+      match (check_move2 new_pos h) with
+      | "Wall"-> false
+      | ("Empty" | "Food" | "Special") -> true
+      | _ -> check_main t
+  in
+  check_main map_list
+
+let check_food_tile pos map=   
+  (* The position of the pacman is the center of the circle, each time it moves 
+     1/5 of a tile*)
+  let map_list = Array.to_list map.tiles in
+  let acc=0 in
+  let rec check_main map_l=
+    match map_l with
+    | []-> acc
+    | h::t ->
+      match (check_move2 pos h) with
+      | "Food"-> acc+1
+      | ("Empty" | "Wall" | "Special") -> acc
+      | _ -> check_main t
+  in
+  check_main map_list
+
+let check_contains2 pos bottom_left = 
+  if ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
+     ((fst) pos - pacman_rad <= (fst) bottom_left) &&
+     ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
+     ((snd) pos - pacman_rad<= (snd) bottom_left) then
+    true else false
+
+let check_food pos map =
+  let (acc:int ref) = ref 0 in 
+  for i=0 to (Array.length map.tiles)-1 do
+    let row = map.tiles.(i) in
+    for j=0 to (Array.length row)-1 do
+      let tile=row.(j) in
+      if (check_contains pos tile.bottom_left) then begin
+        let new_tile = {bottom_left=tile.bottom_left;tile_type=Empty} in
+        if (!acc = 0) then
+          match tile.tile_type with
+          | Food  -> (acc := !acc + 1);
+            row.(j) <- new_tile; 
+          | _ -> row.(j) <- tile; end
+    done;
+
+  done
 
 let make_tile (x: int) (y: int) (map_corner: point) (tile_type: tile) :
   map_tile = 
@@ -366,3 +477,6 @@ let draw_map (map: t) : unit =
   ()
 
 let map (map: t) : map_tile array array = map.tiles
+
+
+

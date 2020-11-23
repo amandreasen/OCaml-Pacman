@@ -15,3 +15,6 @@ val current_level: t -> int
 
 (** [initial_state] initialies a new state for a new player *)
 val initial_state: Map.t -> Ghost.t list -> t
+
+
+val update_state_food: t -> Map.t -> t
