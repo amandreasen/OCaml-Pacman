@@ -16,6 +16,9 @@ build:
 test:
 	$(OCAMLBUILD) -tag 'debug' $(TEST) && ./$(TEST)
 
+bisect: clean test
+	bisect-ppx-report html
+	
 play:
 	$(OCAMLBUILD) $(MAIN) && ./$(MAIN)
 
