@@ -8,4 +8,6 @@
 *.byte
 _build
 
-*.byte
+# bisect
+_coverage
+bisect*.coverage
