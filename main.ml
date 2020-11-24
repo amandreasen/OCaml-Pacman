@@ -45,6 +45,12 @@ let move_ghosts ghosts map =
     new_g_pos rand_dir
   done
 
+let flush () = 
+  while Graphics.key_pressed () do 
+    ignore (Graphics.read_key());
+  done;
+  ()
+
 let rec loop () user map state= 
   Unix.sleepf(0.2);
 
@@ -67,8 +73,8 @@ let rec loop () user map state=
       fill_circle (fst (get_position user)) (snd (get_position user)) 25; 
     end
   in
-
-  create_sprite (parse_dir user (Graphics.read_key ())); 
+  create_sprite (parse_dir user (Graphics.read_key ()));
+  flush ();
 
   let ghosts = ghosts state in 
   (**move_ghosts ghosts map; *)  (** this line is faulty *)
