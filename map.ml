@@ -44,142 +44,6 @@ let standard_map =
     bottom_left = (0,0)
   } 
 
-let position_to_coordinate (position: point) : coordinate = 
-  let x_position = fst position in 
-  let y_position = snd position in 
-  let x_coordinate = x_position / tile_size in 
-  let y_coordinate = y_position / tile_size in 
-  (x_coordinate, y_coordinate)
-
-let coordinate_to_position (coordinate: coordinate) (map_corner: point) : 
-  point = 
-  let x_coordinate = fst coordinate in 
-  let y_coordinate = snd coordinate in 
-  let x_position = x_coordinate * tile_size in 
-  let y_position = y_coordinate * tile_size in 
-  (x_position, y_position)
-
-let check_contains pos bottom_left = 
-  if ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
-     ((fst) pos - pacman_rad <= (fst) bottom_left) &&
-     ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
-     ((snd) pos - pacman_rad <= (snd) bottom_left) then
-    true else false
-
-
-let get_tile_type2 pos (tile_array:map_tile array) = 
-  let h_list = Array.to_list tile_array in
-  let rec check_tile (list:map_tile list) =
-    match list with
-    | []-> ""
-    | h::t ->
-      if check_contains pos ((*position_to_coordinate*) h.bottom_left) then
-        match h.tile_type with
-        | Wall _ -> "Wall"
-        | Empty -> "Empty"
-        | Food -> "Food"
-        | Special -> "Special"
-
-      else check_tile t in
-  check_tile h_list
-
-let get_tile_type pos map=   
-  (* The position of the pacman is the center of the circle, each time it moves 
-     1/5 of a tile*)
-  let map_list = Array.to_list map.tiles in
-  let rec check_main map_l=
-    match map_l with
-    | []-> ""
-    | h::t -> 
-      match (get_tile_type2 pos h) with
-      | "" -> check_main t
-      | str-> str
-  in
-  check_main map_list
-
-let check_move2 pos (tile_array:map_tile array) = 
-  let h_list = Array.to_list tile_array in
-  let rec check_tile (list:map_tile list) =
-    match list with
-    | []-> ""
-    | h::t ->
-      if check_contains pos ((*position_to_coordinate*) h.bottom_left) then
-        match h.tile_type with
-        | Wall _ -> "Wall"
-        | Empty -> "Empty"
-        | Food -> "Food"
-        | Special ->"Special"
-
-      else check_tile t in
-  check_tile h_list
-
-let check_move pos map dir=   
-  (* The position of the pacman is the center of the circle, each time it moves 
-     1/5 of a tile*)
-  let new_pos = (fst pos + fst dir, snd pos + snd dir) in
-  let map_list = Array.to_list map.tiles in
-  let rec check_main map_l=
-    match map_l with
-    | []-> false
-    | h::t -> 
-      match (check_move2 new_pos h) with
-      | "Wall"-> false
-      | ("Empty" | "Food" | "Special") -> true
-      | _ -> check_main t
-  in
-  check_main map_list
-
-let check_food_tile pos map=   
-  (* The position of the pacman is the center of the circle, each time it moves 
-     1/5 of a tile*)
-  let map_list = Array.to_list map.tiles in
-  let acc=0 in
-  let rec check_main map_l=
-    match map_l with
-    | []-> acc
-    | h::t ->
-      match (check_move2 pos h) with
-      | "Food"-> acc+1
-      | ("Empty" | "Wall" | "Special") -> acc
-      | _ -> check_main t
-  in
-  check_main map_list
-
-let check_contains2 pos bottom_left = 
-  if ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
-     ((fst) pos - pacman_rad <= (fst) bottom_left) &&
-     ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
-     ((snd) pos - pacman_rad<= (snd) bottom_left) then
-    true else false
-
-let check_food pos map =
-  let (acc:int ref) = ref 0 in 
-  for i=0 to (Array.length map.tiles)-1 do
-    let row = map.tiles.(i) in
-    for j=0 to (Array.length row)-1 do
-      let tile=row.(j) in
-      if (check_contains pos tile.bottom_left) then begin
-        let new_tile = {bottom_left=tile.bottom_left;tile_type=Empty} in
-        if (!acc = 0) then
-          match tile.tile_type with
-          | Food  -> (acc := !acc + 1);
-            row.(j) <- new_tile; 
-          | _ -> row.(j) <- tile; end
-    done;
-
-  done
-
-let make_tile (x: int) (y: int) (map_corner: point) (tile_type: tile) :
-  map_tile = 
-  let map_x = fst map_corner in 
-  let map_y = snd map_corner in
-  let position = coordinate_to_position (x, y) map_corner in 
-  let shifted_position = (fst position + map_x, snd position + map_y) in
-  {
-    tile_type = tile_type;
-    bottom_left = shifted_position;
-  }
-
 let standard_maze = 
   [|
     [|Wall (Corner (Bot, Left)); Wall Vert; Wall Vert; Wall Vert; Wall Vert; 
@@ -300,6 +164,159 @@ let ocaml_maze =
       Wall(Corner (Top, Right))|];
   |]
 
+let check_contains pos bottom_left = 
+  if 
+    begin
+      ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
+      ((fst) pos - pacman_rad <= (fst) bottom_left) &&
+      ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
+      ((snd) pos - pacman_rad <= (snd) bottom_left) 
+    end 
+  then true 
+  else false
+
+let get_tile_type2 pos (tile_array:map_tile array) = 
+  let h_list = Array.to_list tile_array in
+  let rec check_tile (list:map_tile list) =
+    match list with
+    | []-> ""
+    | h::t ->
+      if check_contains pos ((*position_to_coordinate*) h.bottom_left) then
+        match h.tile_type with
+        | Wall _ -> "Wall"
+        | Empty -> "Empty"
+        | Food -> "Food"
+        | Special -> "Special"
+
+      else check_tile t in
+  check_tile h_list
+
+let get_tile_type pos map=   
+  (* The position of the pacman is the center of the circle, each time it moves 
+     1/5 of a tile*)
+  let map_list = Array.to_list map.tiles in
+  let rec check_main map_l=
+    match map_l with
+    | []-> ""
+    | h::t -> 
+      match (get_tile_type2 pos h) with
+      | "" -> check_main t
+      | str-> str
+  in
+  check_main map_list
+
+let check_move2 pos (tile_array:map_tile array) = 
+  let h_list = Array.to_list tile_array in
+  let rec check_tile (list:map_tile list) =
+    match list with
+    | []-> ""
+    | h::t ->
+      if check_contains pos ((*position_to_coordinate*) h.bottom_left) then
+        match h.tile_type with
+        | Wall _ -> "Wall"
+        | Empty -> "Empty"
+        | Food -> "Food"
+        | Special ->"Special"
+
+      else check_tile t in
+  check_tile h_list
+
+let check_move pos map dir=   
+  (* The position of the pacman is the center of the circle, each time it moves 
+     1/5 of a tile*)
+  let new_pos = (fst pos + fst dir, snd pos + snd dir) in
+  let map_list = Array.to_list map.tiles in
+  let rec check_main map_l=
+    match map_l with
+    | []-> false
+    | h::t -> 
+      match (check_move2 new_pos h) with
+      | "Wall"-> false
+      | ("Empty" | "Food" | "Special") -> true
+      | _ -> check_main t
+  in
+  check_main map_list
+
+let check_food_tile pos map=   
+  (* The position of the pacman is the center of the circle, each time it moves 
+     1/5 of a tile*)
+  let map_list = Array.to_list map.tiles in
+  let acc=0 in
+  let rec check_main map_l=
+    match map_l with
+    | []-> acc
+    | h::t ->
+      match (check_move2 pos h) with
+      | "Food"-> acc+1
+      | ("Empty" | "Wall" | "Special") -> acc
+      | _ -> check_main t
+  in
+  check_main map_list
+
+let check_contains2 pos bottom_left = 
+  if ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
+     ((fst) pos - pacman_rad <= (fst) bottom_left) &&
+     ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
+     ((snd) pos - pacman_rad<= (snd) bottom_left) then
+    true else false
+(* 
+let check_food pos map =
+  let (acc:int ref) = ref 0 in 
+  for i = 0 to (Array.length map.tiles) - 1 do
+    let col = map.tiles.(i) in
+    for j = 0 to (Array.length col) - 1 do
+      let tile = col.(j) in
+      if (check_contains pos tile.bottom_left) then 
+        begin
+          if (!acc = 0) then
+            match tile.tile_type with
+            | Food  -> 
+              let new_tile = {tile with tile_type = Empty} in
+              (acc := !acc + 1);
+              col.(j) <- new_tile; 
+            | _ -> ();
+        end
+    done;
+  done *)
+
+let map_shift = 100
+
+let position_to_coordinate (position: point) : coordinate = 
+  let x_position = fst position - map_shift in 
+  let y_position = snd position - map_shift in 
+  let x_coordinate = x_position / tile_size in 
+  let y_coordinate = y_position / tile_size in 
+  (x_coordinate, y_coordinate)
+
+let coordinate_to_position (coordinate: coordinate) (map_corner: point) : 
+  point = 
+  let x_coordinate = fst coordinate in 
+  let y_coordinate = snd coordinate in 
+  let x_position = x_coordinate * tile_size in 
+  let y_position = y_coordinate * tile_size in 
+  (x_position, y_position)
+
+let check_food pos map =
+  let coordinate = position_to_coordinate pos in 
+  let x = fst coordinate in 
+  let y = snd coordinate in 
+  let tile = map.tiles.(x).(y) in 
+  match tile.tile_type with 
+  | Food -> 
+    map.tiles.(x).(y) <- {tile with tile_type = Empty} 
+  | _ -> ()
+
+let make_tile (x: int) (y: int) (map_corner: point) (tile_type: tile) :
+  map_tile = 
+  let map_x = fst map_corner in 
+  let map_y = snd map_corner in
+  let position = coordinate_to_position (x, y) map_corner in 
+  let shifted_position = (fst position + map_x, snd position + map_y) in
+  {
+    tile_type = tile_type;
+    bottom_left = shifted_position;
+  }
+
 let make_tiles (x_dim: int) (y_dim: int) (map_corner: point) 
     (tile_types : tile array array): map_tile array array = 
   let default_tile = 
@@ -309,7 +326,7 @@ let make_tiles (x_dim: int) (y_dim: int) (map_corner: point)
     }
   in
   let tile_array = Array.make_matrix y_dim x_dim default_tile in
-  for i = 0 to 25 do 
+  for i = 0 to y_dim - 1 do 
     for j = 0 to x_dim - 1 do 
       tile_array.(i).(j) <- make_tile i j map_corner tile_types.(i).(j)
     done;

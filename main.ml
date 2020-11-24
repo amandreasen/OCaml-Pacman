@@ -46,43 +46,39 @@ let move_ghosts ghosts map =
   done
 
 let rec loop () user map state= 
-  <<<<<<< HEAD
-    Unix.sleepf(0.2);
-  =======
-  Unix.sleep(0);
+  Unix.sleepf(0.2);
 
-  >>>>>>> 20bc6d3629966efb348917281c4c770e8cec43c3
-let create_sprite dir = 
-  if (Map.check_move (get_position user) map dir) then begin
-    Player.move user dir;
-    clear_graph ();
-    set_window "Pacman" black;
-    set_color blue;
-    check_food (get_position user) map;
-    draw_map map;
-    (*draw_image map_image 0 0;*)
-    moveto 175 75;
-    set_color red;
-    let new_state = State.update_state_food state map in
-    draw_string (game_status new_state);
-    draw_string (tile_type (Map.get_tile_type (get_position user) map));
-    (*draw_string (check_move (Map.check_move (get_position user) map dir));*)
-    set_color yellow; 
-    fill_circle (fst (get_position user)) (snd (get_position user)) 25; 
-  end
-in
+  let create_sprite dir = 
+    if (Map.check_move (get_position user) map dir) then begin
+      Player.move user dir;
+      clear_graph ();
+      set_window "Pacman" black;
+      set_color blue;
+      check_food (get_position user) map;
+      draw_map map;
+      (*draw_image map_image 0 0;*)
+      moveto 175 75;
+      set_color red;
+      let new_state = State.update_state_food state map in
+      draw_string (game_status new_state);
+      draw_string (tile_type (Map.get_tile_type (get_position user) map));
+      (*draw_string (check_move (Map.check_move (get_position user) map dir));*)
+      set_color yellow; 
+      fill_circle (fst (get_position user)) (snd (get_position user)) 25; 
+    end
+  in
 
-create_sprite (parse_dir user (Graphics.read_key ())); 
+  create_sprite (parse_dir user (Graphics.read_key ())); 
 
-let ghosts = ghosts state in 
-(**move_ghosts ghosts map; *)  (** this line is faulty *)
-set_color cyan;
-for i = 0 to Array.length ghosts - 1 do 
-  let g = ghosts.(i) in 
-  fill_circle (fst (get_pos g)) (snd (get_pos g)) 24;
-done; 
+  let ghosts = ghosts state in 
+  (**move_ghosts ghosts map; *)  (** this line is faulty *)
+  set_color cyan;
+  for i = 0 to Array.length ghosts - 1 do 
+    let g = ghosts.(i) in 
+    fill_circle (fst (get_pos g)) (snd (get_pos g)) 24;
+  done; 
 
-loop () user map state
+  loop () user map state
 
 let main (settings: string) : unit = 
   open_graph settings;
