@@ -57,7 +57,7 @@ let flush () =
   ()
 
 let rec loop () user map state= 
-  Unix.sleep(0);
+  Unix.sleepf(0.2);
 
   let create_sprite dir = 
     if (Map.check_move (get_position user) map dir) then begin
@@ -79,7 +79,7 @@ let rec loop () user map state=
     end
   in
 
-  create_sprite (parse_dir (Graphics.read_key ())); 
+  create_sprite (parse_dir (Graphics.read_key ()));
   flush ();
 
   let ghosts = ghosts state in 
