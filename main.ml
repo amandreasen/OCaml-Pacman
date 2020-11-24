@@ -8,7 +8,7 @@ let window_height = 750
 let map_width = 1300
 let map_height = 550
 
-let move_amt = 10
+let move_amt = 12
 
 let game_status state = ("Points: " ^ string_of_int (points state)
                          ^ "   Lives: " ^ string_of_int (lives state)
@@ -28,7 +28,7 @@ let parse_dir (user: Player.t) (dir: char) =
   |_ -> (0,0)
 
 let rec loop () user map state= 
-  Unix.sleep(0);
+  Unix.sleepf(0.2);
   let create_sprite dir = 
     Player.move user dir;
     clear_graph ();
