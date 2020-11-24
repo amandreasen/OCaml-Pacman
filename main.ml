@@ -41,9 +41,10 @@ let parse_dir (dir: char) =
     it is a viable move. *)
 let move_ghosts ghosts map = 
   let rec new_g_pos (g : Ghost.t) (dir : int * int ) =  
-    if Map.check_move (Ghost.get_pos g) map dir 
-    then Ghost.move g dir 
-    else new_g_pos g rand_dir   
+    Ghost.move g dir 
+    (* if Map.check_move (Ghost.get_pos g) map dir 
+       then Ghost.move g dir 
+       else new_g_pos g rand_dir    *)
   in 
   Array.iter (fun g -> new_g_pos g rand_dir) ghosts 
 
@@ -54,21 +55,20 @@ let flush () =
   done;
   ()
 
-let rec loop () user map state= 
+let make_move user map dir = 
+  if (Map.check_move (get_position user) map dir) 
+  then (Player.move user dir;
+        check_food (get_position user) map;)
+
+let rec loop () user map state ghosts= 
   Unix.sleepf(0.2);
 
-  let make_move dir = 
-    if (Map.check_move (get_position user) map dir) then 
-      Player.move user dir;
-  in
-
-  make_move (parse_dir (Graphics.read_key ()));
+  make_move user map (parse_dir (Graphics.read_key ()));
   flush ();
 
   clear_graph ();
   set_window "Pacman" black;
   set_color blue;
-  check_food (get_position user) map;
   draw_map map;
   (*draw_image map_image 0 0;*)
   moveto 175 75;
@@ -80,15 +80,13 @@ let rec loop () user map state=
   set_color yellow; 
   fill_circle (fst (get_position user)) (snd (get_position user)) 25; 
 
-  let ghosts = ghosts state in 
   move_ghosts ghosts map; (** this line is faulty *)
   set_color cyan;
   for i = 0 to Array.length ghosts - 1 do 
     let g = ghosts.(i) in 
     fill_circle (fst (get_pos g)) (snd (get_pos g)) 25;
   done; 
-
-  loop () user map state
+  loop () user map state ghosts
 
 let main (settings: string) : unit = 
   open_graph settings;
@@ -112,7 +110,7 @@ let main (settings: string) : unit =
   let state = initial_state map ghost_arr in 
   set_color red;
   draw_string (game_status state);
-  ignore (loop () new_player map state);
+  ignore (loop () new_player map state (ghosts state));
   ()
 
 let () = 
