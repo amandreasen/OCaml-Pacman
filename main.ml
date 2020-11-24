@@ -11,9 +11,10 @@ let map_height = 550
 
 let move_amt = 50
 
-let game_status state = ("Points: " ^ string_of_int (points state)
-                         ^ "   Lives: " ^ string_of_int (lives state)
-                         ^ "   Level: " ^ string_of_int (current_level state))
+let game_status state = 
+  ("Points: " ^ string_of_int (points state)
+   ^ "   Lives: " ^ string_of_int (lives state)
+   ^ "   Level: " ^ string_of_int (current_level state))
 
 let tile_type str = ("Tile type: " ^ str)
 
@@ -26,7 +27,9 @@ let set_window (title: string) (color: Graphics.color) : unit =
   set_color black;
   fill_rect 0 0 (size_x ()) (size_y ())
 
-let parse_dir (user: Player.t) (dir: char) =
+(** [parse_dir] is the tuple representing the change in coordinates from the 
+    user's character input. *)
+let parse_dir (dir: char) =
   match dir with 
   |'w' ->  (0, move_amt)
   |'s' -> (0, -move_amt)
@@ -34,6 +37,8 @@ let parse_dir (user: Player.t) (dir: char) =
   |'d' -> (move_amt, 0)
   |_ -> (0,0)
 
+(** [move_ghosts] randomly moves each ghost to a neighboring cell, so long as 
+    it is a viable move. *)
 let move_ghosts ghosts map = 
   for i = 0 to Array.length ghosts - 1 do 
     let g = ghosts.(i) in 
@@ -68,14 +73,14 @@ let rec loop () user map state=
     end
   in
 
-  create_sprite (parse_dir user (Graphics.read_key ())); 
+  create_sprite (parse_dir (Graphics.read_key ())); 
 
   let ghosts = ghosts state in 
-  (**move_ghosts ghosts map; *)  (** this line is faulty *)
+  (**move_ghosts ghosts map;*)  (** this line is faulty *)
   set_color cyan;
   for i = 0 to Array.length ghosts - 1 do 
     let g = ghosts.(i) in 
-    fill_circle (fst (get_pos g)) (snd (get_pos g)) 24;
+    fill_circle (fst (get_pos g)) (snd (get_pos g)) 25;
   done; 
 
   loop () user map state
@@ -95,16 +100,15 @@ let main (settings: string) : unit =
   moveto 175 75;
   let ghost1 = Ghost.new_g 675 375 in 
   set_color cyan;
-  fill_circle (fst (get_pos ghost1)) (snd (get_pos ghost1)) 24;
+  fill_circle (fst (get_pos ghost1)) (snd (get_pos ghost1)) 25;
   let ghost2 = Ghost.new_g 725 375 in 
-  fill_circle (fst (get_pos ghost2)) (snd (get_pos ghost2)) 24;
+  fill_circle (fst (get_pos ghost2)) (snd (get_pos ghost2)) 25;
   let ghost_arr = [|ghost1; ghost2|] in 
   let state = initial_state map ghost_arr in 
   set_color red;
   draw_string (game_status state);
   ignore (loop () new_player map state);
   ()
-
 
 let () = 
   let settings = 
