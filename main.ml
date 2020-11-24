@@ -40,15 +40,13 @@ let parse_dir (dir: char) =
 (** [move_ghosts] randomly moves each ghost to a neighboring cell, so long as 
     it is a viable move. *)
 let move_ghosts ghosts map = 
-  for i = 0 to Array.length ghosts - 1 do 
-    let g = ghosts.(i) in 
-    let rec new_g_pos dir =  
-      if Map.check_move (Ghost.get_pos g) map dir 
-      then Ghost.move g dir 
-      else new_g_pos rand_dir  
-    in 
-    new_g_pos rand_dir
-  done
+  let rec new_g_pos (g : Ghost.t) (dir : int * int ) =  
+    if Map.check_move (Ghost.get_pos g) map dir 
+    then Ghost.move g dir 
+    else new_g_pos g rand_dir   
+  in 
+  Array.iter (fun g -> new_g_pos g rand_dir) ghosts 
+
 
 let flush () = 
   while Graphics.key_pressed () do 
@@ -59,31 +57,31 @@ let flush () =
 let rec loop () user map state= 
   Unix.sleepf(0.2);
 
-  let create_sprite dir = 
-    if (Map.check_move (get_position user) map dir) then begin
+  let make_move dir = 
+    if (Map.check_move (get_position user) map dir) then 
       Player.move user dir;
-      clear_graph ();
-      set_window "Pacman" black;
-      set_color blue;
-      check_food (get_position user) map;
-      draw_map map;
-      (*draw_image map_image 0 0;*)
-      moveto 175 75;
-      set_color red;
-      let new_state = State.update_state_food state map in
-      draw_string (game_status new_state);
-      draw_string (tile_type (Map.get_tile_type (get_position user) map));
-      (*draw_string (check_move (Map.check_move (get_position user) map dir));*)
-      set_color yellow; 
-      fill_circle (fst (get_position user)) (snd (get_position user)) 25; 
-    end
   in
 
-  create_sprite (parse_dir (Graphics.read_key ()));
+  make_move (parse_dir (Graphics.read_key ()));
   flush ();
 
+  clear_graph ();
+  set_window "Pacman" black;
+  set_color blue;
+  check_food (get_position user) map;
+  draw_map map;
+  (*draw_image map_image 0 0;*)
+  moveto 175 75;
+  set_color red;
+  let new_state = State.update_state_food state map in
+  draw_string (game_status new_state);
+  (*draw_string (tile_type (Map.get_tile_type (get_position user) map));*)
+  (*draw_string (check_move (Map.check_move (get_position user) map dir));*)
+  set_color yellow; 
+  fill_circle (fst (get_position user)) (snd (get_position user)) 25; 
+
   let ghosts = ghosts state in 
-  (**move_ghosts ghosts map;*)  (** this line is faulty *)
+  move_ghosts ghosts map; (** this line is faulty *)
   set_color cyan;
   for i = 0 to Array.length ghosts - 1 do 
     let g = ghosts.(i) in 
@@ -108,9 +106,9 @@ let main (settings: string) : unit =
   let ghost1 = Ghost.new_g 675 375 in 
   set_color cyan;
   fill_circle (fst (get_pos ghost1)) (snd (get_pos ghost1)) 25;
-  let ghost2 = Ghost.new_g 725 375 in 
-  fill_circle (fst (get_pos ghost2)) (snd (get_pos ghost2)) 25;
-  let ghost_arr = [|ghost1; ghost2|] in 
+  (* let ghost2 = Ghost.new_g 725 375 in 
+     fill_circle (fst (get_pos ghost2)) (snd (get_pos ghost2)) 25; *)
+  let ghost_arr = [|ghost1|] in 
   let state = initial_state map ghost_arr in 
   set_color red;
   draw_string (game_status state);
