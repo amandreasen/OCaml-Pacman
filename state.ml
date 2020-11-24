@@ -14,7 +14,7 @@ type t =
   {
     points:int;
     lives:int;
-    ghosts: Ghost.t list;
+    ghosts: Ghost.t array;
     current_level: int;
     map: Map.t;
   }
@@ -32,8 +32,15 @@ let current_level state =
   state.current_level
 
 let initial_state map ghosts_entry=
-  {points = 0;
+  {points = 5;
    lives = 3;
    ghosts = ghosts_entry;
    current_level = 1;
    map = map} 
+
+let update_state_food state map =
+  {points = state.points + 1;
+   lives = 3;
+   ghosts = state.ghosts;
+   current_level = 1;
+   map = map}
