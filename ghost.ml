@@ -12,10 +12,10 @@ let move (ghost : t) (dir : int * int) =
   ghost.x <- ghost.x + fst dir; 
   ghost.y <- ghost.y + snd dir 
 
-let rand_dir = 
-  match Random.int 4 with 
-  | 0 -> (50,0)
-  | 1 -> (0,50)
-  | 2 -> (-50,0)
-  | 3 -> (0,-50)
-  | _ -> (0,0)
+(* let rand_dir = function
+   (* match  Random.self_init (); Random.int 4 with  *)
+   | 0 -> (50,0)
+   | 1 -> (0,50)
+   | 2 -> (-50,0)
+   | 3 -> (0,-50)
+   | _ -> (0,0) *)

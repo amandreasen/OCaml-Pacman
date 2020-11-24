@@ -37,17 +37,28 @@ let parse_dir (dir: char) =
   |'d' -> (move_amt, 0)
   |_ -> (0,0)
 
+(** [rand_char] is the char for a movement as determined by [num]. For ghost 
+    movement, [num] is a random int in the range [0,3]. *)
+let rand_char num = 
+  match num with 
+  | 0 -> 'w'
+  | 1 -> 's'
+  | 2 -> 'a'
+  | 3 -> 'd'
+  | _ -> 'z'
+
 (** [move_ghosts] randomly moves each ghost to a neighboring cell, so long as 
     it is a viable move. *)
 let move_ghosts ghosts map = 
-  let rec new_g_pos (g : Ghost.t) (dir : int * int ) =  
-    Ghost.move g dir 
-    (* if Map.check_move (Ghost.get_pos g) map dir 
-       then Ghost.move g dir 
-       else new_g_pos g rand_dir    *)
+  let rec new_g_pos (g : Ghost.t) (dir : int * int) =  
+    if Map.check_move (Ghost.get_pos g) map dir 
+    then Ghost.move g dir 
+    else new_g_pos g (parse_dir (rand_char (Random.self_init (); Random.int 4)))
   in 
-  Array.iter (fun g -> new_g_pos g rand_dir) ghosts 
-
+  Array.iter (fun g -> 
+      new_g_pos g (Random.self_init (); parse_dir 
+                     (rand_char (Random.self_init (); Random.int 4)))) 
+    ghosts 
 
 let flush () = 
   while Graphics.key_pressed () do 
@@ -61,10 +72,12 @@ let make_move user map dir =
         check_food (get_position user) map;)
 
 let rec loop () user map state ghosts= 
-  Unix.sleepf(0.2);
+  Unix.sleepf(0.3);
 
-  make_move user map (parse_dir (Graphics.read_key ()));
-  flush ();
+  (** if key is pressed then move the player, otherwise only move ghosts. *)
+  if Graphics.key_pressed () then 
+    (make_move user map (parse_dir (Graphics.read_key ()));
+     flush ());
 
   clear_graph ();
   set_window "Pacman" black;
@@ -104,9 +117,9 @@ let main (settings: string) : unit =
   let ghost1 = Ghost.new_g 675 375 in 
   set_color cyan;
   fill_circle (fst (get_pos ghost1)) (snd (get_pos ghost1)) 25;
-  (* let ghost2 = Ghost.new_g 725 375 in 
-     fill_circle (fst (get_pos ghost2)) (snd (get_pos ghost2)) 25; *)
-  let ghost_arr = [|ghost1|] in 
+  let ghost2 = Ghost.new_g 725 375 in 
+  fill_circle (fst (get_pos ghost2)) (snd (get_pos ghost2)) 25;
+  let ghost_arr = [|ghost1; ghost2|] in 
   let state = initial_state map ghost_arr in 
   set_color red;
   draw_string (game_status state);
