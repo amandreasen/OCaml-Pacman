@@ -116,7 +116,7 @@ let check_move2 pos (tile_array:map_tile array) =
 let check_move pos map dir=   
   (* The position of the pacman is the center of the circle, each time it moves 
      1/5 of a tile*)
-  let new_pos = ((fst) pos + (fst) dir, (snd) pos + (snd) dir) in
+  let new_pos = (fst pos + fst dir, snd pos + snd dir) in
   let map_list = Array.to_list map.tiles in
   let rec check_main map_l=
     match map_l with

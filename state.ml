@@ -14,7 +14,7 @@ type t =
   {
     points:int;
     lives:int;
-    ghosts: Ghost.t list;
+    ghosts: Ghost.t array;
     current_level: int;
     map: Map.t;
   }

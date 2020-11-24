@@ -2,6 +2,7 @@ open Graphics
 open Map
 open Player
 open State
+open Ghost
 
 let window_width = 1500
 let window_height = 750
@@ -33,8 +34,20 @@ let parse_dir (user: Player.t) (dir: char) =
   |'d' -> (move_amt, 0)
   |_ -> (0,0)
 
+let move_ghosts ghosts map = 
+  for i = 0 to Array.length ghosts - 1 do 
+    let g = ghosts.(i) in 
+    let rec new_g_pos dir =  
+      if Map.check_move (Ghost.get_pos g) map dir 
+      then Ghost.move g dir 
+      else new_g_pos rand_dir  
+    in 
+    new_g_pos rand_dir
+  done
+
 let rec loop () user map state= 
   Unix.sleep(0);
+
   let create_sprite dir = 
     if (Map.check_move (get_position user) map dir) then begin
       Player.move user dir;
@@ -51,9 +64,20 @@ let rec loop () user map state=
       draw_string (tile_type (Map.get_tile_type (get_position user) map));
       (*draw_string (check_move (Map.check_move (get_position user) map dir));*)
       set_color yellow; 
-      fill_circle (fst (get_position user)) (snd (get_position user)) 25; end
+      fill_circle (fst (get_position user)) (snd (get_position user)) 25; 
+    end
   in
+
   create_sprite (parse_dir user (Graphics.read_key ())); 
+
+  let ghosts = ghosts state in 
+  (**move_ghosts ghosts map; *)  (** this line is faulty *)
+  set_color cyan;
+  for i = 0 to Array.length ghosts - 1 do 
+    let g = ghosts.(i) in 
+    fill_circle (fst (get_pos g)) (snd (get_pos g)) 24;
+  done; 
+
   loop () user map state
 
 let main (settings: string) : unit = 
@@ -65,11 +89,17 @@ let main (settings: string) : unit =
      draw_rect 100 100 map_width map_height; *)
   let map = make_map (100,100) "OCaml" in 
   draw_map map;
-  let map_image = get_image 0 0 window_width window_height in 
+  (* let map_image = get_image 0 0 window_width window_height in  *)
   set_color yellow; 
   fill_circle 175 175 25;
   moveto 175 75;
-  let state = initial_state map [] in 
+  let ghost1 = Ghost.new_g 675 375 in 
+  set_color cyan;
+  fill_circle (fst (get_pos ghost1)) (snd (get_pos ghost1)) 24;
+  let ghost2 = Ghost.new_g 725 375 in 
+  fill_circle (fst (get_pos ghost2)) (snd (get_pos ghost2)) 24;
+  let ghost_arr = [|ghost1; ghost2|] in 
+  let state = initial_state map ghost_arr in 
   set_color red;
   draw_string (game_status state);
   ignore (loop () new_player map state);
