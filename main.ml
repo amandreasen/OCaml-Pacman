@@ -123,8 +123,8 @@ and draw_player user =
   set_color yellow; 
   fill_circle x y player_radius
 (* let x = fst (get_position user) in 
-   let y = snd (get_position user) in  *)
-(* draw_image (Graphic_image.of_image (sprite_image (player_image new_player))) 
+   let y = snd (get_position user) in 
+   draw_image ((sprite_image (player_image new_player))) 
    (x-player_radius) (y-player_radius); *)
 (* Graphic_image.draw_image (sprite_image (player_image new_player)) 
    150 150; *)
@@ -150,7 +150,7 @@ let main (settings: string) : unit =
   draw_map map;
   (* let map_image = get_image 0 0 window_width window_height in  *)
   set_color yellow; 
-  (* draw_image (Graphic_image.of_image (sprite_image (player_image new_player))) 
+  (* draw_image ((sprite_image (player_image new_player))) 
      150 150; *)
   (* Graphic_image.draw_image (sprite_image (player_image new_player)) 
      150 150; *)
