@@ -71,39 +71,65 @@ let flush () =
   done;
   ()
 
-let make_move user map dir = 
-  if (Map.check_move (get_position user) map dir) 
-  then (Player.move user dir;
-        check_food (get_position user) map;)
+(** [pick_move] is the viable move that the player can make given their current
+    command and their previous move. *)
+let pick_move user map next prev  = 
+  if Map.check_move (get_position user) map next
+  then next else
+  if Map.check_move (get_position user) map prev
+  then prev
+  else (0,0)
 
-let rec loop () user map state ghosts= 
+(** [make_move] moves the player in the direction specificed by [dir] and 
+    consumes food on the new tile, if there is any food. *)
+let make_move user map dir  = 
+  Player.move user dir; 
+  check_food (get_position user) map
+
+let rec loop () user map state ghosts prev_move prev_move_attempt = 
   Unix.sleepf(0.3);
-  (** if key is pressed then move the player, otherwise only move ghosts. *)
-  if Graphics.key_pressed () then 
-    (make_move user map (parse_dir (Graphics.read_key ()));
-     flush ());
-
-  clear_graph ();
-  set_window "Pacman" black;
-  set_color blue;
-  draw_map map;
+  let next_move = 
+    if Graphics.key_pressed () 
+    then parse_dir (Graphics.read_key ())
+    else prev_move_attempt 
+  in 
+  flush ();
+  let current_move = pick_move user map next_move prev_move in 
+  make_move user map current_move;
+  draw_current_map map;
   (*draw_image map_image 0 0;*)
-  moveto 175 75;
-  set_color red;
   let new_state = State.update_state_food state map in
-  draw_string (game_status new_state);
+  draw_state new_state;
   (*draw_string (tile_type (Map.get_tile_type (get_position user) map));*)
   (*draw_string (check_move (Map.check_move (get_position user) map dir));*)
-  set_color yellow; 
-  fill_circle (fst (get_position user)) (snd (get_position user)) player_radius; 
-
+  draw_player user;
   move_ghosts ghosts map; 
+  draw_ghosts (ghosts);
+  loop () user map state ghosts current_move next_move
+
+and draw_ghosts ghosts = 
   set_color cyan;
   for i = 0 to Array.length ghosts - 1 do 
     let g = ghosts.(i) in 
     fill_circle (fst (get_pos g)) (snd (get_pos g)) ghost_radius;
-  done; 
-  loop () user map state ghosts
+  done
+
+and draw_player user = 
+  let x = fst (get_position user) in 
+  let y = snd (get_position user) in 
+  set_color yellow; 
+  fill_circle x y player_radius
+
+and draw_current_map map = 
+  clear_graph ();
+  set_window "Pacman" black;
+  set_color blue;
+  draw_map map
+
+and draw_state state = 
+  moveto 175 75;
+  set_color red;
+  draw_string (game_status state)
 
 let main (settings: string) : unit = 
   open_graph settings;
@@ -112,7 +138,7 @@ let main (settings: string) : unit =
   fill_rect 0 0 window_width window_height;
   (* set_color blue;
      draw_rect 100 100 map_width map_height; *)
-  let map = make_map (100,100) "OCaml" in 
+  let map = make_map (100,100) "standard" in 
   draw_map map;
   (* let map_image = get_image 0 0 window_width window_height in  *)
   set_color yellow; 
@@ -126,7 +152,7 @@ let main (settings: string) : unit =
   set_color red;
   set_text_size 32;
   draw_string (game_status state);
-  ignore (loop () new_player map state (ghosts state));
+  ignore (loop () new_player map state (ghosts state) (0,0) (0,0));
   ()
 
 let () = 

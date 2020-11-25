@@ -37,11 +37,11 @@ let ghost_1 = new_g 225 275
 let player_tests =
   [
     player_move_pos_test "Initial position at (175,175)"
-      player_1 (0,0) (175,175);
+      new_player (0,0) (175,175);
     player_move_pos_test "Initial player moves up 50" 
-      player_1 (175,175) (175,225);
+      player_1 (0,50) (175,225);
     player_move_pos_test "After moving up 50, move right 50" 
-      player_1 (175,225) (225,225);
+      player_1 (50,50) (225,225);
 
     ghost_move_pos_test "start position at (225,275) and move (0,0)" 
       ghost_1 (0,0) (225,275);
