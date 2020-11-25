@@ -9,7 +9,10 @@ let window_height = 750
 let map_width = 1300
 let map_height = 550
 
-let move_amt = 50
+let ghost_radius = 25
+let player_radius = 25 
+
+let move_amt = 50 
 
 let game_status state = 
   ("Points: " ^ string_of_int (points state)
@@ -26,6 +29,8 @@ let set_window (title: string) (color: Graphics.color) : unit =
   set_window_title title;
   set_color black;
   fill_rect 0 0 (size_x ()) (size_y ())
+
+let num_ghosts = 2
 
 (** [parse_dir] is the tuple representing the change in coordinates from the 
     user's character input. *)
@@ -90,13 +95,13 @@ let rec loop () user map state ghosts=
   (*draw_string (tile_type (Map.get_tile_type (get_position user) map));*)
   (*draw_string (check_move (Map.check_move (get_position user) map dir));*)
   set_color yellow; 
-  fill_circle (fst (get_position user)) (snd (get_position user)) 25; 
+  fill_circle (fst (get_position user)) (snd (get_position user)) player_radius; 
 
-  move_ghosts ghosts map; (** this line is faulty *)
+  move_ghosts ghosts map; 
   set_color cyan;
   for i = 0 to Array.length ghosts - 1 do 
     let g = ghosts.(i) in 
-    fill_circle (fst (get_pos g)) (snd (get_pos g)) 25;
+    fill_circle (fst (get_pos g)) (snd (get_pos g)) ghost_radius;
   done; 
   loop () user map state ghosts
 
@@ -111,7 +116,7 @@ let main (settings: string) : unit =
   draw_map map;
   (* let map_image = get_image 0 0 window_width window_height in  *)
   set_color yellow; 
-  fill_circle 175 175 25;
+  fill_circle 175 175 player_radius;
   moveto 175 75;
   let ghost1 = Ghost.new_g 675 375 in 
   set_color cyan;
@@ -121,6 +126,7 @@ let main (settings: string) : unit =
   let ghost_arr = [|ghost1; ghost2|] in 
   let state = initial_state map ghost_arr in 
   set_color red;
+  set_text_size 32;
   draw_string (game_status state);
   ignore (loop () new_player map state (ghosts state));
   ()

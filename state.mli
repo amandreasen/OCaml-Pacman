@@ -17,3 +17,9 @@ val current_level: t -> int
 val initial_state: Map.t -> Ghost.t array -> t
 
 val update_state_food: t -> Map.t -> t
+
+(** [make_ghosts] is the array of n number of ghosts where the second and third 
+    inputs are the minimum x and y values, respectively. Initially the ghosts 
+    are all lined up in a row horizontally starting from the minimum x and y 
+    values. 
+    val make_ghosts: int -> int -> int -> Ghost.t array *)
