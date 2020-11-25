@@ -1,4 +1,5 @@
 open Graphics
+open Graphic_image
 open Images
 open Map
 open Player
@@ -117,13 +118,17 @@ and draw_ghosts ghosts =
   done
 
 and draw_player user = 
+  (* let x = fst (get_position user) in 
+     let y = snd (get_position user) in 
+     set_color yellow; 
+     fill_circle x y player_radius *)
   let x = fst (get_position user) in 
   let y = snd (get_position user) in 
-  set_color yellow; 
-  fill_circle x y player_radius
-(* let x = fst (get_position user) in 
-   let y = snd (get_position user) in 
-   draw_image ((sprite_image (player_image new_player))) 
+  let sprite = (sprite_image (player_image new_player)) in
+  let image = Graphic_image.of_image sprite in 
+  Graphics.draw_image image (x-player_radius) (y-player_radius)
+
+(* draw_image ((sprite_image (player_image new_player))) 
    (x-player_radius) (y-player_radius); *)
 (* Graphic_image.draw_image (sprite_image (player_image new_player)) 
    150 150; *)

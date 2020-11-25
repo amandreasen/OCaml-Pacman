@@ -40,3 +40,6 @@ order, uninstall and then reinstall camlimages).
 
 Mac: 
 1. Install camlimages using "sudo port install camlimages" 
+
+***NEW
+1. Run 'opam update', then 'opam upgrade' to upgrade packages to newest versions.
