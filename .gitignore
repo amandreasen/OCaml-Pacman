@@ -1,3 +1,8 @@
+# assignment
+doc.public
+doc.private
+finalproject.zip
+
 # ocaml
 *.cmo
 *.cma
@@ -8,4 +13,12 @@
 *.byte
 _build
 
-*.byte
+# bisect
+_coverage
+bisect*.coverage
+
+# temporary files
+*.swp
+*~
+\#*\#
+.DS_Store

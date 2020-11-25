@@ -1,4 +1,7 @@
 B _build
-PKG graphics
+PKG unix
 PKG ounit2
-PKG camlimages camlimages.all_formats 
+PKG graphics
+PKG camlimages camlimages.all_formats camlimages.png camlimages.graphics
+PKG ocamlbuild
+PKG bisect_ppx-ocamlbuild

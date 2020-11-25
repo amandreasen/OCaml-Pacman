@@ -1,7 +1,7 @@
 type t
 
 (** [new_player] is a hard-coded player with initial coordinates centered at 
-    (0,0). *)
+    (175,175). *)
 val new_player: t
 
 (** [get_position] returns the Player t's current position as a tuple (x, y).*)
@@ -14,4 +14,4 @@ val get_position: t -> int * int
 val move: t -> int * int -> unit 
 
 
-val draw_player: t -> unit
+val player_image: t -> Sprite.t

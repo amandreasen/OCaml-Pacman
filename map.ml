@@ -254,11 +254,10 @@ let check_food_tile pos map=
   check_main map_list
 
 let check_contains2 pos bottom_left = 
-  if ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
-     ((fst) pos - pacman_rad <= (fst) bottom_left) &&
-     ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
-     ((snd) pos - pacman_rad<= (snd) bottom_left) then
-    true else false
+  ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
+  ((fst) pos - pacman_rad <= (fst) bottom_left) &&
+  ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
+  ((snd) pos - pacman_rad<= (snd) bottom_left) 
 (* 
 let check_food pos map =
   let (acc:int ref) = ref 0 in 
