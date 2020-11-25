@@ -10,7 +10,7 @@ type t = {
 (**let new_player = {image = Sprite.make_sprite "pacman.png"; x = 0; y = 0}*)
 let new_player = 
   {x = 175; 
-   y = 175}
+   y = 175;}
 (* image = Sprite.make_sprite "pacman.png"} *)
 
 let get_position player = 
@@ -24,10 +24,9 @@ let move (player : t) (dir : int * int) =
 let player_image user = 
   (* user.image *)
   failwith "unimplemented"
-(**  display_mode true;
-     ignore (user.image);
-     ()
-*)
+(* *  display_mode true; *)
+(* ignore (user.image); *)
+
 
 
 

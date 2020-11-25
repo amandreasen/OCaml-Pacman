@@ -1,5 +1,4 @@
 open Graphics
-open Graphic_image
 open Images
 open Map
 open Player
