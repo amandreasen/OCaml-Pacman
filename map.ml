@@ -292,8 +292,8 @@ let coordinate_to_position (coordinate: coordinate) (map_corner: point) :
   point = 
   let x_coordinate = fst coordinate in 
   let y_coordinate = snd coordinate in 
-  let x_position = x_coordinate * tile_size in 
-  let y_position = y_coordinate * tile_size in 
+  let x_position = x_coordinate * tile_size + map_shift in 
+  let y_position = y_coordinate * tile_size + map_shift in 
   (x_position, y_position)
 
 let check_food pos map =
@@ -308,13 +308,10 @@ let check_food pos map =
 
 let make_tile (x: int) (y: int) (map_corner: point) (tile_type: tile) :
   map_tile = 
-  let map_x = fst map_corner in 
-  let map_y = snd map_corner in
   let position = coordinate_to_position (x, y) map_corner in 
-  let shifted_position = (fst position + map_x, snd position + map_y) in
   {
     tile_type = tile_type;
-    bottom_left = shifted_position;
+    bottom_left = position;
   }
 
 let make_tiles (x_dim: int) (y_dim: int) (map_corner: point) 
