@@ -1,8 +1,11 @@
 open Graphics
+open Graphic_image
+open Images
 open Map
 open Player
 open State
 open Ghost
+open Sprite
 
 let window_width = 1500
 let window_height = 750
@@ -119,7 +122,12 @@ and draw_player user =
   let y = snd (get_position user) in 
   set_color yellow; 
   fill_circle x y player_radius
-
+(* let x = fst (get_position user) in 
+   let y = snd (get_position user) in  *)
+(* draw_image (Graphic_image.of_image (sprite_image (player_image new_player))) 
+   (x-player_radius) (y-player_radius); *)
+(* Graphic_image.draw_image (sprite_image (player_image new_player)) 
+   150 150; *)
 and draw_current_map map = 
   clear_graph ();
   set_window "Pacman" black;
@@ -142,6 +150,10 @@ let main (settings: string) : unit =
   draw_map map;
   (* let map_image = get_image 0 0 window_width window_height in  *)
   set_color yellow; 
+  (* draw_image (Graphic_image.of_image (sprite_image (player_image new_player))) 
+     150 150; *)
+  (* Graphic_image.draw_image (sprite_image (player_image new_player)) 
+     150 150; *)
   fill_circle 175 175 player_radius;
   moveto 175 75;
   let state = initial_state map (State.make_ghosts num_ghosts 675 375) in 

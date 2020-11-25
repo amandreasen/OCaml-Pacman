@@ -14,4 +14,4 @@ val get_position: t -> int * int
 val move: t -> int * int -> unit 
 
 
-val draw_player: t -> unit
+val player_image: t -> Sprite.t
