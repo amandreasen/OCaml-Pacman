@@ -118,13 +118,11 @@ let main (settings: string) : unit =
   set_color yellow; 
   fill_circle 175 175 player_radius;
   moveto 175 75;
-  let ghost1 = Ghost.new_g 675 375 in 
-  set_color cyan;
-  fill_circle (fst (get_pos ghost1)) (snd (get_pos ghost1)) 25;
-  let ghost2 = Ghost.new_g 725 375 in 
-  fill_circle (fst (get_pos ghost2)) (snd (get_pos ghost2)) 25;
-  let ghost_arr = [|ghost1; ghost2|] in 
-  let state = initial_state map ghost_arr in 
+  let state = initial_state map (State.make_ghosts num_ghosts 675 375) in 
+  set_color cyan; 
+  Array.iter (fun g -> 
+      fill_circle (fst (get_pos g)) (snd (get_pos g)) ghost_radius) 
+    (ghosts state);
   set_color red;
   set_text_size 32;
   draw_string (game_status state);
