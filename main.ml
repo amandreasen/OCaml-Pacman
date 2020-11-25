@@ -73,7 +73,6 @@ let make_move user map dir =
 
 let rec loop () user map state ghosts= 
   Unix.sleepf(0.3);
-
   (** if key is pressed then move the player, otherwise only move ghosts. *)
   if Graphics.key_pressed () then 
     (make_move user map (parse_dir (Graphics.read_key ()));

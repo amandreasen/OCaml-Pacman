@@ -1,4 +1,3 @@
 <{player,ghost,state,map}.ml>: coverage
 <test.{byte,native}>: coverage
-true: package(ounit2), package(graphics), 
-package(camlimages, camlimages.all_formats), package(bisect_ppx)
+true: package(ounit2), package(graphics), package(camlimages, camlimages.all_formats), package(bisect_ppx)

@@ -2,4 +2,5 @@ B _build
 PKG ounit2
 PKG graphics
 PKG camlimages camlimages.all_formats 
+PKG ocamlbuild
 PKG bisect_ppx-ocamlbuild
