@@ -30,3 +30,5 @@ val incr_following_count: t -> unit
 val reset_following: t -> unit
 
 val start_following: t -> unit
+
+val set_prev_move: t -> int * int -> unit

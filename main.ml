@@ -91,40 +91,51 @@ let will_follow ghost map dir_attempt =
   if continue then Ghost.move ghost dir_attempt; 
   continue
 
+let rec randomly_move_ghost ghost map dir = 
+  if Map.check_move (Ghost.get_pos ghost) map dir 
+  then begin set_prev_move ghost dir; 
+    Ghost.move ghost dir end 
+  else randomly_move_ghost ghost map 
+      (parse_dir (rand_char (Random.self_init (); Random.int 4)))
+
+(** TODO: there's a lot of repeated code here. rochelle will get to that soon *)
 let move_ghost_following ghost map user = 
+  incr_following_count ghost;
   let position_difference = position_diff ghost user in 
   let x_sign = number_sign (fst position_difference) in 
   let y_sign = number_sign (snd position_difference) in 
   match position_difference with
   | (n,0) -> let dir_attempt = (x_sign * move_amt, 0) in 
-    if will_follow ghost map dir_attempt then start_following ghost
+    if will_follow ghost map dir_attempt 
+    then begin start_following ghost; set_prev_move ghost dir_attempt end
   | (0,m) -> let dir_attempt = (0, y_sign * move_amt) in 
-    if will_follow ghost map dir_attempt then start_following ghost
+    if will_follow ghost map dir_attempt 
+    then begin start_following ghost; set_prev_move ghost dir_attempt end
   | (n,m) -> let dir_attempt = (x_sign * move_amt, 0) in 
-    if will_follow ghost map dir_attempt then start_following ghost
+    if will_follow ghost map dir_attempt 
+    then begin start_following ghost; set_prev_move ghost dir_attempt end
     else let dir_attempt = (0, y_sign * move_amt) in
-      if will_follow ghost map dir_attempt then start_following ghost
+      if will_follow ghost map dir_attempt 
+      then begin start_following ghost; set_prev_move ghost dir_attempt end
+      else reset_following ghost; 
+      randomly_move_ghost ghost map 
+        (Random.self_init (); 
+         parse_dir (rand_char (Random.self_init (); Random.int 4)))
 
-
-(** [move_ghosts] randomly moves each ghost to a neighboring cell, so long as 
-    it is a viable move. *)
 let move_ghosts ghosts map user = 
-  let rec new_g_pos (g : Ghost.t) (dir : int * int) =  
-    if Map.check_move (Ghost.get_pos g) map dir 
-    then Ghost.move g dir 
-    else new_g_pos g (parse_dir (rand_char (Random.self_init (); Random.int 4)))
-  in 
   Array.iter (fun g ->
       if is_following g && following_counter g <= int_of_float max_follow_time 
       then move_ghost_following g map user 
-      else if are_close g user 
-      then begin reset_following g; 
-        move_ghost_following g map user end 
-      else if Map.check_move (Ghost.get_pos g) map (prev_move g)
-      then Ghost.move g (prev_move g) 
       else begin reset_following g; 
-        new_g_pos g (Random.self_init (); parse_dir 
-                       (rand_char (Random.self_init (); Random.int 4))) end ) 
+        if are_close g user 
+        then move_ghost_following g map user 
+        else begin 
+          if Map.check_move (Ghost.get_pos g) map (prev_move g)
+          then Ghost.move g (prev_move g) 
+          else randomly_move_ghost g map
+              (Random.self_init (); 
+               parse_dir (rand_char (Random.self_init (); Random.int 4))) end 
+      end) 
     ghosts 
 
 let flush () = 

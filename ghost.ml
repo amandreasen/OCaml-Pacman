@@ -40,3 +40,6 @@ let reset_following g =
 let start_following g =  
   g.is_following <- true;
   g.following_counter <- 1
+
+let set_prev_move g dir = 
+  g.prev_move <- dir
