@@ -10,10 +10,11 @@ type t = {
 let load_png str = 
   load ("./sprites/" ^ str) []
 
-let make_sprite str =
-  {sprite = load_png str; 
-   height = 45; 
-   width = 45}
+let make_sprite str = {
+  sprite = load_png str; 
+  height = 45; 
+  width = 45
+}
 
 let sprite_h sprite = 
   sprite.height
