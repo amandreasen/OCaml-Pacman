@@ -11,4 +11,10 @@ val get_pos: t -> int * int
     right by 50. *)
 val move: t -> int * int -> unit
 
-(** val rand_dir: int -> int * int *)
+(** [is_following] is true if the ghost is currently following the user and 
+    false otherwise. *)
+val is_following: t -> bool
+
+(** [following_counter] is the number of moves that have passed since the 
+    ghost started following the user. *)
+val following_counter: t -> int
