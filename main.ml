@@ -34,6 +34,14 @@ let set_window (title: string) (color: Graphics.color) : unit =
 
 let num_ghosts = 2
 
+(** circle of radius [closeness_threshold] encompassess the nearest 8 tiles 
+    around the user.  *)
+let closeness_threshold = 50.0 *. sqrt 2.0  
+
+(** [max_follow_time] is the maximum number of seconds that a ghost will follow
+    the user. *)
+let max_follow_time = 5.0
+
 (** [parse_dir] is the tuple representing the change in coordinates from the 
     user's character input. *)
 let parse_dir (dir: char) =
@@ -54,17 +62,69 @@ let rand_char num =
   | 3 -> 'd'
   | _ -> 'z'
 
+let number_sign n = 
+  match n with 
+  | n when n >= 0 -> 1
+  | _ -> -1
+
+(** [are_close] is true if the distance between the [ghost] and [user] are 
+    less than or equal to the [closeness_threshold]. *)
+let are_close ghost user = 
+  let x_g = fst (get_pos ghost) in 
+  let x_u = fst (get_position user) in 
+  let y_g = snd (get_pos ghost) in 
+  let y_u = snd (get_position user) in 
+  let x_squared = (x_g + x_u) * (x_g + x_u) in 
+  let y_squared = (y_g + y_u) * (y_g + y_u) in 
+  let distance = sqrt (float_of_int (x_squared - y_squared)) in 
+  distance <= closeness_threshold
+
+let position_diff ghost user = 
+  let x_g = fst (get_pos ghost) in 
+  let x_u = fst (get_position user) in 
+  let y_g = snd (get_pos ghost) in 
+  let y_u = snd (get_position user) in 
+  (x_u - x_g, y_u - y_g)
+
+let will_follow ghost map dir_attempt = 
+  let continue =  Map.check_move (Ghost.get_pos ghost) map dir_attempt in 
+  if continue then Ghost.move ghost dir_attempt; 
+  continue
+
+let move_ghost_following ghost map user = 
+  failwith "unimplemented"
+(* let position_difference = position_diff ghost user in 
+   let x_sign = number_sign (fst position_difference) in 
+   let y_sign = number_sign (snd position_difference) in 
+   match position_difference with
+   | (n,0) -> let dir_attempt = (x_sign * move_amt, 0) in 
+   if will_follow ghost map dir_attempt then start_following ghost
+   | (0,m) -> let dir_attempt = (0, y_sign * move_amt) in 
+   if will_follow ghost map dir_attempt then start_following ghost
+   | (n,m) -> let dir_attempt = (x_sign * move_amt, 0) in 
+   if will_follow ghost map dir_attempt then start_following ghost
+   else let dir_attempt = (0, y_sign * move_amt) in
+    if will_follow ghost map dir_attempt then start_following ghost *)
+
+
 (** [move_ghosts] randomly moves each ghost to a neighboring cell, so long as 
     it is a viable move. *)
-let move_ghosts ghosts map = 
+let move_ghosts ghosts map user = 
   let rec new_g_pos (g : Ghost.t) (dir : int * int) =  
     if Map.check_move (Ghost.get_pos g) map dir 
     then Ghost.move g dir 
     else new_g_pos g (parse_dir (rand_char (Random.self_init (); Random.int 4)))
   in 
-  Array.iter (fun g -> 
-      new_g_pos g (Random.self_init (); parse_dir 
-                     (rand_char (Random.self_init (); Random.int 4)))) 
+  Array.iter (fun g ->
+      if is_following g && following_counter g <= int_of_float max_follow_time 
+      then move_ghost_following g map user 
+      else reset_following g
+          if are_close g user 
+          then move_ghost_following g map user 
+          else if Map.check_move (Ghost.get_pos g) map (prev_move g)
+          then Ghost.move g (prev_move g) 
+          else new_g_pos g (Random.self_init (); parse_dir 
+                              (rand_char (Random.self_init (); Random.int 4)))) 
     ghosts 
 
 let flush () = 
@@ -76,9 +136,10 @@ let flush () =
 (** [pick_move] is the viable move that the player can make given their current
     command and their previous move. *)
 let pick_move user map next prev  = 
-  if Map.check_move (get_position user) map next
+  let user_pos = get_position user in 
+  if Map.check_move user_pos map next
   then next else
-  if Map.check_move (get_position user) map prev
+  if Map.check_move user_pos map prev
   then prev
   else (0,0)
 
@@ -88,6 +149,8 @@ let make_move user map dir  =
   Player.move user dir; 
   check_food (get_position user) map
 
+(** [prev_move] is the actual move that the user just made. 
+    [prev_move_attempt] is their last input that may or may not have passed. *)
 let rec loop () user map state ghosts prev_move prev_move_attempt = 
   Unix.sleepf(0.3);
   let next_move = 
@@ -105,7 +168,7 @@ let rec loop () user map state ghosts prev_move prev_move_attempt =
   (*draw_string (tile_type (Map.get_tile_type (get_position user) map));*)
   (*draw_string (check_move (Map.check_move (get_position user) map dir));*)
   draw_player user;
-  move_ghosts ghosts map; 
+  move_ghosts ghosts map user; 
   draw_ghosts (ghosts);
   loop () user map state ghosts current_move next_move
 
