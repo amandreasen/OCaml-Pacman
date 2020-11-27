@@ -1,10 +1,11 @@
 type t
 
-(** [new_g] is a new ghost with the given initial position. *)
-val new_g: int -> int -> int * int -> t
+(** [new_ghost] is a new ghost with the given initial position and initial
+    move. *)
+val new_ghost: int -> int -> int * int -> t
 
-(** [get_pos] is the position of a ghost as a tuple. *)
-val get_pos: t -> int * int
+(** [get_position] is the position of a ghost as a tuple. *)
+val get_position: t -> int * int
 
 (** [move] changes a ghost's position by the tuple given. For example, 
     move ghost_test (50,0) will update the position of ghost_test to be to the 

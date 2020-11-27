@@ -19,7 +19,8 @@ let player_move_pos_test
     (expected_output : int * int) : test = 
   name >:: (fun _ -> 
       assert_equal expected_output (Player.move player input_dir; 
-                                    get_position player) ~printer:pp_tuple)
+                                    Player.get_position player)
+        ~printer:pp_tuple)
 
 let ghost_move_pos_test  
     (name : string) 
@@ -28,11 +29,12 @@ let ghost_move_pos_test
     (expected_output : int * int) : test = 
   name >:: (fun _ -> 
       assert_equal expected_output (Ghost.move ghost input_dir; 
-                                    get_pos ghost) ~printer:pp_tuple)
+                                    Ghost.get_position ghost) 
+        ~printer:pp_tuple)
 
 let player_1 = new_player
 
-let ghost_1 = new_g 225 275
+let ghost_1 = new_ghost 225 275 (50,0)
 
 let player_tests =
   [

@@ -69,37 +69,37 @@ let number_sign n =
 
 (** [are_close] is true if the distance between the [ghost] and [user] are 
     less than or equal to the [closeness_threshold]. *)
-let are_close ghost user = 
-  let x_g = fst (get_pos ghost) in 
-  let x_u = fst (get_position user) in 
-  let y_g = snd (get_pos ghost) in 
-  let y_u = snd (get_position user) in 
+let are_close ghost user  = 
+  let x_g = fst (Ghost.get_position ghost) in 
+  let x_u = fst (Player.get_position user) in 
+  let y_g = snd (Ghost.get_position ghost) in 
+  let y_u = snd (Player.get_position user) in 
   let x_squared = (x_g + x_u) * (x_g + x_u) in 
   let y_squared = (y_g + y_u) * (y_g + y_u) in 
   let distance = sqrt (float_of_int (x_squared - y_squared)) in 
   distance <= closeness_threshold
 
 let position_diff ghost user = 
-  let x_g = fst (get_pos ghost) in 
-  let x_u = fst (get_position user) in 
-  let y_g = snd (get_pos ghost) in 
-  let y_u = snd (get_position user) in 
+  let x_g = fst (Ghost.get_position ghost) in 
+  let x_u = fst (Player.get_position user) in 
+  let y_g = snd (Ghost.get_position ghost) in 
+  let y_u = snd (Player.get_position user) in 
   (x_u - x_g, y_u - y_g)
 
 let will_follow ghost map dir_attempt = 
-  let continue =  Map.check_move (Ghost.get_pos ghost) map dir_attempt in 
+  let continue =  Map.check_move (get_position ghost) map dir_attempt in 
   if continue then Ghost.move ghost dir_attempt; 
   continue
 
 let rec randomly_move_ghost ghost map dir = 
-  if Map.check_move (Ghost.get_pos ghost) map dir 
+  if Map.check_move (get_position ghost) map dir 
   then begin set_prev_move ghost dir; 
     Ghost.move ghost dir end 
   else randomly_move_ghost ghost map 
       (parse_dir (rand_char (Random.self_init (); Random.int 4)))
 
 (** TODO: there's a lot of repeated code here. rochelle will get to that soon *)
-let move_ghost_following ghost map user = 
+let move_ghost_following ghost map (user : Player.t) = 
   incr_following_count ghost;
   let position_difference = position_diff ghost user in 
   let x_sign = number_sign (fst position_difference) in 
@@ -122,7 +122,7 @@ let move_ghost_following ghost map user =
         (Random.self_init (); 
          parse_dir (rand_char (Random.self_init (); Random.int 4)))
 
-let move_ghosts ghosts map user = 
+let move_ghosts ghosts map (user : Player.t) = 
   Array.iter (fun g ->
       if is_following g && following_counter g <= int_of_float max_follow_time 
       then move_ghost_following g map user 
@@ -130,7 +130,7 @@ let move_ghosts ghosts map user =
         if are_close g user 
         then move_ghost_following g map user 
         else begin 
-          if Map.check_move (Ghost.get_pos g) map (prev_move g)
+          if Map.check_move (get_position g) map (prev_move g)
           then Ghost.move g (prev_move g) 
           else randomly_move_ghost g map
               (Random.self_init (); 
@@ -146,8 +146,8 @@ let flush () =
 
 (** [pick_move] is the viable move that the player can make given their current
     command and their previous move. *)
-let pick_move user map next prev  = 
-  let user_pos = get_position user in 
+let pick_move (user : Player.t) map next prev  = 
+  let user_pos = Player.get_position user in 
   if Map.check_move user_pos map next
   then next else
   if Map.check_move user_pos map prev
@@ -158,11 +158,11 @@ let pick_move user map next prev  =
     consumes food on the new tile, if there is any food. *)
 let make_move user map dir  = 
   Player.move user dir; 
-  check_food (get_position user) map
+  check_food (Player.get_position user) map
 
 (** [prev_move] is the actual move that the user just made. 
     [prev_move_attempt] is their last input that may or may not have passed. *)
-let rec loop () user map state ghosts prev_move prev_move_attempt = 
+let rec loop () (user : Player.t) map state ghosts prev_move prev_move_attempt = 
   Unix.sleepf(0.3);
   let next_move = 
     if Graphics.key_pressed () 
@@ -187,12 +187,12 @@ and draw_ghosts ghosts =
   set_color cyan;
   for i = 0 to Array.length ghosts - 1 do 
     let g = ghosts.(i) in 
-    fill_circle (fst (get_pos g)) (snd (get_pos g)) ghost_radius;
+    fill_circle (fst (get_position g)) (snd (get_position g)) ghost_radius;
   done
 
 and draw_player user = 
-  let x = fst (get_position user) in 
-  let y = snd (get_position user) in 
+  let x = fst (Player.get_position user) in 
+  let y = snd (Player.get_position user) in 
   set_color yellow; 
   fill_circle x y player_radius
 (* let x = fst (get_position user) in 
@@ -229,10 +229,10 @@ let main (settings: string) : unit =
      150 150; *)
   fill_circle 175 175 player_radius;
   moveto 175 75;
-  let state = initial_state map (State.make_ghosts num_ghosts 675 375) in 
+  let state = initial_state map (State.make_ghosts num_ghosts 725 375) in 
   set_color cyan; 
   Array.iter (fun g -> 
-      fill_circle (fst (get_pos g)) (snd (get_pos g)) ghost_radius) 
+      fill_circle (fst (get_position g)) (snd (get_position g)) ghost_radius) 
     (ghosts state);
   set_color red;
   set_text_size 32;

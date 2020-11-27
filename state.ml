@@ -65,8 +65,8 @@ let make_ghosts num min_x min_y =
     | n when n>0 -> begin 
         let x = min_x + (50 * counter) in 
         let y = min_y in 
-        let new_ghost = new_g x y (0,50) in 
-        set_ghosts_helper (new_ghost::acc) (counter + 1) (n - 1)
+        let new_g = new_ghost x y (0,50) in 
+        set_ghosts_helper (new_g::acc) (counter + 1) (n - 1)
       end 
     | _ -> acc 
            |> List.rev 

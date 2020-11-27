@@ -6,7 +6,7 @@ type t = {
   mutable prev_move : int *int 
 }
 
-let new_g x_pos y_pos init_move = {
+let new_ghost x_pos y_pos init_move = {
   x = x_pos; 
   y = y_pos; 
   is_following = false; 
@@ -14,7 +14,7 @@ let new_g x_pos y_pos init_move = {
   prev_move = init_move
 }
 
-let get_pos g =
+let get_position g =
   (g.x, g.y)
 
 let prev_move g = 
