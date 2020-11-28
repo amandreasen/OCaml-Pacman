@@ -92,16 +92,13 @@ let will_follow ghost map dir_attempt =
   continue
 
 let start_follow ghost dir = 
-  start_following ghost; 
-  set_prev_move ghost dir 
+  start_following ghost
+(* set_prev_move ghost dir  *)
 
 let rec randomly_move_ghost ghost map dir = 
   if Map.check_move (get_position ghost) map dir 
-  then 
-    begin 
-      set_prev_move ghost dir; 
-      Ghost.move ghost dir 
-    end 
+  then (* set_prev_move ghost dir;  *)
+    Ghost.move ghost dir 
   else randomly_move_ghost ghost map 
       (parse_dir (rand_char (Random.self_init (); Random.int 4)))
 
@@ -124,7 +121,7 @@ let move_ghost_following ghost map user =
     else let dir_attempt = (0, y_sign * move_amt) in
       if will_follow ghost map dir_attempt 
       then start_follow ghost dir_attempt
-          randomly_move_ghost ghost map 
+      else randomly_move_ghost ghost map 
           (Random.self_init (); 
            parse_dir (rand_char (Random.self_init (); Random.int 4)))
 
@@ -204,16 +201,16 @@ and draw_ghosts ghosts =
   done
 
 and draw_player user = 
-  (* let x = fst (Player.get_position user) in 
-     let y = snd (Player.get_position user) in 
-     set_color yellow; 
-     fill_circle x y player_radius *)
   let x = fst (Player.get_position user) in 
   let y = snd (Player.get_position user) in 
-  Graphic_image.draw_image ((sprite_image (player_image new_player))) 
-    (x-player_radius) (y-player_radius);
-  (* Graphic_image.draw_image (sprite_image (player_image new_player)) 
-     150 150; *)
+  set_color yellow; 
+  fill_circle x y player_radius
+(* let x = fst (Player.get_position user) in 
+   let y = snd (Player.get_position user) in 
+   Graphic_image.draw_image ((sprite_image (player_image new_player))) 
+   (x-player_radius) (y-player_radius); *)
+(* Graphic_image.draw_image (sprite_image (player_image new_player)) 
+   150 150; *)
 and draw_current_map map = 
   clear_graph ();
   set_window "Pacman" black;

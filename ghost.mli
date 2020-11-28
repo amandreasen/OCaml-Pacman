@@ -36,4 +36,4 @@ val start_following: t -> unit
 
 (** [set_prev_move] updates the ghost's previous move to the one specified by 
     the input. *)
-val set_prev_move: t -> int * int -> unit
+(* val set_prev_move: t -> int * int -> unit *)
