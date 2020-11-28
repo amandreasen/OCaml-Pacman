@@ -60,7 +60,7 @@ let rand_char num =
   | 1 -> 's'
   | 2 -> 'a'
   | 3 -> 'd'
-  | _ -> 'z'
+  | _ -> ' '
 
 let number_sign n = 
   match n with 
@@ -88,54 +88,64 @@ let position_diff ghost user =
 
 let will_follow ghost map dir_attempt = 
   let continue =  Map.check_move (get_position ghost) map dir_attempt in 
-  if continue then Ghost.move ghost dir_attempt; 
+  if continue then Ghost.move ghost dir_attempt;
   continue
+
+let start_follow ghost dir = 
+  start_following ghost; 
+  set_prev_move ghost dir 
 
 let rec randomly_move_ghost ghost map dir = 
   if Map.check_move (get_position ghost) map dir 
-  then begin set_prev_move ghost dir; 
-    Ghost.move ghost dir end 
+  then 
+    begin 
+      set_prev_move ghost dir; 
+      Ghost.move ghost dir 
+    end 
   else randomly_move_ghost ghost map 
       (parse_dir (rand_char (Random.self_init (); Random.int 4)))
 
 (** TODO: there's a lot of repeated code here. rochelle will get to that soon *)
-let move_ghost_following ghost map (user : Player.t) = 
+let move_ghost_following ghost map user = 
   incr_following_count ghost;
   let position_difference = position_diff ghost user in 
-  let x_sign = number_sign (fst position_difference) in 
-  let y_sign = number_sign (snd position_difference) in 
+  let x_sign = position_difference |> fst |> number_sign in 
+  let y_sign = position_difference |> snd |> number_sign in 
   match position_difference with
   | (n,0) -> let dir_attempt = (x_sign * move_amt, 0) in 
     if will_follow ghost map dir_attempt 
-    then begin start_following ghost; set_prev_move ghost dir_attempt end
+    then start_follow ghost dir_attempt
   | (0,m) -> let dir_attempt = (0, y_sign * move_amt) in 
     if will_follow ghost map dir_attempt 
-    then begin start_following ghost; set_prev_move ghost dir_attempt end
+    then start_follow ghost dir_attempt
   | (n,m) -> let dir_attempt = (x_sign * move_amt, 0) in 
     if will_follow ghost map dir_attempt 
-    then begin start_following ghost; set_prev_move ghost dir_attempt end
+    then start_follow ghost dir_attempt
     else let dir_attempt = (0, y_sign * move_amt) in
       if will_follow ghost map dir_attempt 
-      then begin start_following ghost; set_prev_move ghost dir_attempt end
-      else reset_following ghost; 
-      randomly_move_ghost ghost map 
-        (Random.self_init (); 
-         parse_dir (rand_char (Random.self_init (); Random.int 4)))
+      then start_follow ghost dir_attempt
+          randomly_move_ghost ghost map 
+          (Random.self_init (); 
+           parse_dir (rand_char (Random.self_init (); Random.int 4)))
 
 let move_ghosts ghosts map (user : Player.t) = 
   Array.iter (fun g ->
       if is_following g && following_counter g <= int_of_float max_follow_time 
       then move_ghost_following g map user 
-      else begin reset_following g; 
-        if are_close g user 
-        then move_ghost_following g map user 
-        else begin 
-          if Map.check_move (get_position g) map (prev_move g)
-          then Ghost.move g (prev_move g) 
-          else randomly_move_ghost g map
-              (Random.self_init (); 
-               parse_dir (rand_char (Random.self_init (); Random.int 4))) end 
-      end) 
+      else 
+        begin 
+          reset_following g; 
+          if are_close g user 
+          then move_ghost_following g map user 
+          else 
+            begin 
+              if Map.check_move (get_position g) map (prev_move g)
+              then Ghost.move g (prev_move g) 
+              else randomly_move_ghost g map
+                  (Random.self_init (); 
+                   parse_dir (rand_char (Random.self_init (); Random.int 4))) 
+            end 
+        end) 
     ghosts 
 
 let flush () = 
@@ -162,7 +172,7 @@ let make_move user map dir  =
 
 (** [prev_move] is the actual move that the user just made. 
     [prev_move_attempt] is their last input that may or may not have passed. *)
-let rec loop ()  state  prev_move prev_move_attempt = 
+let rec loop () state prev_move prev_move_attempt = 
   let user = player state in 
   let map = map state in 
   let ghosts = ghosts state in
@@ -194,16 +204,16 @@ and draw_ghosts ghosts =
   done
 
 and draw_player user = 
+  (* let x = fst (Player.get_position user) in 
+     let y = snd (Player.get_position user) in 
+     set_color yellow; 
+     fill_circle x y player_radius *)
   let x = fst (Player.get_position user) in 
   let y = snd (Player.get_position user) in 
-  set_color yellow; 
-  fill_circle x y player_radius
-(* let x = fst (get_position user) in 
-   let y = snd (get_position user) in 
-   draw_image ((sprite_image (player_image new_player))) 
-   (x-player_radius) (y-player_radius); *)
-(* Graphic_image.draw_image (sprite_image (player_image new_player)) 
-   150 150; *)
+  Graphic_image.draw_image ((sprite_image (player_image new_player))) 
+    (x-player_radius) (y-player_radius);
+  (* Graphic_image.draw_image (sprite_image (player_image new_player)) 
+     150 150; *)
 and draw_current_map map = 
   clear_graph ();
   set_window "Pacman" black;

@@ -12,7 +12,7 @@ val get_position: t -> int * int
     right by 50. *)
 val move: t -> int * int -> unit
 
-
+(** [prev_move] is the previous move that the ghost made. *)
 val prev_move: t -> int *int 
 
 (** [is_following] is true if the ghost is currently following the user and 
@@ -27,9 +27,13 @@ val following_counter: t -> int
 val incr_following_count: t -> unit
 
 (** [reset_following] resets the following counter to 0 and marks the ghost as 
-    no longer following the ghost. *)
+    no longer following the player. *)
 val reset_following: t -> unit
 
+(** [start_following] sets the following counter to 1 and marks the ghost as 
+    following the player. *)
 val start_following: t -> unit
 
+(** [set_prev_move] updates the ghost's previous move to the one specified by 
+    the input. *)
 val set_prev_move: t -> int * int -> unit
