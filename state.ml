@@ -1,7 +1,9 @@
 open Ghost
 open Map
+open Player
 
 type t = {
+  player : Player.t;
   points : int;
   lives : int;
   ghosts : Ghost.t array;
@@ -9,6 +11,9 @@ type t = {
   map : Map.t;
   follower_ghosts : Ghost.t list
 }
+
+let player state = 
+  state.player
 
 let points state =
   state.points
@@ -25,7 +30,11 @@ let current_level state =
 let followers state = 
   state.follower_ghosts
 
-let initial_state map ghosts_entry=  {
+let map state = 
+  state.map
+
+let initial_state player map ghosts_entry = {
+  player = player;
   points = 5;
   lives = 3;
   ghosts = ghosts_entry;

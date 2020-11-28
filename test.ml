@@ -1,7 +1,6 @@
 open OUnit2
 open Player
 open Ghost
-open Main
 open Map
 
 
@@ -43,7 +42,7 @@ let player_tests =
     player_move_pos_test "Initial player moves up 50" 
       player_1 (0,50) (175,225);
     player_move_pos_test "After moving up 50, move right 50" 
-      player_1 (50,50) (225,225);
+      player_1 (50,0) (225,225);
 
     ghost_move_pos_test "start position at (225,275) and move (0,0)" 
       ghost_1 (0,0) (225,275);
@@ -51,7 +50,6 @@ let player_tests =
       ghost_1 (100,-50) (325,225);
 
   ]
-
 
 
 let suite =

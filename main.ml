@@ -162,7 +162,10 @@ let make_move user map dir  =
 
 (** [prev_move] is the actual move that the user just made. 
     [prev_move_attempt] is their last input that may or may not have passed. *)
-let rec loop () (user : Player.t) map state ghosts prev_move prev_move_attempt = 
+let rec loop ()  state  prev_move prev_move_attempt = 
+  let user = player state in 
+  let map = map state in 
+  let ghosts = ghosts state in
   Unix.sleepf(0.3);
   let next_move = 
     if Graphics.key_pressed () 
@@ -181,7 +184,7 @@ let rec loop () (user : Player.t) map state ghosts prev_move prev_move_attempt =
   draw_player user;
   move_ghosts ghosts map user; 
   draw_ghosts (ghosts);
-  loop () user map state ghosts current_move next_move
+  loop () state current_move next_move
 
 and draw_ghosts ghosts = 
   set_color cyan;
@@ -229,15 +232,17 @@ let main (settings: string) : unit =
      150 150; *)
   fill_circle 175 175 player_radius;
   moveto 175 75;
-  let state = initial_state map (State.make_ghosts num_ghosts 725 375) in 
+  let player = new_player in 
+  let ghosts = State.make_ghosts num_ghosts 725 375 in 
+  let state = initial_state player map ghosts in 
   set_color cyan; 
   Array.iter (fun g -> 
       fill_circle (fst (get_position g)) (snd (get_position g)) ghost_radius) 
-    (ghosts state);
+    ghosts;
   set_color red;
   set_text_size 32;
   draw_string (game_status state);
-  ignore (loop () new_player map state (ghosts state) (0,0) (0,0));
+  ignore (loop () state (0,0) (0,0));
   ()
 
 let () = 

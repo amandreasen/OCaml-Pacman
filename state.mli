@@ -1,5 +1,10 @@
 open Ghost
+open Player
+open Map 
+
 type t 
+
+val player: t -> Player.t
 
 (** [get_points] is the current player's points. *)
 val points: t -> int
@@ -13,8 +18,10 @@ val ghosts: t -> Ghost.t array
 (** [current_level] is the current level of the player *)
 val current_level: t -> int
 
+val map: t -> Map.t
+
 (** [initial_state] initialies a new state for a new player *)
-val initial_state: Map.t -> Ghost.t array -> t
+val initial_state: Player.t -> Map.t -> Ghost.t array -> t
 
 val update_state_food: t -> Map.t -> t
 
