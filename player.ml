@@ -12,7 +12,7 @@ let new_player =
   {
     x = 175; 
     y = 175;
-    image = Sprite.make_sprite "pacman.png"
+    image = Sprite.make_sprite "pacman2.png"
   }
 
 let get_position player = 

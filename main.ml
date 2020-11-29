@@ -206,8 +206,8 @@ and draw_player user =
      let y = snd (get_position user) in 
      set_color yellow; 
      fill_circle x y player_radius *)
-  let x = fst (get_position user) in 
-  let y = snd (get_position user) in 
+  let x = fst (Player.get_position user) in 
+  let y = snd (Player.get_position user) in 
   let sprite = (sprite_image (player_image new_player)) in
   let image = Graphic_image.of_image sprite in 
   Graphics.draw_image image (x-player_radius) (y-player_radius)
