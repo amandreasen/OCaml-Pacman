@@ -7,13 +7,20 @@ type t = {
   width : int;
 }
 
-let load_png str = load ("./sprites/" ^ str) []
+let load_png str = 
+  load ("./sprites/" ^ str) []
 
-let make_sprite str =
-  {sprite = load_png str; height = 45; width = 45}
+let make_sprite str = {
+  sprite = load_png str; 
+  height = 45; 
+  width = 45
+}
 
-let sprite_h sprite = sprite.height
+let sprite_h sprite = 
+  sprite.height
 
-let sprite_w sprite = sprite.width
+let sprite_w sprite = 
+  sprite.width
 
-let sprite_image sprite = sprite.sprite
+let sprite_image sprite = 
+  sprite.sprite

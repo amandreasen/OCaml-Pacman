@@ -1,4 +1,4 @@
-(** CS 3110 Fall 2020 Assignment MS0
+(** CS 3110 Fall 2020 Assignment Final_Project
     @author Rochelle Kris (rhk79) 
     @author Amanda Andreasen (apa49)
     @author Akshaya Raghavan (apr65) *)
@@ -26,5 +26,5 @@
 
  ************************************************************)  
 
-(** [hours_worked] is the number of hours you worked on this assignment. *)
+(** [hours_worked] is the number of hours we worked on this assignment. *)
 val hours_worked : int
