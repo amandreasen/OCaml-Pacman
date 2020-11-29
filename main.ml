@@ -6,6 +6,7 @@ open State
 open Ghost
 open Sprite
 
+(* game constants *)
 let window_width = 1500
 let window_height = 750
 let map_width = 1300
@@ -15,6 +16,8 @@ let ghost_radius = 25
 let player_radius = 25 
 
 let move_amt = 50 
+
+let sleep_time = 0.3
 
 let game_status state = 
   ("Points: " ^ string_of_int (points state)
@@ -173,7 +176,7 @@ let rec loop state map_image prev_move prev_move_attempt =
   let user = player state in 
   let map = map state in 
   let ghosts = ghosts state in
-  Unix.sleepf(0.3);
+  Unix.sleepf(sleep_time);
   let next_move = 
     if Graphics.key_pressed () 
     then parse_dir (Graphics.read_key ())
@@ -197,12 +200,16 @@ and draw_ghosts ghosts =
   set_color cyan;
   for i = 0 to Array.length ghosts - 1 do 
     let g = ghosts.(i) in 
-    fill_circle (fst (get_position g)) (snd (get_position g)) ghost_radius;
+    let pos = Ghost.get_position g in 
+    let x = fst pos in 
+    let y = snd pos in 
+    fill_circle x y ghost_radius;
   done
 
 and draw_player user = 
-  let x = fst (Player.get_position user) in 
-  let y = snd (Player.get_position user) in 
+  let pos = Player.get_position user in
+  let x = fst pos in 
+  let y = snd pos in 
   set_color yellow; 
   fill_circle x y player_radius
 (* let x = fst (Player.get_position user) in 
@@ -233,6 +240,12 @@ let map_init (map: Map.t): Graphics.image =
   draw_map map;
   get_image 0 0 window_width window_height 
 
+let ghost_helper (ghost: Ghost.t) : unit = 
+  let pos = get_position ghost in 
+  let x = fst pos in 
+  let y = snd pos in 
+  fill_circle x y ghost_radius
+
 let main (settings: string) : unit = 
   window_init settings;
   let map = make_map (100,100) "OCaml" in 
@@ -249,9 +262,7 @@ let main (settings: string) : unit =
   let ghosts = State.make_ghosts num_ghosts 725 375 in 
   let state = initial_state player map ghosts in 
   set_color cyan; 
-  Array.iter (fun g -> 
-      fill_circle (fst (get_position g)) (snd (get_position g)) ghost_radius) 
-    ghosts;
+  Array.iter ghost_helper ghosts;
   set_color red;
   set_text_size 32;
   draw_string (game_status state);
