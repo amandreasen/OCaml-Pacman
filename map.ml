@@ -478,8 +478,7 @@ let draw_outline (tile: map_tile) : unit =
 let draw_tile (tile: map_tile) : unit =
   (* draw_outline tile;  *)
   match tile.tile_type with
-  | Empty | Ghost -> ()
-  | Food -> draw_food tile food_radius
+  | Empty | Food | Ghost -> ()
   | Special -> draw_food tile special_radius
   | Wall wall -> draw_wall tile wall
 
@@ -491,7 +490,18 @@ let draw_map (map: t) : unit =
   ignore (Array.map draw_map_row map.tiles);
   ()
 
-let map (map: t) : map_tile array array = map.tiles
+let draw_food_helper (tile: map_tile) : unit = 
+  match tile.tile_type with 
+  | Food -> draw_food tile food_radius
+  | _ -> ()
+
+let draw_food_row (food_row: map_tile array) : unit = 
+  ignore (Array.map draw_food_helper food_row);
+  ()
+
+let draw_food (map: t) : unit =
+  ignore (Array.map draw_food_row map.tiles);
+  ()
 
 
 

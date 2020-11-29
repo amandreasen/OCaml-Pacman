@@ -169,7 +169,7 @@ let make_move user map dir  =
 
 (** [prev_move] is the actual move that the user just made. 
     [prev_move_attempt] is their last input that may or may not have passed. *)
-let rec loop () state prev_move prev_move_attempt = 
+let rec loop state map_image prev_move prev_move_attempt = 
   let user = player state in 
   let map = map state in 
   let ghosts = ghosts state in
@@ -182,7 +182,7 @@ let rec loop () state prev_move prev_move_attempt =
   flush ();
   let current_move = pick_move user map next_move prev_move in 
   make_move user map current_move;
-  draw_current_map map;
+  draw_current_map map map_image;
   (*draw_image map_image 0 0;*)
   let new_state = State.update_state_food state map in
   draw_state new_state;
@@ -191,7 +191,7 @@ let rec loop () state prev_move prev_move_attempt =
   draw_player user;
   move_ghosts ghosts map user; 
   draw_ghosts (ghosts);
-  loop () state current_move next_move
+  loop state map_image current_move next_move
 
 and draw_ghosts ghosts = 
   set_color cyan;
@@ -211,9 +211,10 @@ and draw_player user =
    (x-player_radius) (y-player_radius); *)
 (* Graphic_image.draw_image (sprite_image (player_image new_player)) 
    150 150; *)
-and draw_current_map map = 
+and draw_current_map (map: Map.t) (map_image: Graphics.image) = 
   clear_graph ();
-  set_window "Pacman" black;
+  Graphics.draw_image map_image 0 0;
+  Map.draw_food map;
   set_color blue;
   draw_map map
 
@@ -222,15 +223,20 @@ and draw_state state =
   set_color red;
   draw_string (game_status state)
 
-let main (settings: string) : unit = 
+let window_init (settings: string) : unit = 
   open_graph settings;
   set_window "Pacman" black;
   set_color black;
-  fill_rect 0 0 window_width window_height;
-  (* set_color blue;
-     draw_rect 100 100 map_width map_height; *)
-  let map = make_map (100,100) "OCaml" in 
+  fill_rect 0 0 window_width window_height
+
+let map_init (map: Map.t): Graphics.image = 
   draw_map map;
+  get_image 0 0 window_width window_height 
+
+let main (settings: string) : unit = 
+  window_init settings;
+  let map = make_map (100,100) "OCaml" in 
+  let map_background = map_init map in
   (* let map_image = get_image 0 0 window_width window_height in  *)
   set_color yellow; 
   (* draw_image ((sprite_image (player_image new_player))) 
@@ -249,7 +255,7 @@ let main (settings: string) : unit =
   set_color red;
   set_text_size 32;
   draw_string (game_status state);
-  ignore (loop () state (0,0) (0,0));
+  ignore (loop state map_background (0,0) (0,0));
   ()
 
 let () = 
