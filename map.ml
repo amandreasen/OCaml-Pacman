@@ -384,42 +384,6 @@ let draw_corner_full (tile: map_tile) (corner_type: corner) : unit =
   let snd = (snd_x + tile_x, snd_y + tile_y) in 
   draw_corner_double fst snd corner_type
 
-let draw_wall_lines (first: point) (second: point) (shift: int) : unit = 
-  let fst_x = fst first in 
-  let fst_y = snd first in 
-  let snd_x = fst second in 
-  let snd_y = snd second in 
-
-  moveto fst_x fst_y;
-  let endpoint_x = if fst_x = snd_x then fst_x + shift else fst_x in 
-  let endpoint_y = if fst_y = snd_y then fst_y + shift else fst_y in 
-  lineto endpoint_x endpoint_y;
-
-  moveto snd_x snd_y;
-  let endpoint_x = if fst_x = snd_x then snd_x + shift else snd_x  in 
-  let endpoint_y = if fst_y = snd_y then snd_y + shift else snd_y in 
-  lineto endpoint_x endpoint_y
-
-let draw_wall_cap (tile_x: int) (tile_y: int) (dir: orientation) : unit = 
-  let margin = (tile_size - wall_width) / 2 in 
-  let fst = margin in 
-  let snd = tile_size - margin in 
-  match dir with 
-  | Top -> 
-    let y_pos = tile_y + tile_size in
-    moveto (tile_x + fst) y_pos;
-    lineto (tile_x + snd) y_pos
-  | Bot -> 
-    moveto (tile_x + fst) tile_y;
-    lineto (tile_x + snd) tile_y;
-  | Left -> 
-    moveto tile_x (tile_y + fst);
-    lineto tile_x (tile_y + snd);
-  | Right -> 
-    let x_pos = tile_x + tile_size in 
-    moveto x_pos (tile_y + fst);
-    lineto x_pos (tile_y + snd)
-
 let calculate_coordinates (dir: orientation) (margin: int) (tile_x: int)
     (tile_y: int) (shift: int) : point * point = 
   let margin_fst = margin in 
@@ -443,8 +407,43 @@ let calculate_coordinates (dir: orientation) (margin: int) (tile_x: int)
     let snd = (tile_x, tile_y + margin_snd) in 
     (fst, snd)
 
-(* have helper functions that calculate y coordinate and x coordinate based 
-   on direction -- draw wall lines draws from left ro right, or bottom to top*)
+let draw_wall_lines (first: point) (second: point) (shift: int) : unit = 
+  let fst_x = fst first in 
+  let fst_y = snd first in 
+  let snd_x = fst second in 
+  let snd_y = snd second in 
+
+  moveto fst_x fst_y;
+  let endpoint_x = if fst_x = snd_x then fst_x + shift else fst_x in 
+  let endpoint_y = if fst_y = snd_y then fst_y + shift else fst_y in 
+  lineto endpoint_x endpoint_y;
+
+  moveto snd_x snd_y;
+  let endpoint_x = if fst_x = snd_x then snd_x + shift else snd_x  in 
+  let endpoint_y = if fst_y = snd_y then snd_y + shift else snd_y in 
+  lineto endpoint_x endpoint_y
+
+let draw_wall_cap (tile_x: int) (tile_y: int) (dir: orientation) 
+    (shift: int) : unit = 
+  let margin = (tile_size - wall_width) / 2 in 
+  let fst = margin in 
+  let snd = tile_size - margin in 
+  let shift_comp = tile_size - shift in
+  match dir with 
+  | Top -> 
+    let y_pos = tile_y + shift in
+    moveto (tile_x + fst) y_pos;
+    lineto (tile_x + snd) y_pos
+  | Bot -> 
+    moveto (tile_x + fst) (tile_y + shift_comp);
+    lineto (tile_x + snd) (tile_y + shift_comp);
+  | Left -> 
+    moveto (tile_x+ shift_comp) (tile_y + fst);
+    lineto (tile_x+ shift_comp) (tile_y + snd);
+  | Right -> 
+    let x_pos = tile_x + shift in 
+    moveto x_pos (tile_y + fst);
+    lineto x_pos (tile_y + snd)
 
 let draw_wall_end (tile: map_tile) (end_type: orientation) : unit = 
   let margin = (tile_size - wall_width) / 2 in 
@@ -455,7 +454,8 @@ let draw_wall_end (tile: map_tile) (end_type: orientation) : unit =
   let coordinates = calculate_coordinates end_type margin tile_x tile_y shift in 
   let pos_one = fst coordinates in 
   let pos_two = snd coordinates in 
-  draw_wall_lines pos_one pos_two shift
+  draw_wall_lines pos_one pos_two shift;
+  draw_wall_cap tile_x tile_y end_type shift
 (* match end_type with 
    | Top | Bot as dir -> 
    let fst = (tile_x + first, tile_y) in 
