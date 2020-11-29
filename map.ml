@@ -456,18 +456,6 @@ let draw_wall_end (tile: map_tile) (end_type: orientation) : unit =
   let pos_two = snd coordinates in 
   draw_wall_lines pos_one pos_two shift;
   draw_wall_cap tile_x tile_y end_type shift
-(* match end_type with 
-   | Top | Bot as dir -> 
-   let fst = (tile_x + first, tile_y) in 
-   let snd = (tile_x + second, tile_y) in
-   draw_wall_lines fst snd shift;
-   draw_wall_cap tile_x tile_y dir
-
-   | Left | Right as dir -> 
-   let fst = (tile_x, tile_y + first) in 
-   let snd = (tile_x, tile_y + second) in
-   draw_wall_lines fst snd shift;
-   draw_wall_cap tile_x tile_y dir *)
 
 let draw_wall_normal (tile: map_tile) (orientation: wall) : unit = 
   let margin = (tile_size - wall_width) / 2 in 
