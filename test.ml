@@ -1,7 +1,6 @@
 open OUnit2
 open Player
 open Ghost
-open Main
 open Map
 
 
@@ -19,7 +18,8 @@ let player_move_pos_test
     (expected_output : int * int) : test = 
   name >:: (fun _ -> 
       assert_equal expected_output (Player.move player input_dir; 
-                                    get_position player) ~printer:pp_tuple)
+                                    Player.get_position player)
+        ~printer:pp_tuple)
 
 let ghost_move_pos_test  
     (name : string) 
@@ -28,11 +28,12 @@ let ghost_move_pos_test
     (expected_output : int * int) : test = 
   name >:: (fun _ -> 
       assert_equal expected_output (Ghost.move ghost input_dir; 
-                                    get_pos ghost) ~printer:pp_tuple)
+                                    Ghost.get_position ghost) 
+        ~printer:pp_tuple)
 
 let player_1 = new_player
 
-let ghost_1 = new_g 225 275
+let ghost_1 = new_ghost 225 275 (50,0)
 
 let player_tests =
   [
@@ -41,7 +42,7 @@ let player_tests =
     player_move_pos_test "Initial player moves up 50" 
       player_1 (0,50) (175,225);
     player_move_pos_test "After moving up 50, move right 50" 
-      player_1 (50,50) (225,225);
+      player_1 (50,0) (225,225);
 
     ghost_move_pos_test "start position at (225,275) and move (0,0)" 
       ghost_1 (0,0) (225,275);
@@ -49,7 +50,6 @@ let player_tests =
       ghost_1 (100,-50) (325,225);
 
   ]
-
 
 
 let suite =
