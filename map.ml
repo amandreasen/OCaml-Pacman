@@ -20,7 +20,7 @@ type corner = orientation * orientation
 
 type wall = Vert | Horz | Corner of corner | End of orientation
 
-type tile = Empty | Food | Special | Wall of wall
+type tile = Empty | Food | Special | Ghost | Wall of wall
 
 type map_tile = 
   {
@@ -70,13 +70,13 @@ let standard_maze =
         (End Left); Food; Wall Horz|];    
     [|Wall Horz; Food; Wall Horz; Food; Wall (Corner (Bot, Left)); Wall Vert; 
       Wall (Corner (Top, Left)); Food; Wall Horz; Food; Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Empty; Wall (End Right); 
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Ghost; Wall (End Right); 
       Food; Wall Horz; Food; Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Empty;
-      Empty; Food; Wall Horz; Food; Wall Horz;|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Empty;
-      Empty; Food; Wall Horz; Food; Wall Horz;|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Empty; 
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Ghost;
+      Ghost; Food; Wall Horz; Food; Wall Horz;|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Ghost;
+      Ghost; Food; Wall Horz; Food; Wall Horz;|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Ghost; 
       Wall (End Left); Food; Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; 
       Wall (Corner (Bot, Right)); Wall Vert; Wall (Corner (Top, Right)); 
@@ -131,9 +131,9 @@ let ocaml_maze =
           End Left); Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Wall (End Bot); Wall Vert; 
       Wall (Corner (Top, Left)); Food; Wall Horz; Food; Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Empty; Empty; Wall Horz; Food; Wall 
+    [|Wall Horz; Food; Wall Horz; Food; Ghost; Ghost; Wall Horz; Food; Wall 
         Horz; Food; Wall Horz; Food; Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Empty; Empty; Wall Horz; Food; 
+    [|Wall Horz; Food; Wall Horz; Food; Ghost; Ghost; Wall Horz; Food; 
       Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Wall (End Bot); Wall Vert; 
       Wall (Corner (Top, Right)); Food; Wall Horz; Food; Wall Horz|];
@@ -187,6 +187,7 @@ let get_tile_type2 pos (tile_array:map_tile array) =
         | Empty -> "Empty"
         | Food -> "Food"
         | Special -> "Special"
+        | Ghost -> "Ghost"
 
       else check_tile t in
   check_tile h_list
@@ -217,6 +218,7 @@ let check_move2 pos (tile_array:map_tile array) =
         | Empty -> "Empty"
         | Food -> "Food"
         | Special ->"Special"
+        | Ghost -> "Ghost"
 
       else check_tile t in
   check_tile h_list
@@ -232,7 +234,7 @@ let check_move pos map dir=
     | h::t -> 
       match (check_move2 new_pos h) with
       | "Wall"-> false
-      | ("Empty" | "Food" | "Special") -> true
+      | ("Empty" | "Food" | "Special"| "Ghost") -> true
       | _ -> check_main t
   in
   check_main map_list
@@ -248,7 +250,7 @@ let check_food_tile pos map=
     | h::t ->
       match (check_move2 pos h) with
       | "Food"-> acc+1
-      | ("Empty" | "Wall" | "Special") -> acc
+      | ("Empty" | "Wall" | "Special"| "Ghost") -> acc
       | _ -> check_main t
   in
   check_main map_list
@@ -476,7 +478,7 @@ let draw_outline (tile: map_tile) : unit =
 let draw_tile (tile: map_tile) : unit =
   (* draw_outline tile;  *)
   match tile.tile_type with
-  | Empty -> ()
+  | Empty | Ghost -> ()
   | Food -> draw_food tile food_radius
   | Special -> draw_food tile special_radius
   | Wall wall -> draw_wall tile wall

@@ -145,7 +145,7 @@ let main (settings: string) : unit =
   fill_rect 0 0 window_width window_height;
   (* set_color blue;
      draw_rect 100 100 map_width map_height; *)
-  let map = make_map (100,100) "standard" in 
+  let map = make_map (100,100) "OCaml" in 
   draw_map map;
   (* let map_image = get_image 0 0 window_width window_height in  *)
   set_color yellow; 
@@ -171,12 +171,3 @@ let () =
     string_of_int window_width ^ "x" ^ string_of_int window_height
   in
   main (" " ^ settings) 
-
-(* 
-let parse_dir (user: Player.t) (dir: string) =
-  match dir with 
-  |"\033[A" -> (0,50)
-  |"\033[B" -> (0,-50)
-  |"\033[D" -> (-50,0)
-  |"\033[C" -> (50,0)
-  |_ -> (0,0)  *)
