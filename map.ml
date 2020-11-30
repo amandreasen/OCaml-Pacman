@@ -9,31 +9,31 @@ let food_color = rgb 255 184 245
 let wall_color = Graphics.blue
 let pacman_rad = 25
 
-(** A point is of the form (x,y) and represents a pixel position in the GUI 
+(** A [point] is of the form (x,y) and represents a pixel position in the GUI 
     window. In (x,y), x is the x-coordinate of the pixel position and y is the
     y-coordinate of the pixel position. *)
 type point = int * int
 
-(** A coordinate is of the form (x,y) and represents a coordinate in the map 
+(** A [coordinate] is of the form (x,y) and represents a coordinate in the map 
     tile array, where the origin is the bottom left corner of the map. Each tile 
     spans one vertical and horizontal unit. In (x,y), x is the x-coordinate of
     the position and y is the y-coordinate of the position.*) 
 type coordinate = int * int
 
-(** An orientation represents a cardinal direction. *)  
+(** An [orientation] represents a cardinal direction. *)  
 type orientation = Top | Bot | Left | Right
 
-(** A corner is represented by a pair of orientations (y, x), where y is the 
+(** A [corner] is represented by a pair of orientations (y, x), where y is the 
     vertical orientation (one of Top or Bot) and x is the horizontal orientation
     (one of Left or Right). *)
 type corner = orientation * orientation 
 
-(** A wall represents a wall tile in the map. A standard wall is vertical (Vert) 
-    or Horizontal (Horz). A wall may also be a corner (Corner), or it may be 
-    a wall end (End), meaning that it is capped at one end. *) 
+(** A [wall] represents a wall tile in the map. A standard wall is vertical 
+    (Vert) or Horizontal (Horz). A wall may also be a corner (Corner), or it may
+    be a wall end (End), meaning that it is capped at one end. *) 
 type wall = Vert | Horz | Corner of corner | End of orientation
 
-(** A tile represents tiles in the map. Empty tiles do not have anything. Food
+(** A [tile] represents tiles in the map. Empty tiles do not have anything. Food
     tiles have food in their centers. Special tiles have special food in their
     centers that give the player certain powerups. Ghost tiles do not have 
     anything but may only be traversed by ghosts. Wall tiles have a wall type 
@@ -42,7 +42,7 @@ type wall = Vert | Horz | Corner of corner | End of orientation
     tiles.  *)
 type tile = Empty | Food | Special | Ghost | Wall of wall
 
-(** A map_tile represents a tile in the map. A map_tile has a tile_type of type
+(** A [map_tile] represents a tile in the map. A map_tile has a tile_type of type
     tile and a bottom_left position of type point. *) 
 type map_tile = 
   {
@@ -388,7 +388,6 @@ let make_map (corner: point) (maze_name: string) : t =
   | "standard" -> {standard_map with bottom_left = corner; tiles = tile_list}
   | "OCaml" -> {standard_map with bottom_left = corner; tiles = tile_list}
   | _ -> failwith "map not found"
-
 (** [draw_corner_single first second] will draw a corner to the GUI window 
     with one endpoint of point [first] and the other endpoint at point [second]. 
 *) 
@@ -466,6 +465,9 @@ let calculate_coordinates (dir: orientation) (margin: int) (tile_x: int)
     let snd = (tile_x, tile_y + margin_snd) in 
     (fst, snd)
 
+(**[draw_wall_lines first second shift] will draw a double wall with the
+   endpoint of line at [first] and the parallel endpoint of the other line at 
+   [second]. The length of the wall is determined by [shift]. *)
 let draw_wall_lines (first: point) (second: point) (shift: int) : unit = 
   let fst_x = fst first in 
   let fst_y = snd first in 
@@ -482,6 +484,10 @@ let draw_wall_lines (first: point) (second: point) (shift: int) : unit =
   let endpoint_y = if fst_y = snd_y then snd_y + shift else snd_y in 
   lineto endpoint_x endpoint_y
 
+(**[draw_wall_cap tile_x tile_y dir shift] will draw a wall cap for a wall 
+   end tile for the tile with bottom left corner [(tile_x, tile_y)] and 
+   an orientation of [dir]. The location of the wall cap within the tile is
+   determined by [shift].*)
 let draw_wall_cap (tile_x: int) (tile_y: int) (dir: orientation) 
     (shift: int) : unit = 
   let margin = (tile_size - wall_width) / 2 in 
@@ -504,6 +510,8 @@ let draw_wall_cap (tile_x: int) (tile_y: int) (dir: orientation)
     moveto x_pos (tile_y + fst);
     lineto x_pos (tile_y + snd)
 
+(**[draw_wall_end tile end_type] will draw a wall end tile at the tile [tile]
+   with orientation [end_type]. *) 
 let draw_wall_end (tile: map_tile) (end_type: orientation) : unit = 
   let margin = (tile_size - wall_width) / 2 in 
   let tile_corner = tile.bottom_left in 
@@ -516,6 +524,10 @@ let draw_wall_end (tile: map_tile) (end_type: orientation) : unit =
   draw_wall_lines pos_one pos_two shift;
   draw_wall_cap tile_x tile_y end_type shift
 
+(**[draw_wall_normal tile orientation] will draw a standard horizontal or 
+   vertical double-layered wall at the map tile [tile]. The direction is given 
+   by [orientation] (if not Vert or Horz, the function draws nothing).
+*) 
 let draw_wall_normal (tile: map_tile) (orientation: wall) : unit = 
   let margin = (tile_size - wall_width) / 2 in 
   let tile_corner = tile.bottom_left in 
@@ -536,6 +548,8 @@ let draw_wall_normal (tile: map_tile) (orientation: wall) : unit =
 
   | _ -> ()
 
+(**[draw_wall tile wall_type] draws a wall of type [wall_type] in the map 
+   tile [tile] in the GUI window. *) 
 let draw_wall (tile: map_tile) (wall_type: wall) : unit = 
   set_color wall_color;
   match wall_type with 
@@ -544,6 +558,8 @@ let draw_wall (tile: map_tile) (wall_type: wall) : unit =
   | Corner corner -> draw_corner_full tile corner
   | End endwall -> draw_wall_end tile endwall
 
+(**[draw_food tile radius] will draw food in the map tile [tile] with a 
+   radius [radius]. *) 
 let draw_food (tile: map_tile) (radius: int) : unit = 
   set_color food_color;
   let tile_corner = tile.bottom_left in 
@@ -551,41 +567,54 @@ let draw_food (tile: map_tile) (radius: int) : unit =
   let y_center = snd tile_corner + tile_size / 2 in 
   fill_circle x_center y_center radius
 
-(* temporary helper function to make map tile outlines visible *)
-let draw_outline (tile: map_tile) : unit = 
-  set_color wall_color;
-  let bottom_corner = tile.bottom_left in 
-  let x_position = fst bottom_corner in 
-  let y_position = snd bottom_corner in 
-  draw_rect x_position y_position tile_size tile_size
-
-let draw_tile (tile: map_tile) : unit =
-  (* draw_outline tile;  *)
-  match tile.tile_type with
-  | Empty | Food | Ghost -> ()
-  | Special -> draw_food tile special_radius
-  | Wall wall -> draw_wall tile wall
-
-let draw_map_row (map_row : map_tile array) : unit = 
-  ignore (Array.map draw_tile map_row);
-  ()
-
-let draw_map (map: t) : unit = 
-  ignore (Array.map draw_map_row map.tiles);
-  ()
-
+(**[draw_food_helper tile] will draw food to the tile [tile] if [tile] is a Food
+   tile. Otherwise, the function does nothing. *)
 let draw_food_helper (tile: map_tile) : unit = 
   match tile.tile_type with 
   | Food -> draw_food tile food_radius
   | _ -> ()
 
+(** [draw_food_row] will draw all Food tiles in the tile array [food_row] to the
+    GUI window. *)
 let draw_food_row (food_row: map_tile array) : unit = 
   ignore (Array.map draw_food_helper food_row);
   ()
 
+(**[draw_food map] will draw food in all Food tiles in the map [map]. *) 
 let draw_food (map: t) : unit =
   ignore (Array.map draw_food_row map.tiles);
   ()
+(* temporary helper function to make map tile outlines visible *)
+(* let draw_outline (tile: map_tile) : unit = 
+   set_color wall_color;
+   let bottom_corner = tile.bottom_left in 
+   let x_position = fst bottom_corner in 
+   let y_position = snd bottom_corner in 
+   draw_rect x_position y_position tile_size tile_size *)
+
+(**[draw_tile tile] will draw the correct display of the tile [tile] according
+   to its tile type. Food tiles will be drawn the same as Empty tiles (the logic
+   to draw food is in a separate function).  *) 
+let draw_tile (tile: map_tile) : unit =
+  match tile.tile_type with
+  | Empty | Food | Ghost -> ()
+  | Special -> draw_food tile special_radius
+  | Wall wall -> draw_wall tile wall
+
+(**[draw_map_row] will draw the correct display of all tiles in the tile 
+   row [map_row] according to the function [draw_tile]. *) 
+let draw_map_row (map_row : map_tile array) : unit = 
+  ignore (Array.map draw_tile map_row);
+  ()
+
+(**[draw_map map] will draw the correct display of all tiles in the map [map]
+   according to the function [draw_tile].*) 
+let draw_map (map: t) : unit = 
+  ignore (Array.map draw_map_row map.tiles);
+  ()
+
+
+
 
 
 
