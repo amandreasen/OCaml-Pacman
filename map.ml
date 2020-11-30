@@ -9,25 +9,52 @@ let food_color = rgb 255 184 245
 let wall_color = Graphics.blue
 let pacman_rad = 25
 
+(** A point is of the form (x,y) and represents a pixel position in the GUI 
+    window. In (x,y), x is the x-coordinate of the pixel position and y is the
+    y-coordinate of the pixel position. *)
 type point = int * int
 
+(** A coordinate is of the form (x,y) and represents a coordinate in the map 
+    tile array, where the origin is the bottom left corner of the map. Each tile 
+    spans one vertical and horizontal unit. In (x,y), x is the x-coordinate of
+    the position and y is the y-coordinate of the position.*) 
 type coordinate = int * int
 
+(** An orientation represents a cardinal direction. *)  
 type orientation = Top | Bot | Left | Right
 
-(* (y,x) where x is horizontal orientation and y is vertical orientation *)
+(** A corner is represented by a pair of orientations (y, x), where y is the 
+    vertical orientation (one of Top or Bot) and x is the horizontal orientation
+    (one of Left or Right). *)
 type corner = orientation * orientation 
 
+(** A wall represents a wall tile in the map. A standard wall is vertical (Vert) 
+    or Horizontal (Horz). A wall may also be a corner (Corner), or it may be 
+    a wall end (End), meaning that it is capped at one end. *) 
 type wall = Vert | Horz | Corner of corner | End of orientation
 
+(** A tile represents tiles in the map. Empty tiles do not have anything. Food
+    tiles have food in their centers. Special tiles have special food in their
+    centers that give the player certain powerups. Ghost tiles do not have 
+    anything but may only be traversed by ghosts. Wall tiles have a wall type 
+    and may not be traversed by players or ghosts. Players can traverse empty, 
+    food, and special tiles. Ghosts can traverse empty, food, special, and ghost
+    tiles.  *)
 type tile = Empty | Food | Special | Ghost | Wall of wall
 
+(** A map_tile represents a tile in the map. A map_tile has a tile_type of type
+    tile and a bottom_left position of type point. *) 
 type map_tile = 
   {
     tile_type: tile;
     bottom_left: point;
   }
 
+(** A Map.t type represents a game map. It has a tiles field that is a 2D array
+    with elements of type map_tile, representing all tiles in the map. The map
+    additionally has an integer width and integer height, as well as a 
+    bottom_left field of type point so that the map can be appropriately drawn 
+     in the GUI. *)
 type t =
   {
     tiles: map_tile array array;
@@ -36,6 +63,8 @@ type t =
     bottom_left: point;
   }
 
+(** The standard_map is a Map.t type and represents a standard game map with
+    standard dimensions. *)  
 let standard_map = 
   {
     tiles = [||];
@@ -44,6 +73,8 @@ let standard_map =
     bottom_left = (0,0)
   } 
 
+(** The standard_maze is a 2D array of tile_types that represents the layout
+    of the default game map. *) 
 let standard_maze = 
   [|
     [|Wall (Corner (Bot, Left)); Wall Vert; Wall Vert; Wall Vert; Wall Vert; 
@@ -105,6 +136,8 @@ let standard_maze =
       Wall Vert;Wall Vert; Wall(Corner (Top, Right))|];
   |]
 
+(** The ocaml_maze is a 2D array of tile types that represents the layout of
+    an OCaml game map.*) 
 let ocaml_maze = 
   [| 
     [|Wall (Corner (Bot, Left)); Wall Vert; Wall Vert; Wall Vert;
@@ -276,8 +309,9 @@ let check_food pos map =
     done;
   done *)
 
-let map_shift = 100
-
+(** [position_to_coordinate p] will convert a pixel position [p] in the GUI to 
+    a coordinate in the map array.
+    Requires: [p] is a valid pixel position in the map.*) 
 let position_to_coordinate (position: point) : coordinate = 
   let x_position = fst position - map_shift in 
   let y_position = snd position - map_shift in 
@@ -285,6 +319,9 @@ let position_to_coordinate (position: point) : coordinate =
   let y_coordinate = y_position / tile_size in 
   (x_coordinate, y_coordinate)
 
+(** [coordinate_to_position c] will convert a map coordinate [c] to a pixel
+    position in the GUI window. 
+    Requires: [c] is a valid coordinate in the map array.*) 
 let coordinate_to_position (coordinate: coordinate) (map_corner: point) : 
   point = 
   let x_coordinate = fst coordinate in 
@@ -295,7 +332,10 @@ let coordinate_to_position (coordinate: coordinate) (map_corner: point) :
   let y_position = y_coordinate * tile_size + map_y in 
   (x_position, y_position)
 
-let check_food pos map =
+(** [check_food p m] will check if the tile at pixel position [p] in map [m] 
+    is a Food tile. If it is, it will replace the Food tile with an Empty tile.
+    If not, the functions does nothing.*) 
+let check_food (pos: point) (map: t) =
   let coordinate = position_to_coordinate pos in 
   let x = fst coordinate in 
   let y = snd coordinate in 
@@ -305,6 +345,8 @@ let check_food pos map =
     map.tiles.(x).(y) <- {tile with tile_type = Empty} 
   | _ -> ()
 
+(** [make_tile x y map_corner tile_type] will make a map_tile with a bottom
+    left corner at map coordinate [(x, y)] and a tile type of [tile_type].*)
 let make_tile (x: int) (y: int) (map_corner: point) (tile_type: tile) :
   map_tile = 
   let position = coordinate_to_position (x, y) map_corner in 
@@ -313,6 +355,9 @@ let make_tile (x: int) (y: int) (map_corner: point) (tile_type: tile) :
     bottom_left = position;
   }
 
+(** [make_tiles x_dim y_dim map_corner tile_types] will create a 2D array
+    of map_tiles representing a map of width [x_dim] and height [y_dim] with a
+    bottom left corner at [map_corner] and a map layout given by [tile_types].*) 
 let make_tiles (x_dim: int) (y_dim: int) (map_corner: point) 
     (tile_types : tile array array): map_tile array array = 
   let default_tile = 
@@ -329,8 +374,10 @@ let make_tiles (x_dim: int) (y_dim: int) (map_corner: point)
   done;
   tile_array
 
-let make_map (corner: point) (maze_name: string)
-  : t =   
+(** [make_map corner maze_name] will return a map with a bottom left corner at 
+    [corner] and a tile layout represented by the maze label [maze_name]. Fails
+    if [maze_name] is not a valid maze name.*)
+let make_map (corner: point) (maze_name: string) : t =   
   let tile_list = 
     match maze_name with 
     | "standard" -> make_tiles 11 26 corner standard_maze
@@ -342,6 +389,9 @@ let make_map (corner: point) (maze_name: string)
   | "OCaml" -> {standard_map with bottom_left = corner; tiles = tile_list}
   | _ -> failwith "map not found"
 
+(** [draw_corner_single first second] will draw a corner to the GUI window 
+    with one endpoint of point [first] and the other endpoint at point [second]. 
+*) 
 let draw_corner_single (first: point) (second: point) : unit = 
   let fst_x = fst first in 
   let fst_y = snd first in 
@@ -351,6 +401,9 @@ let draw_corner_single (first: point) (second: point) : unit =
   lineto fst_x snd_y;
   lineto snd_x snd_y
 
+(* [draw_corner_double] will draw a double corner to the GUI window with an 
+   inner corner with endpoints [first] and [second] and a corner of orientation 
+   [corner_type]. *)
 let draw_corner_double (first: point) (second: point) (corner_type: corner) :
   unit = 
   draw_corner_single first second;
@@ -370,6 +423,8 @@ let draw_corner_double (first: point) (second: point) (corner_type: corner) :
   in 
   draw_corner_single (first_x, fst_y) (snd_x, second_y)
 
+(**[draw_corner_full] will draw a double_corner to the GUI window in the tile
+   [tile] with a corner orientation of [corner_type]. *)
 let draw_corner_full (tile: map_tile) (corner_type: corner) : unit = 
   let tile_x = fst tile.bottom_left in 
   let tile_y = snd tile.bottom_left in 
@@ -384,6 +439,10 @@ let draw_corner_full (tile: map_tile) (corner_type: corner) : unit =
   let snd = (snd_x + tile_x, snd_y + tile_y) in 
   draw_corner_double fst snd corner_type
 
+(**[calculate_coordinates dir margin tile_x tile_y shift] will calculate the
+   endpoints for a wall_end tile of orientation [dir] with a tile margin of 
+   [margin] and bottom_left corner of [(tile_x, tile_y)]. The wall end will be
+   a pixel distance of [shift] from the tile side matching its orientation.*)
 let calculate_coordinates (dir: orientation) (margin: int) (tile_x: int)
     (tile_y: int) (shift: int) : point * point = 
   let margin_fst = margin in 
@@ -527,6 +586,8 @@ let draw_food_row (food_row: map_tile array) : unit =
 let draw_food (map: t) : unit =
   ignore (Array.map draw_food_row map.tiles);
   ()
+
+
 
 
 
