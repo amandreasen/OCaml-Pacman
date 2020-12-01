@@ -13,5 +13,13 @@ val get_position: t -> int * int
     direction.*)
 val move: t -> int * int -> unit 
 
-
 val player_image: t -> Sprite.t
+
+
+val player_prev_move: t -> int * int 
+
+val player_prev_attempt: t -> int * int
+
+val move_made: t -> int * int -> unit
+
+val move_attempt: t -> int * int -> unit

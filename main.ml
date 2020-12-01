@@ -174,10 +174,12 @@ let make_move user map dir  =
 
 (** [prev_move] is the actual move that the user just made. 
     [prev_move_attempt] is their last input that may or may not have passed. *)
-let rec loop state map_image prev_move prev_move_attempt = 
+let rec loop state map_image  = 
   let user = player state in 
   let map = map state in 
   let ghosts = ghosts state in
+  let prev_move = player_prev_move user in 
+  let prev_move_attempt = player_prev_attempt user in 
   let next_move = 
     if Graphics.key_pressed () 
     then parse_dir (Graphics.read_key ())
@@ -186,18 +188,27 @@ let rec loop state map_image prev_move prev_move_attempt =
   flush ();
   let current_move = pick_move user map next_move prev_move in 
   make_move user map current_move;
-  draw_current_map map map_image;
+  (* draw_current_map map map_image; *)
   (*draw_image map_image 0 0;*)
   let new_state = State.update_state_food state map in
-  draw_state new_state;
+  (* draw_state new_state; *)
   (*draw_string (tile_type (Map.get_tile_type (get_position user) map));*)
   (*draw_string (check_move (Map.check_move (get_position user) map dir));*)
-  draw_player user;
   move_ghosts ghosts map user; 
-  draw_ghosts (ghosts);
+  draw_game new_state map_image;
+  (* draw_player user; *)
+  (* draw_ghosts (ghosts); *)
   synchronize ();
-  Unix.sleepf(sleep_time);
-  loop state map_image current_move next_move
+  Unix.sleepf(sleep_time); 
+  move_made user current_move;
+  move_attempt user next_move;
+  loop state map_image 
+
+and draw_game state map_image = 
+  draw_current_map (map state) map_image;
+  draw_state state;
+  draw_player (player state);
+  draw_ghosts (ghosts state);
 
 and draw_ghosts ghosts = 
   set_color cyan;
@@ -220,10 +231,6 @@ and draw_player user =
   let image = Graphic_image.of_image sprite in 
   Graphics.draw_image image (x-player_radius) (y-player_radius)
 
-(* draw_image ((sprite_image (player_image new_player))) 
-   (x-player_radius) (y-player_radius); *)
-(* Graphic_image.draw_image (sprite_image (player_image new_player)) 
-   150 150; *)
 and draw_current_map (map: Map.t) (map_image: Graphics.image) = 
   Graphics.draw_image map_image 0 0;
   Map.draw_food map;
@@ -267,7 +274,7 @@ let main (settings: string) : unit =
   set_text_size 32;
   draw_string (game_status state);
   auto_synchronize false;
-  ignore (loop state map_background (0,0) (0,0));
+  ignore (loop state map_background);
   ()
 
 let () = 
