@@ -313,6 +313,7 @@ let check_food pos map =
     a coordinate in the map array.
     Requires: [p] is a valid pixel position in the map.*) 
 let position_to_coordinate (position: point) : coordinate = 
+  let map_shift = 100 in
   let x_position = fst position - map_shift in 
   let y_position = snd position - map_shift in 
   let x_coordinate = x_position / tile_size in 
@@ -560,7 +561,7 @@ let draw_wall (tile: map_tile) (wall_type: wall) : unit =
 
 (**[draw_food tile radius] will draw food in the map tile [tile] with a 
    radius [radius]. *) 
-let draw_food (tile: map_tile) (radius: int) : unit = 
+let draw_food_tile (tile: map_tile) (radius: int) : unit = 
   set_color food_color;
   let tile_corner = tile.bottom_left in 
   let x_center = fst tile_corner + tile_size / 2 in 
@@ -571,7 +572,7 @@ let draw_food (tile: map_tile) (radius: int) : unit =
    tile. Otherwise, the function does nothing. *)
 let draw_food_helper (tile: map_tile) : unit = 
   match tile.tile_type with 
-  | Food -> draw_food tile food_radius
+  | Food -> draw_food_tile tile food_radius
   | _ -> ()
 
 (** [draw_food_row] will draw all Food tiles in the tile array [food_row] to the
@@ -598,7 +599,7 @@ let draw_food (map: t) : unit =
 let draw_tile (tile: map_tile) : unit =
   match tile.tile_type with
   | Empty | Food | Ghost -> ()
-  | Special -> draw_food tile special_radius
+  | Special -> draw_food_tile tile special_radius
   | Wall wall -> draw_wall tile wall
 
 (**[draw_map_row] will draw the correct display of all tiles in the tile 
