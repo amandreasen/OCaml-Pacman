@@ -129,6 +129,7 @@ let move_ghost_following ghost map user =
           (Random.self_init (); 
            parse_dir (rand_char (Random.self_init (); Random.int 4)))
 
+(** write helper functions to limit code length  *)
 let move_ghosts ghosts map (user : Player.t) = 
   Array.iter (fun g ->
       if is_following g && following_counter g <= int_of_float max_follow_time 
