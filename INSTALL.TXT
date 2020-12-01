@@ -45,3 +45,6 @@ installing via your package manager, use the opam installation instead.
 ***NEW
 1. Run 'opam update', then 'opam upgrade' to upgrade packages to newest 
 versions.
+
+If you are on Mac, make sure you have XQuartz installed and launch the program 
+prior to running the code. 
