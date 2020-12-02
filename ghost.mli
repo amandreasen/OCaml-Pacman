@@ -4,7 +4,7 @@ type t
 
 (** [new_ghost] is a new ghost with the given initial position and initial
     move. *)
-val new_ghost: int -> int -> int * int -> string -> t
+val new_ghost: int -> int -> int * int -> Sprite.t list -> t
 
 (** [get_position] is the position of a ghost as a tuple. *)
 val get_position: t -> int * int
@@ -40,4 +40,4 @@ val start_following: t -> unit
     the input. *)
 (* val set_prev_move: t -> int * int -> unit *)
 
-val get_sprite: t -> Sprite.t
+val get_sprite: t -> direction -> Sprite.t

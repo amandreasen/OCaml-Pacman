@@ -1,21 +1,23 @@
 open Sprite 
 
+exception UnknownDirection 
+
 type t = {
   mutable x : int;
   mutable y : int;
   mutable is_following : bool; 
   mutable following_counter : int;
   mutable prev_move : int * int;
-  sprite : Sprite.t
+  sprites : Sprite.t list
 }
 
-let new_ghost x_pos y_pos init_move png_name = {
+let new_ghost x_pos y_pos init_move sprite_lst = {
   x = x_pos; 
   y = y_pos; 
   is_following = false; 
   following_counter = 0;
   prev_move = init_move; 
-  sprite = make_sprite png_name
+  sprites = sprite_lst
 }
 
 let get_position g =
@@ -46,5 +48,9 @@ let start_following g =
   g.is_following <- true;
   g.following_counter <- 1
 
-let get_sprite g = 
-  g.sprite
+let get_sprite g dir= 
+  let rec helper_find_sprite = function 
+    | [] -> raise UnknownDirection 
+    | h::t -> if sprite_direction h = dir then h else helper_find_sprite t
+  in 
+  helper_find_sprite (g.sprites)

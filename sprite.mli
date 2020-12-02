@@ -1,5 +1,7 @@
 type t
 
+type direction 
+
 (** [new_sprite] is the image to be displayed from a file directory. *)
 val make_sprite: string -> t
 
@@ -10,3 +12,5 @@ val sprite_h: t -> int
 val sprite_w: t -> int
 
 val sprite_image: t -> Images.t
+
+val sprite_direction: t -> direction 

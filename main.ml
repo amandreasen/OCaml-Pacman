@@ -36,7 +36,7 @@ let set_window (title: string) (color: Graphics.color) : unit =
   set_color black;
   fill_rect 0 0 (size_x ()) (size_y ())
 
-let num_ghosts = 2
+let num_ghosts = 1
 
 (** circle of radius [closeness_threshold] encompassess the nearest 8 tiles 
     around the user.  *)
@@ -223,7 +223,11 @@ and draw_ghosts ghosts =
 and draw_player user = 
   let x = fst (Player.get_position user) in 
   let y = snd (Player.get_position user) in 
-  let image = user |> player_image |> sprite_image |> Graphic_image.of_image in 
+  let image = user 
+              |> player_image 
+              |> sprite_image 
+              |> Graphic_image.of_image 
+  in 
   Graphics.draw_image image (x-player_radius) (y-player_radius)
 
 and draw_current_map (map: Map.t) (map_image: Graphics.image) = 
@@ -239,7 +243,6 @@ and draw_state state =
   moveto 175 675;
   draw_string ("Level: " ^ string_of_int (current_level state));
   draw_lives state;
-  (* draw_string (game_status state) *)
 
 and draw_lives state = 
   let rec draw_helper prev_pos = function 

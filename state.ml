@@ -70,13 +70,29 @@ let remove_follower state ghost =
   in 
   find_follower [] (followers state)
 
+let make_ghost_sprites (color : string) : Sprite.t list= 
+  let dir = [|"_up.png"; "_right.png"; "_down.png"; "_left.png"|] in 
+  (* for i = 0 to 3 do 
+     let sprite = (make_sprite (color ^ dir.(i))) in 
+     (sprite::acc)
+     done; *)
+
+  let rec helper_initialize_sprites acc counter = function 
+    | n when n>=0 -> let sprite = (make_sprite (color ^ dir.(counter))) in     
+      helper_initialize_sprites (sprite::acc) (counter + 1) (n - 1)
+    | _ -> acc
+  in 
+  helper_initialize_sprites [] 0 3 
+
+
 let make_ghosts num min_x min_y = 
-  let color_list = [|"cyan_right.png"; "orange_right.png"|] in 
+  let color_list = [|"cyan"|] in 
   let rec set_ghosts_helper acc counter = function 
     | n when n>0 -> begin 
         let x = min_x + (50 * counter) in 
         let y = min_y in 
-        let new_g = new_ghost x y (0,50) color_list.(counter) in 
+        let sprites = (make_ghost_sprites color_list.(counter)) in 
+        let new_g = new_ghost x y (0,50) sprites in 
         set_ghosts_helper (new_g::acc) (counter + 1) (n - 1)
       end 
     | _ -> acc 
