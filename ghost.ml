@@ -1,17 +1,21 @@
+open Sprite 
+
 type t = {
   mutable x : int;
   mutable y : int;
   mutable is_following : bool; 
   mutable following_counter : int;
-  mutable prev_move : int *int 
+  mutable prev_move : int * int;
+  sprite : Sprite.t
 }
 
-let new_ghost x_pos y_pos init_move = {
+let new_ghost x_pos y_pos init_move png_name = {
   x = x_pos; 
   y = y_pos; 
   is_following = false; 
   following_counter = 0;
-  prev_move = init_move
+  prev_move = init_move; 
+  sprite = make_sprite png_name
 }
 
 let get_position g =
@@ -41,3 +45,6 @@ let reset_following g =
 let start_following g =  
   g.is_following <- true;
   g.following_counter <- 1
+
+let get_sprite g = 
+  g.sprite

@@ -20,10 +20,10 @@ let move_amt = 15
 
 let sleep_time = 0.05
 
-let game_status state = 
-  ("Points: " ^ string_of_int (points state)
+(* let game_status state = 
+   ("Points: " ^ string_of_int (points state)
    ^ "   Lives: " ^ string_of_int (lives state)
-   ^ "   Level: " ^ string_of_int (current_level state))
+   ^ "   Level: " ^ string_of_int (current_level state)) *)
 
 let tile_type str = ("Tile type: " ^ str)
 
@@ -221,14 +221,9 @@ and draw_ghosts ghosts =
   done
 
 and draw_player user = 
-  (* let x = fst (get_position user) in 
-     let y = snd (get_position user) in 
-     set_color yellow; 
-     fill_circle x y player_radius *)
   let x = fst (Player.get_position user) in 
   let y = snd (Player.get_position user) in 
-  let sprite = (sprite_image (player_image new_player)) in
-  let image = Graphic_image.of_image sprite in 
+  let image = user |> player_image |> sprite_image |> Graphic_image.of_image in 
   Graphics.draw_image image (x-player_radius) (y-player_radius)
 
 and draw_current_map (map: Map.t) (map_image: Graphics.image) = 
@@ -240,7 +235,27 @@ and draw_current_map (map: Map.t) (map_image: Graphics.image) =
 and draw_state state = 
   moveto 175 75;
   set_color red;
-  draw_string (game_status state)
+  draw_string ("Points: " ^ string_of_int (points state));
+  draw_lives state;
+  (* draw_string (game_status state) *)
+
+and draw_lives state = 
+  let rec draw_helper prev_pos = function 
+    | [] -> ()
+    | h::t -> begin 
+        let x = (fst prev_pos) + 50 in 
+        let y = snd prev_pos in 
+        (** TODO: make the cherry png 50x50 for use here *)
+
+        (* let img = h |> sprite_image |> Graphic_image.of_image in 
+           Graphics.draw_image img x y; *)
+        set_color red;
+        draw_circle x y 24;
+        draw_helper (x,y) t
+      end
+  in 
+  draw_helper (1125,75) (lives_img_lst state) 
+
 
 let window_init (settings: string) : unit = 
   open_graph settings;
@@ -272,7 +287,7 @@ let main (settings: string) : unit =
   Array.iter ghost_helper ghosts;
   set_color red;
   set_text_size 32;
-  draw_string (game_status state);
+  (* draw_string (game_status state); *)
   auto_synchronize false;
   ignore (loop state map_background);
   ()

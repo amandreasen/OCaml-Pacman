@@ -1,6 +1,7 @@
 open Ghost
 open Player
 open Map 
+open Sprite
 
 type t 
 
@@ -33,3 +34,6 @@ val update_state_food: t -> Map.t -> t
     are all lined up in a row horizontally starting from the minimum x and y 
     values. *)
 val make_ghosts: int -> int -> int -> Ghost.t array 
+
+
+val lives_img_lst: t -> Sprite.t list

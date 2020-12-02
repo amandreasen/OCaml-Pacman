@@ -1,8 +1,10 @@
+open Sprite
+
 type t
 
 (** [new_ghost] is a new ghost with the given initial position and initial
     move. *)
-val new_ghost: int -> int -> int * int -> t
+val new_ghost: int -> int -> int * int -> string -> t
 
 (** [get_position] is the position of a ghost as a tuple. *)
 val get_position: t -> int * int
@@ -37,3 +39,5 @@ val start_following: t -> unit
 (** [set_prev_move] updates the ghost's previous move to the one specified by 
     the input. *)
 (* val set_prev_move: t -> int * int -> unit *)
+
+val get_sprite: t -> Sprite.t

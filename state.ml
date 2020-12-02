@@ -1,6 +1,7 @@
 open Ghost
 open Map
 open Player
+open Sprite
 
 type t = {
   player : Player.t;
@@ -70,11 +71,12 @@ let remove_follower state ghost =
   find_follower [] (followers state)
 
 let make_ghosts num min_x min_y = 
+  let color_list = [|"cyan_right.png"; "orange_right.png"|] in 
   let rec set_ghosts_helper acc counter = function 
     | n when n>0 -> begin 
         let x = min_x + (50 * counter) in 
         let y = min_y in 
-        let new_g = new_ghost x y (0,50) in 
+        let new_g = new_ghost x y (0,50) color_list.(counter) in 
         set_ghosts_helper (new_g::acc) (counter + 1) (n - 1)
       end 
     | _ -> acc 
@@ -82,3 +84,11 @@ let make_ghosts num min_x min_y =
            |> Array.of_list 
   in 
   set_ghosts_helper [] 0 num
+
+
+let lives_img_lst state = 
+  let rec make_lst acc = function 
+    | n when n>0 -> make_lst ((make_sprite "cherry.png")::acc) (n-1)
+    | _ -> acc
+  in 
+  make_lst [] (lives state)

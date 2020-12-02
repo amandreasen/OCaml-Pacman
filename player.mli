@@ -1,3 +1,5 @@
+type direction
+
 type t
 
 (** [new_player] is a hard-coded player with initial coordinates centered at 
@@ -15,6 +17,7 @@ val move: t -> int * int -> unit
 
 val player_image: t -> Sprite.t
 
+val player_direction: t -> direction
 
 val player_prev_move: t -> int * int 
 
