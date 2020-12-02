@@ -236,6 +236,8 @@ and draw_state state =
   moveto 175 75;
   set_color red;
   draw_string ("Points: " ^ string_of_int (points state));
+  moveto 175 675;
+  draw_string ("Level: " ^ string_of_int (current_level state));
   draw_lives state;
   (* draw_string (game_status state) *)
 
