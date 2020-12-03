@@ -3,13 +3,9 @@ open Player
 open Ghost
 open Map
 
-
 let pp_tuple coordinates = 
   "( " ^ string_of_int (fst coordinates) ^ " , " ^ 
   string_of_int (snd coordinates) ^ " )"
-
-(** TODO: abstract out the move and position test for plater and ghost *)
-(** we may want to abstract out ghost and player in general..  *)
 
 let player_move_pos_test  
     (name : string) 

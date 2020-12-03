@@ -27,6 +27,15 @@ let get_position player =
   (player.x, player.y)
 
 let move (player : t) (dir : int * int) = 
+  let update_dir = 
+    match dir with 
+    | (x,0) when x > 0 -> Right
+    | (x,0) when x < 0 -> Left
+    | (y,0) when y > 0 -> Up
+    | (y,0) when y < 0 -> Down
+    | _ -> player.direction
+  in 
+  player.direction <- update_dir; 
   player.x <- fst (get_position player) + fst dir; 
   player.y <- snd (get_position player) + snd dir;
   player.prev_move <- dir

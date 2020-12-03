@@ -54,3 +54,4 @@ let get_sprite g dir=
     | h::t -> if sprite_direction h = dir then h else helper_find_sprite t
   in 
   helper_find_sprite (g.sprites)
+[@@coverage off]
