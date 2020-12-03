@@ -28,7 +28,8 @@ let get_position player =
 
 let move (player : t) (dir : int * int) = 
   player.x <- fst (get_position player) + fst dir; 
-  player.y <- snd (get_position player) + snd dir 
+  player.y <- snd (get_position player) + snd dir;
+  player.prev_move <- dir
 
 let player_direction player = 
   player.direction

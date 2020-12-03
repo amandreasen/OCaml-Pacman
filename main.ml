@@ -92,62 +92,54 @@ let position_diff ghost user =
 
 let will_follow ghost map dir_attempt = 
   let continue =  Map.check_move (get_position ghost) map dir_attempt in 
-  if continue then Ghost.move ghost dir_attempt;
-  continue
+  if continue 
+  then (start_following ghost; Ghost.move ghost dir_attempt; continue)
+  else not continue 
 
 let start_follow ghost dir = 
   start_following ghost
-(* set_prev_move ghost dir  *)
 
 let rec randomly_move_ghost ghost map dir = 
   if Map.check_move (get_position ghost) map dir 
-  then (* set_prev_move ghost dir;  *)
-    Ghost.move ghost dir 
+  then Ghost.move ghost dir 
   else randomly_move_ghost ghost map 
       (parse_dir (rand_char (Random.self_init (); Random.int 4)))
 
-(** TODO: there's a lot of repeated code here. rochelle will get to that soon *)
 let move_ghost_following ghost map user = 
   incr_following_count ghost;
   let position_difference = position_diff ghost user in 
   let x_sign = position_difference |> fst |> number_sign in 
   let y_sign = position_difference |> snd |> number_sign in 
   match position_difference with
-  | (n,0) -> let dir_attempt = (x_sign * move_amt, 0) in 
-    if will_follow ghost map dir_attempt 
-    then start_follow ghost dir_attempt
-  | (0,m) -> let dir_attempt = (0, y_sign * move_amt) in 
-    if will_follow ghost map dir_attempt 
-    then start_follow ghost dir_attempt
-  | (n,m) -> let dir_attempt = (x_sign * move_amt, 0) in 
-    if will_follow ghost map dir_attempt 
-    then start_follow ghost dir_attempt
-    else let dir_attempt = (0, y_sign * move_amt) in
-      if will_follow ghost map dir_attempt 
-      then start_follow ghost dir_attempt
-      else randomly_move_ghost ghost map 
-          (Random.self_init (); 
-           parse_dir (rand_char (Random.self_init (); Random.int 4)))
+  | (n,0) -> ignore (will_follow ghost map (x_sign * move_amt, 0))
+  | (0,m) -> ignore (will_follow ghost map (0, y_sign * move_amt))
+  | (n,m) -> begin 
+      if not (will_follow ghost map (x_sign * move_amt, 0))
+      then 
+        if not (will_follow ghost map (0, y_sign * move_amt))
+        then randomly_move_ghost ghost map 
+            (Random.self_init (); 
+             parse_dir (rand_char (Random.self_init (); Random.int 4))) 
+    end 
 
-(** write helper functions to limit code length  *)
+let try_ghost_follow g map user= 
+  reset_following g; 
+  if are_close g user 
+  then move_ghost_following g map user 
+  else 
+    begin 
+      if Map.check_move (get_position g) map (prev_move g)
+      then Ghost.move g (prev_move g) 
+      else randomly_move_ghost g map
+          (Random.self_init (); 
+           parse_dir (rand_char (Random.self_init (); Random.int 4))) 
+    end 
+
 let move_ghosts ghosts map (user : Player.t) = 
   Array.iter (fun g ->
       if is_following g && following_counter g <= int_of_float max_follow_time 
       then move_ghost_following g map user 
-      else 
-        begin 
-          reset_following g; 
-          if are_close g user 
-          then move_ghost_following g map user 
-          else 
-            begin 
-              if Map.check_move (get_position g) map (prev_move g)
-              then Ghost.move g (prev_move g) 
-              else randomly_move_ghost g map
-                  (Random.self_init (); 
-                   parse_dir (rand_char (Random.self_init (); Random.int 4))) 
-            end 
-        end) 
+      else try_ghost_follow g map user)
     ghosts 
 
 let flush () = 

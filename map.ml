@@ -613,11 +613,3 @@ let draw_map_row (map_row : map_tile array) : unit =
 let draw_map (map: t) : unit = 
   ignore (Array.map draw_map_row map.tiles);
   ()
-
-
-
-
-
-
-
-
