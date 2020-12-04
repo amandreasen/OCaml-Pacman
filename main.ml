@@ -20,11 +20,14 @@ let move_amt = 15
 
 let sleep_time = 0.05
 
-let tile_type str = ("Tile type: " ^ str)
+let tile_type str = 
+  ("Tile type: " ^ str)
 
-let food_count food = ("Food Count: " ^ string_of_int (food))
+let food_count food = 
+  ("Food Count: " ^ string_of_int food)
 
-let check_move b = ("Can Move: " ^ string_of_bool(b))
+let check_move b = 
+  ("Can Move: " ^ string_of_bool b)
 
 let set_window (title: string) (color: Graphics.color) : unit = 
   set_window_title title;
