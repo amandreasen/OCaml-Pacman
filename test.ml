@@ -17,9 +17,16 @@ let player_move_pos_test
                                     Player.get_position player)
         ~printer:pp_tuple)
 
-let player_1 = new_player
+let player_direction_test 
+    (name : string) 
+    (player : Player.t)
+    (input_dir : int * int)
+    (expected_output : Player.direction) : test = 
+  name >:: (fun _ -> 
+      assert_equal expected_output (Player.move player input_dir; 
+                                    Player.player_direction player))
 
-let ghost_1 = new_ghost 225 275 (50,0) [] 
+let player_1 = new_player
 
 let player_tests =
   [
@@ -29,6 +36,10 @@ let player_tests =
       player_1 (0,50) (175,225);
     player_move_pos_test "After moving up 50, move right 50" 
       player_1 (50,0) (225,225);
+
+    (* player_direction_test "direction after moving (50,0) is Right" 
+       player_1 (50,0) (direction Right); *)
+
   ]
 
 let ghost_move_pos_test  
@@ -72,6 +83,7 @@ let following_counter_test
   name >:: (fun _ -> 
       assert_equal expected_output (Ghost.following_counter ghost))
 
+let ghost_1 = new_ghost 225 275 (50,0) [] 
 let ghost_2 = new_ghost 0 0 (0,0) []
 
 let ghost_tests = 

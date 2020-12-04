@@ -36,8 +36,6 @@ val reset_following: t -> unit
     following the player. *)
 val start_following: t -> unit
 
-(** [set_prev_move] updates the ghost's previous move to the one specified by 
-    the input. *)
-(* val set_prev_move: t -> int * int -> unit *)
-
+(** [get_sprite] is the sprite representing the ghost in the direction specified
+    by the input. *)
 val get_sprite: t -> direction -> Sprite.t

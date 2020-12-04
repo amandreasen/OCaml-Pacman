@@ -11,8 +11,6 @@ type t = {
   mutable prev_move_attempt : int * int 
 }
 
-
-(**let new_player = {image = Sprite.make_sprite "pacman.png"; x = 0; y = 0}*)
 let new_player = 
   {
     x = 175; 
@@ -57,4 +55,3 @@ let move_made user move =
 
 let move_attempt user move = 
   user.prev_move_attempt <- move
-
