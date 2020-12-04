@@ -1,4 +1,4 @@
-type direction
+type direction = Up | Right | Down | Left
 
 type t
 
@@ -15,14 +15,18 @@ val get_position: t -> int * int
     direction.*)
 val move: t -> int * int -> unit 
 
+(** [player_image] is the Sprite.t representation of a player. *)
 val player_image: t -> Sprite.t
 
+(** [player_direction] is the direction that the player is facing. The 
+    direction is a variant of Up/Right/Down/Left. *)
 val player_direction: t -> direction
 
+(** [player_prev_move] is the previous move that the player made. *)
 val player_prev_move: t -> int * int 
 
+(** [player_prev_attempt] is the last attempted move made by the player. *)
 val player_prev_attempt: t -> int * int
 
-val move_made: t -> int * int -> unit
-
+(** [move_attempt] updates the player's last move attempted. *)
 val move_attempt: t -> int * int -> unit

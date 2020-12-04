@@ -1,7 +1,7 @@
 open OUnit2
-open Player
 open Ghost
 open Map
+open Player
 
 let pp_tuple coordinates = 
   "( " ^ string_of_int (fst coordinates) ^ " , " ^ 
@@ -26,6 +26,14 @@ let player_direction_test
       assert_equal expected_output (Player.move player input_dir; 
                                     Player.player_direction player))
 
+let player_prev_move_test
+    (name : string) 
+    (player : Player.t)
+    (input_dir : int * int): test = 
+  name >:: (fun _ -> 
+      assert_equal input_dir (Player.move player input_dir; 
+                              Player.player_prev_move player)) 
+
 let player_1 = new_player
 
 let player_tests =
@@ -37,9 +45,19 @@ let player_tests =
     player_move_pos_test "After moving up 50, move right 50" 
       player_1 (50,0) (225,225);
 
-    (* player_direction_test "direction after moving (50,0) is Right" 
-       player_1 (50,0) (direction Right); *)
+    player_direction_test "direction after moving (50,0) is Right" 
+      player_1 (50,0) Right; 
+    player_direction_test "direction after moving (-50,0) is Left" 
+      player_1 (-50,0) Left; 
+    player_direction_test "direction after moving (0,50) is Up" 
+      player_1 (0,50) Up; 
+    player_direction_test "direction after moving (0,-50) is Down" 
+      player_1 (0,-50) Down; 
 
+    player_prev_move_test "starting at (225,275), move up one tile (0,50)"
+      player_1 (0,50);
+    player_prev_move_test "starting at (225,275), move up and right (50,50)"
+      player_1 (50,50);
   ]
 
 let ghost_move_pos_test  

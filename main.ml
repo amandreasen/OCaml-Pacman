@@ -192,7 +192,6 @@ let rec loop state map_image  =
   (* draw_ghosts (ghosts); *)
   synchronize ();
   Unix.sleepf(sleep_time); 
-  move_made user current_move;
   move_attempt user next_move;
   loop state map_image 
 

@@ -29,8 +29,8 @@ let move (player : t) (dir : int * int) =
     match dir with 
     | (x,0) when x > 0 -> Right
     | (x,0) when x < 0 -> Left
-    | (y,0) when y > 0 -> Up
-    | (y,0) when y < 0 -> Down
+    | (0,y) when y > 0 -> Up
+    | (0,y) when y < 0 -> Down
     | _ -> player.direction
   in 
   player.direction <- update_dir; 
@@ -43,15 +43,13 @@ let player_direction player =
 
 let player_image user = 
   user.image
+[@@coverage off]
 
 let player_prev_move user = 
   user.prev_move
 
 let player_prev_attempt user = 
   user.prev_move_attempt
-
-let move_made user move = 
-  user.prev_move <- move
 
 let move_attempt user move = 
   user.prev_move_attempt <- move
