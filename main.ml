@@ -38,7 +38,7 @@ let closeness_threshold = 50.0 *. sqrt 2.0
 
 (** [max_follow_time] is the maximum number of seconds that a ghost will follow
     the user. *)
-let max_follow_time = 5.0
+let max_follow_time = 5.0 (*100. *. sleep_time*)
 
 (** [parse_dir] is the tuple representing the change in coordinates from the 
     user's character input. *)
