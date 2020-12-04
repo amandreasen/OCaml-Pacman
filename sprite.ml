@@ -19,6 +19,10 @@ let make_sprite str = {
   direction = Right
 }
 
+let sprite_from_sheet (sheet: Images.t) (coordinate: int * int) (width: int) 
+    (height: int) : t = 
+  failwith "unimplemented"
+
 let sprite_h sprite = 
   sprite.height
 

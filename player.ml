@@ -2,6 +2,33 @@ open Sprite
 
 type direction = Up | Right | Down | Left
 
+(* constants for player *)
+let player_width = 50
+let player_height = 50
+let init_dir = Right 
+let init_pos = (175, 175)
+
+(* sprite sheet coordinates *)
+let player_init = (2, 0)
+let player_right = [(0, 0); (1, 0)]
+let player_left = [(1, 0); (1, 1)]
+let player_down = [(0, 3); (1, 3)]
+let player_up = [(0, 2); (1, 2)]
+let player_death = [(0, 3); (0, 4); (0, 5); (0, 6); (0, 7); (0, 8); (0, 9);
+                    (0, 10); (0, 11); (0, 12); (0, 13)]
+
+(* load sprites *)
+let sprite_sheet = Png.load_as_rgb24 ("./sprites/sprite_sheet.png") []
+
+type player_sprites = {
+  init : Sprite.t;
+  right : Sprite.t list;
+  left : Sprite.t list;
+  down : Sprite.t list;
+  up : Sprite.t list;
+  death : Sprite.t list;
+}
+
 type t = {
   mutable x : int;
   mutable y : int;
@@ -13,9 +40,9 @@ type t = {
 
 let new_player = 
   {
-    x = 175; 
-    y = 175;
-    direction = Right;
+    x = fst init_pos; 
+    y = snd init_pos;
+    direction = init_dir;
     image = Sprite.make_sprite "pacman2.png";
     prev_move = (0,0);
     prev_move_attempt = (0,0)
