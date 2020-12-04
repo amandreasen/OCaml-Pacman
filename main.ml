@@ -20,11 +20,6 @@ let move_amt = 15
 
 let sleep_time = 0.05
 
-(* let game_status state = 
-   ("Points: " ^ string_of_int (points state)
-   ^ "   Lives: " ^ string_of_int (lives state)
-   ^ "   Level: " ^ string_of_int (current_level state)) *)
-
 let tile_type str = ("Tile type: " ^ str)
 
 let food_count food = ("Food Count: " ^ string_of_int (food))
@@ -38,8 +33,7 @@ let set_window (title: string) (color: Graphics.color) : unit =
 
 let num_ghosts = 1
 
-(** circle of radius [closeness_threshold] encompassess the nearest 8 tiles 
-    around the user.  *)
+(** [closeness_threshold] encompassess the nearest 8 tiles around the user.  *)
 let closeness_threshold = 50.0 *. sqrt 2.0  
 
 (** [max_follow_time] is the maximum number of seconds that a ghost will follow
@@ -66,6 +60,7 @@ let rand_char num =
   | 3 -> 'd'
   | _ -> ' '
 
+(** [number_sign] is 1 if n is nonnegative and -1 if n is negative. *)
 let number_sign n = 
   match n with 
   | n when n >= 0 -> 1
@@ -91,7 +86,8 @@ let position_diff ghost user =
   (x_u - x_g, y_u - y_g)
 
 let will_follow ghost map dir_attempt = 
-  let continue =  Map.check_move (get_position ghost) map dir_attempt in 
+  let pos = get_position ghost in 
+  let continue =  Map.check_move pos map dir_attempt in 
   if continue 
   then (start_following ghost; Ghost.move ghost dir_attempt; continue)
   else not continue 
@@ -105,11 +101,7 @@ let rec randomly_move_ghost ghost map dir =
   else randomly_move_ghost ghost map 
       (parse_dir (rand_char (Random.self_init (); Random.int 4)))
 
-let move_ghost_following ghost map user = 
-  incr_following_count ghost;
-  let position_difference = position_diff ghost user in 
-  let x_sign = position_difference |> fst |> number_sign in 
-  let y_sign = position_difference |> snd |> number_sign in 
+let helper_following_make_move ghost map position_difference x_sign y_sign = 
   match position_difference with
   | (n,0) -> ignore (will_follow ghost map (x_sign * move_amt, 0))
   | (0,m) -> ignore (will_follow ghost map (0, y_sign * move_amt))
@@ -121,6 +113,13 @@ let move_ghost_following ghost map user =
             (Random.self_init (); 
              parse_dir (rand_char (Random.self_init (); Random.int 4))) 
     end 
+
+let move_ghost_following ghost map user = 
+  incr_following_count ghost;
+  let position_difference = position_diff ghost user in 
+  let x_sign = position_difference |> fst |> number_sign in 
+  let y_sign = position_difference |> snd |> number_sign in 
+  helper_following_make_move ghost map position_difference x_sign y_sign
 
 let try_ghost_follow g map user= 
   reset_following g; 
@@ -135,6 +134,11 @@ let try_ghost_follow g map user=
            parse_dir (rand_char (Random.self_init (); Random.int 4))) 
     end 
 
+(** [move_ghosts] moves each ghost to either continue following the player, 
+    stop following the player if they have been following for too long, if the
+    ghost is now within the [closeness_threshold] then it starts to follow the 
+    player, or it simply continues it's previous move until it is no longer 
+    possible - at this point the ghost will make a random move. *)
 let move_ghosts ghosts map (user : Player.t) = 
   Array.iter (fun g ->
       if is_following g && following_counter g <= int_of_float max_follow_time 
@@ -142,6 +146,7 @@ let move_ghosts ghosts map (user : Player.t) =
       else try_ghost_follow g map user)
     ghosts 
 
+(** [flush] clears the user's inputs. *)
 let flush () = 
   while Graphics.key_pressed () do 
     ignore (Graphics.read_key());
@@ -170,6 +175,17 @@ let rec loop state map_image  =
   let user = player state in 
   let map = map state in 
   let ghosts = ghosts state in
+  move_player user map; 
+  let new_state = State.update_state_food state map in
+  (*draw_string (tile_type (Map.get_tile_type (get_position user) map));*)
+  (*draw_string (check_move (Map.check_move (get_position user) map dir));*)
+  move_ghosts ghosts map user; 
+  draw_game new_state map_image;
+  synchronize ();
+  Unix.sleepf(sleep_time); 
+  loop state map_image 
+
+and move_player user map  = 
   let prev_move = player_prev_move user in 
   let prev_move_attempt = player_prev_attempt user in 
   let next_move = 
@@ -180,20 +196,7 @@ let rec loop state map_image  =
   flush ();
   let current_move = pick_move user map next_move prev_move in 
   make_move user map current_move;
-  (* draw_current_map map map_image; *)
-  (*draw_image map_image 0 0;*)
-  let new_state = State.update_state_food state map in
-  (* draw_state new_state; *)
-  (*draw_string (tile_type (Map.get_tile_type (get_position user) map));*)
-  (*draw_string (check_move (Map.check_move (get_position user) map dir));*)
-  move_ghosts ghosts map user; 
-  draw_game new_state map_image;
-  (* draw_player user; *)
-  (* draw_ghosts (ghosts); *)
-  synchronize ();
-  Unix.sleepf(sleep_time); 
   move_attempt user next_move;
-  loop state map_image 
 
 and draw_game state map_image = 
   draw_current_map (map state) map_image;
@@ -201,6 +204,7 @@ and draw_game state map_image =
   draw_player (player state);
   draw_ghosts (ghosts state);
 
+  (** TODO: use sprite display instead of circle *)
 and draw_ghosts ghosts = 
   set_color cyan;
   for i = 0 to Array.length ghosts - 1 do 
@@ -211,6 +215,7 @@ and draw_ghosts ghosts =
     fill_circle x y ghost_radius;
   done
 
+(** TODO: update direction when needed - also import more sprites *)
 and draw_player user = 
   let x = fst (Player.get_position user) in 
   let y = snd (Player.get_position user) in 
@@ -242,7 +247,6 @@ and draw_lives state =
         let x = (fst prev_pos) + 50 in 
         let y = snd prev_pos in 
         (** TODO: make the cherry png 50x50 for use here *)
-
         (* let img = h |> sprite_image |> Graphic_image.of_image in 
            Graphics.draw_image img x y; *)
         set_color red;
@@ -251,7 +255,6 @@ and draw_lives state =
       end
   in 
   draw_helper (1125,75) (lives_img_lst state) 
-
 
 let window_init (settings: string) : unit = 
   open_graph settings;
@@ -280,7 +283,7 @@ let main (settings: string) : unit =
   let ghosts = State.make_ghosts num_ghosts 725 375 in 
   let state = initial_state player map ghosts in 
   set_color cyan; 
-  Array.iter ghost_helper ghosts;
+  Array.iter ghost_helper ghosts; (** replace with draw ghosts (?) *)
   set_color red;
   set_text_size 32;
   (* draw_string (game_status state); *)
