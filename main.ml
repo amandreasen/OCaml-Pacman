@@ -297,8 +297,6 @@ let main (settings: string) : unit =
   let map = make_map (100,100) "OCaml" in 
   let map_background = map_init map in
   set_color yellow; 
-  (* fill_circle 175 175 player_radius;
-     moveto 175 75; *)
   let player = new_player in 
   let ghosts = State.make_ghosts num_ghosts 725 375 in 
   let state = initial_state player map ghosts in 
