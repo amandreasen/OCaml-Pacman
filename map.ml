@@ -289,25 +289,6 @@ let check_contains2 pos bottom_left =
   ((fst) pos - pacman_rad <= (fst) bottom_left) &&
   ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
   ((snd) pos - pacman_rad <= (snd) bottom_left) 
-(* 
-let check_food pos map =
-  let (acc:int ref) = ref 0 in 
-  for i = 0 to (Array.length map.tiles) - 1 do
-    let col = map.tiles.(i) in
-    for j = 0 to (Array.length col) - 1 do
-      let tile = col.(j) in
-      if (check_contains pos tile.bottom_left) then 
-        begin
-          if (!acc = 0) then
-            match tile.tile_type with
-            | Food  -> 
-              let new_tile = {tile with tile_type = Empty} in
-              (acc := !acc + 1);
-              col.(j) <- new_tile; 
-            | _ -> ();
-        end
-    done;
-  done *)
 
 (** [position_to_coordinate p] will convert a pixel position [p] in the GUI to 
     a coordinate in the map array.

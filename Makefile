@@ -5,7 +5,7 @@ MLIS=$(MODULES:=.mli)
 TEST=test.byte
 MAIN=main.byte
 OCAMLBUILD=ocamlbuild -use-ocamlfind -plugin-tag 'package(bisect_ppx-ocamlbuild)'
-PKGS=unix,ounit2,graphics,str,images
+PKGS=unix,ounit2,graphics,str,camlimages,camlimages.all_formats,camlimages.png,camlimages.graphics
 
 default: build
 	utop

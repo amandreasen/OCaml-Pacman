@@ -1,3 +1,5 @@
+open Images
+
 type t
 
 type direction 
