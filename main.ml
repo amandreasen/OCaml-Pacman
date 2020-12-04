@@ -78,6 +78,7 @@ let are_close ghost user  =
   let distance = sqrt (float_of_int (x_squared - y_squared)) in 
   distance <= closeness_threshold
 
+(** [position_diff] is the user's position minus the ghost's position. *)
 let position_diff ghost user = 
   let x_g = fst (Ghost.get_position ghost) in 
   let x_u = fst (Player.get_position user) in 
@@ -85,35 +86,49 @@ let position_diff ghost user =
   let y_u = snd (Player.get_position user) in 
   (x_u - x_g, y_u - y_g)
 
-let will_follow ghost map dir_attempt = 
-  let pos = get_position ghost in 
-  let continue =  Map.check_move pos map dir_attempt in 
-  if continue 
-  then (start_following ghost; Ghost.move ghost dir_attempt; continue)
-  else not continue 
-
-let start_follow ghost dir = 
-  start_following ghost
-
+(** [randomly_move_ghost] tries random moves until the ghost makes a successful 
+    move. *)
 let rec randomly_move_ghost ghost map dir = 
   if Map.check_move (get_position ghost) map dir 
   then Ghost.move ghost dir 
   else randomly_move_ghost ghost map 
       (parse_dir (rand_char (Random.self_init (); Random.int 4)))
 
+(** [will_follow] is true if the ghost successfully makes a move that follows 
+    the player. If the ghost is not successful in following the player then the 
+    ghost makes a random move. *)
+let will_follow ghost map dir_attempt try_random_move random_move = 
+  let pos = get_position ghost in 
+  let continue =  Map.check_move pos map dir_attempt in 
+  if continue 
+  then begin start_following ghost; 
+    Ghost.move ghost dir_attempt; 
+    continue end 
+  else 
+  if try_random_move 
+  then begin randomly_move_ghost ghost map random_move; 
+    continue end 
+  else continue
+
+(** [helper_following_make_move] finds the direction the ghost needs to move in
+    to follow the player and then tries to make that move. If the move is not 
+    possible then the ghost makes a random move. *)
 let helper_following_make_move ghost map position_difference x_sign y_sign = 
+  let rand_dir = Random.self_init (); 
+    Random.int 4 |> rand_char |> parse_dir in 
   match position_difference with
-  | (n,0) -> ignore (will_follow ghost map (x_sign * move_amt, 0))
-  | (0,m) -> ignore (will_follow ghost map (0, y_sign * move_amt))
+  | (n,0) -> ignore (will_follow ghost map (x_sign * move_amt, 0) true rand_dir)
+  | (0,m) -> ignore (will_follow ghost map (0, y_sign * move_amt) true rand_dir)
   | (n,m) -> begin 
-      if not (will_follow ghost map (x_sign * move_amt, 0))
+      if not (will_follow ghost map (x_sign * move_amt, 0) false rand_dir)
       then 
-        if not (will_follow ghost map (0, y_sign * move_amt))
-        then randomly_move_ghost ghost map 
-            (Random.self_init (); 
-             parse_dir (rand_char (Random.self_init (); Random.int 4))) 
+        if not (will_follow ghost map (0, y_sign * move_amt) false rand_dir)
+        then randomly_move_ghost ghost map rand_dir 
     end 
 
+(** [move_ghost_following] calculates the difference in positions between the 
+    ghost and player and then uses the tuple as an input to 
+    [helper_following_make_move].*)
 let move_ghost_following ghost map user = 
   incr_following_count ghost;
   let position_difference = position_diff ghost user in 
@@ -121,6 +136,8 @@ let move_ghost_following ghost map user =
   let y_sign = position_difference |> snd |> number_sign in 
   helper_following_make_move ghost map position_difference x_sign y_sign
 
+(** [try_ghost_follow] determines whether the ghost should start following the 
+    player or move randomly, and then makes that move. *)
 let try_ghost_follow g map user= 
   reset_following g; 
   if are_close g user 
@@ -131,7 +148,7 @@ let try_ghost_follow g map user=
       then Ghost.move g (prev_move g) 
       else randomly_move_ghost g map
           (Random.self_init (); 
-           parse_dir (rand_char (Random.self_init (); Random.int 4))) 
+           Random.int 4 |> rand_char |> parse_dir) 
     end 
 
 (** [move_ghosts] moves each ghost to either continue following the player, 
