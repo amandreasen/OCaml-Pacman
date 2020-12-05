@@ -274,14 +274,14 @@ and draw_lives state =
         let x = (fst prev_pos) + 50 in 
         let y = snd prev_pos in 
         (** TODO: make the cherry png 50x50 for use here *)
-        (* let img = h |> sprite_image |> Graphic_image.of_image in 
-           Graphics.draw_image img x y; *)
-        set_color red;
-        draw_circle x y 24;
+        let img = h |> sprite_image |> Graphic_image.of_image in 
+        Graphics.draw_image img x y;
+        (* set_color red;
+           draw_circle x y 24; *)
         draw_helper (x,y) t
       end
   in 
-  draw_helper (1125,75) (lives_img_lst state) 
+  draw_helper (1125,60) (lives_img_lst state) 
 
 let window_init (settings: string) : unit = 
   open_graph settings;

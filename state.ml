@@ -44,6 +44,12 @@ let initial_state player map ghosts_entry = {
   follower_ghosts = []
 } 
 
+let sprite_sheet = 
+  let sheet = Png.load_as_rgb24 ("./sprites/sprite_sheet.png") [] in 
+  let black_box = Png.load_as_rgb24 ("./sprites/black.png") [] in 
+  Images.blit black_box 0 0 sheet 100 45 350 100;
+  sheet
+
 let update_state_food state map = 
   {state with points = (points state) + 1}
 
@@ -70,20 +76,6 @@ let remove_follower state ghost =
   in 
   find_follower [] (followers state)
 
-(* let make_ghost_sprites (color : string) : Sprite.t list= 
-   let dir = [|"_up.png"; "_right.png"; "_down.png"; "_left.png"|] in 
-   (* for i = 0 to 3 do 
-     let sprite = (make_sprite (color ^ dir.(i))) in 
-     (sprite::acc)
-     done; *)
-
-   let rec helper_initialize_sprites acc counter = function 
-    | n when n>=0 -> let sprite = (make_sprite (color ^ dir.(counter))) in     
-      helper_initialize_sprites (sprite::acc) (counter + 1) (n - 1)
-    | _ -> acc
-   in 
-   helper_initialize_sprites [] 0 3  *)
-
 let make_ghosts num min_x min_y = 
   let color_list = [|"cyan"; "pink"; "red"; "orange"|] in 
   let rec set_ghosts_helper acc counter = function 
@@ -103,7 +95,9 @@ let make_ghosts num min_x min_y =
 
 let lives_img_lst state = 
   let rec make_lst acc = function 
-    | n when n>0 -> make_lst ((make_sprite "cherry.png")::acc) (n-1)
+    | n when n > 0 -> 
+      let image = sprite_from_sheet sprite_sheet 2 3 50 50 2 in 
+      make_lst (image::acc) (n-1)
     | _ -> acc
   in 
   make_lst [] (lives state)
