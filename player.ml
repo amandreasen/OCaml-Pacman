@@ -42,8 +42,9 @@ type t = {
 }
 
 let make_images : player_sprites = 
+  let shift = 2 in
   let map_sprites (x, y) = 
-    sprite_from_sheet sprite_sheet x y player_width player_height
+    sprite_from_sheet sprite_sheet x y player_width player_height shift
   in
   let right = List.map map_sprites player_right in 
   let left = List.map map_sprites player_left in 

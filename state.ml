@@ -85,7 +85,7 @@ let remove_follower state ghost =
    helper_initialize_sprites [] 0 3  *)
 
 let make_ghosts num min_x min_y = 
-  let color_list = [|"red"|] in 
+  let color_list = [|"cyan"; "pink"; "red"; "orange"|] in 
   let rec set_ghosts_helper acc counter = function 
     | n when n>0 -> begin 
         let x = min_x + (50 * counter) in 

@@ -31,13 +31,25 @@ let sprite_sheet =
   Images.blit black_box 0 0 sheet 100 45 350 100;
   sheet
 
+(* sprite sheet coordinates for the ghosts of the form [right, left, up 
+   down] *)
 let red_coordinates = [[(0, 4); (1, 4)]; [(2, 4); (3, 4)]; [(4, 4); (5, 4)];
                        [(6, 4); (7, 4)]]
 
+let pink_coordinates = [[(0, 5); (1, 5)]; [(2, 5); (3, 5)]; [(4, 5); (5, 5)];
+                        [(6, 5); (7, 5)]]
+
+let cyan_coordinates = [[(0, 6); (1, 6)]; [(2, 6); (3, 6)]; [(4, 6); (5, 6)];
+                        [(6, 6); (7, 6)]]
+
+let orange_coordinates = [[(0, 7); (1, 7)]; [(2, 7); (3, 7)]; [(4, 7); (5, 7)];
+                          [(6, 7); (7, 7)]]
+
 (* right left up down *)
 let make_ghost_sprite coordinates : ghost_sprites = 
+  let shift = 5 in
   let map_sprites (x, y) = 
-    sprite_from_sheet sprite_sheet x y ghost_width ghost_height 
+    sprite_from_sheet sprite_sheet x y ghost_width ghost_height shift
   in
   let right = List.map map_sprites (List.nth coordinates 0) in 
   let left = List.map map_sprites (List.nth coordinates 1) in 
@@ -48,9 +60,9 @@ let make_ghost_sprite coordinates : ghost_sprites =
 let make_sprites (color: string) : ghost_sprites =
   match color with 
   | "red" -> make_ghost_sprite red_coordinates 
-  | "pink" -> failwith "unimplemented"
-  | "cyan" -> failwith "unimplemented"
-  | "orange" -> failwith "unimplemented"
+  | "pink" -> make_ghost_sprite pink_coordinates
+  | "cyan" -> make_ghost_sprite cyan_coordinates
+  | "orange" -> make_ghost_sprite orange_coordinates
   | _ -> failwith "invalid ghost color"
 
 let new_ghost x_pos y_pos init_move color = {

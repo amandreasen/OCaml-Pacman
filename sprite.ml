@@ -16,12 +16,12 @@ let make_sprite str = {
 }
 
 let sprite_from_sheet (sheet: Images.t) (x: int) (y: int) (width: int) 
-    (height: int) : t = 
+    (height: int) (shift: int) : t = 
   let sheet_size = Images.size sheet in 
   let x_dim = fst sheet_size in 
   let x_pos = x * width in
   let y_pos = y * height in 
-  let x_pos = if x_pos + width + 2 < x_dim then x_pos + 2 else x_pos in 
+  let x_pos = if x_pos + width + shift < x_dim then x_pos + shift else x_pos in 
   let img = Images.sub sheet x_pos y_pos width height in 
   {sprite = img; height = height; width = width}
 
