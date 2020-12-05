@@ -9,19 +9,21 @@ let init_dir = Right
 let init_pos = (175, 175)
 
 (* sprite sheet coordinates *)
-let player_init = (2, 0)
-let player_right = [(0, 0); (1, 0)]
-let player_left = [(1, 0); (1, 1)]
-let player_down = [(0, 3); (1, 3)]
-let player_up = [(0, 2); (1, 2)]
-let player_death = [(0, 3); (0, 4); (0, 5); (0, 6); (0, 7); (0, 8); (0, 9);
-                    (0, 10); (0, 11); (0, 12); (0, 13)]
+let player_right = [(2, 0); (1, 0); (0, 0)]
+let player_left = [(2, 0); (1, 1); (0, 1)]
+let player_down = [(2, 0); (1, 3); (0, 3)]
+let player_up = [(2, 0); (1, 2); (0, 2)]
+let player_death = [(2, 0); (3, 0); (4, 0); (5, 0); (6, 0); (7, 0); (8, 0); 
+                    (9, 0); (10, 0); (11, 0); (12, 0); (13, 0)]
 
 (* load sprites *)
-let sprite_sheet = Png.load_as_rgb24 ("./sprites/sprite_sheet.png") []
+let sprite_sheet = 
+  let sheet = Png.load_as_rgb24 ("./sprites/sprite_sheet.png") [] in 
+  let black_box = Png.load_as_rgb24 ("./sprites/black.png") [] in 
+  Images.blit black_box 0 0 sheet 100 45 350 100;
+  sheet
 
 type player_sprites = {
-  init : Sprite.t;
   right : Sprite.t list;
   left : Sprite.t list;
   down : Sprite.t list;
@@ -33,17 +35,31 @@ type t = {
   mutable x : int;
   mutable y : int;
   mutable direction : direction; 
-  image : Sprite.t;
+  mutable move_counter : int;
+  images : player_sprites;
   mutable prev_move : int * int;
   mutable prev_move_attempt : int * int 
 }
+
+let make_images : player_sprites = 
+  let map_sprites (x, y) = 
+    sprite_from_sheet sprite_sheet x y player_width player_height
+  in
+  let right = List.map map_sprites player_right in 
+  let left = List.map map_sprites player_left in 
+  let down = List.map map_sprites player_down in 
+  let up = List.map map_sprites player_up in 
+  let death = List.map map_sprites player_death in 
+  {right = right; left = left; down = down; up = up; death = death}
+
 
 let new_player = 
   {
     x = fst init_pos; 
     y = snd init_pos;
     direction = init_dir;
-    image = Sprite.make_sprite "pacman2.png";
+    move_counter = 0;
+    images = make_images;
     prev_move = (0,0);
     prev_move_attempt = (0,0)
   }
@@ -60,16 +76,30 @@ let move (player : t) (dir : int * int) =
     | (0,y) when y < 0 -> Down
     | _ -> player.direction
   in 
+  let counter = 
+    if player.direction <> update_dir then 0 
+    else (player.move_counter + 1) mod 3
+  in 
+  player.move_counter <- counter;
   player.direction <- update_dir; 
   player.x <- fst (get_position player) + fst dir; 
   player.y <- snd (get_position player) + snd dir;
   player.prev_move <- dir
 
-let player_direction player = 
+let player_direction (player : t) = 
   player.direction
 
-let player_image user = 
-  user.image
+(* TODO: edit player image *)
+let player_image (user : t) = 
+  let images = user.images in 
+  let sprite_list = 
+    match user.direction with 
+    | Right -> images.right 
+    | Left -> images.left
+    | Up -> images.up 
+    | Down -> images.down 
+  in 
+  List.nth sprite_list user.move_counter
 [@@coverage off]
 
 let player_prev_move user = 

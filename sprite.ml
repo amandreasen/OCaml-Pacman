@@ -1,13 +1,10 @@
 open Graphics 
 open Images
 
-type direction = Up | Right | Down | Left
-
 type t = {
   sprite : Images.t; 
   height : int;
   width : int;
-  direction : direction
 }
 
 let load_png str = Png.load_as_rgb24 ("./sprites/" ^ str) []
@@ -16,12 +13,17 @@ let make_sprite str = {
   sprite = load_png str; 
   height = 45; 
   width = 45;
-  direction = Right
 }
 
-let sprite_from_sheet (sheet: Images.t) (coordinate: int * int) (width: int) 
+let sprite_from_sheet (sheet: Images.t) (x: int) (y: int) (width: int) 
     (height: int) : t = 
-  failwith "unimplemented"
+  let sheet_size = Images.size sheet in 
+  let x_dim = fst sheet_size in 
+  let x_pos = x * width in
+  let y_pos = y * height in 
+  let x_pos = if x_pos + width + 2 < x_dim then x_pos + 2 else x_pos in 
+  let img = Images.sub sheet x_pos y_pos width height in 
+  {sprite = img; height = height; width = width}
 
 let sprite_h sprite = 
   sprite.height
@@ -31,6 +33,3 @@ let sprite_w sprite =
 
 let sprite_image sprite = 
   sprite.sprite
-
-let sprite_direction sprite = 
-  sprite.direction

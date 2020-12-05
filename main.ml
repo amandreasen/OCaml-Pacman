@@ -232,19 +232,26 @@ and draw_ghosts ghosts =
     let pos = Ghost.get_position g in 
     let x = fst pos in 
     let y = snd pos in 
-    fill_circle x y ghost_radius;
+    let image = g
+                |> get_sprite 
+                |> sprite_image 
+                |> Graphic_image.of_image 
+    in 
+    Graphics.draw_image image (x - ghost_radius) (y - ghost_radius)
+    (* fill_circle x y ghost_radius; *)
   done
 
 (** TODO: update direction when needed - also import more sprites *)
 and draw_player user = 
-  let x = fst (Player.get_position user) in 
-  let y = snd (Player.get_position user) in 
+  let pos = Player.get_position user in 
+  let x = fst pos in 
+  let y = snd pos in 
   let image = user 
               |> player_image 
               |> sprite_image 
               |> Graphic_image.of_image 
   in 
-  Graphics.draw_image image (x-player_radius) (y-player_radius)
+  Graphics.draw_image image (x - player_radius) (y - player_radius)
 
 and draw_current_map (map: Map.t) (map_image: Graphics.image) = 
   Graphics.draw_image map_image 0 0;

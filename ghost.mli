@@ -2,9 +2,11 @@ open Sprite
 
 type t
 
+type direction
+
 (** [new_ghost] is a new ghost with the given initial position and initial
     move. *)
-val new_ghost: int -> int -> int * int -> Sprite.t list -> t
+val new_ghost: int -> int -> int * int -> string -> t
 
 (** [get_position] is the position of a ghost as a tuple. *)
 val get_position: t -> int * int
@@ -38,4 +40,4 @@ val start_following: t -> unit
 
 (** [get_sprite] is the sprite representing the ghost in the direction specified
     by the input. *)
-val get_sprite: t -> direction -> Sprite.t
+val get_sprite: t -> Sprite.t
