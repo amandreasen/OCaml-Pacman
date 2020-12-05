@@ -6,6 +6,7 @@ let wall_width = 20
 let food_radius = 3
 let special_radius = 6
 let food_color = rgb 255 184 245
+let special_color = rgb 0 255 100
 let wall_color = Graphics.blue
 let pacman_rad = 25
 
@@ -143,14 +144,14 @@ let ocaml_maze =
     [|Wall (Corner (Bot, Left)); Wall Vert; Wall Vert; Wall Vert;
       Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
       Wall Vert; Wall(Corner (Top, Left))|];
-    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
+    [|Wall Horz; Special; Food; Food; Food; Food; Food; Food; Food; Food; 
       Wall Horz|];
     [|Wall Horz; Food; Wall (End Left); Food; Wall (Corner (Bot, Left)); 
       Wall Vert; Wall (Corner (Top, Left)); Food; Wall (End Left); Food;
       Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Empty; Wall Horz; Food; 
       Wall Horz; Food; Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall (Corner (Bot, Right)); Wall Vert; 
+    [|Wall Horz; Food; Wall Horz; Special; Wall (Corner (Bot, Right)); Wall Vert; 
       Wall (Corner (Top, Right)); Food; Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; 
       Food; Wall Horz|];
@@ -158,7 +159,7 @@ let ocaml_maze =
       Wall (Corner (Top, Left)); Food; Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall (End Right); Food; Wall Horz; Food; Wall Horz;
       Food; Wall (End Right); Food; Wall Horz|];
-    [|Wall Horz; Food; Food; Food; Wall (End Right); Food; Wall (End Right);
+    [|Wall Horz; Food; Special; Food; Wall (End Right); Food; Wall (End Right);
       Food; Food; Food; Wall Horz|];
     [|Wall Horz; Food; Wall (End Left); Food; Food; Food; Food; Food; Wall (
           End Left); Food; Wall Horz|];
@@ -184,7 +185,7 @@ let ocaml_maze =
       Wall (Corner (Top, Right)); Food; Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; Food;
       Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall (Corner (Bot, Left)); Wall Vert; 
+    [|Wall Horz; Food; Wall Horz; Special; Wall (Corner (Bot, Left)); Wall Vert; 
       Wall (End Top); Food; Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Food; Food; Food; Wall Horz;
       Food; Wall Horz|];
@@ -268,7 +269,7 @@ let check_move pos map dir=
   in
   check_main map_list
 
-let check_food_tile pos map=   
+(*let check_food_tile pos map=   
   (* The position of the pacman is the center of the circle, each time it moves 
      1/5 of a tile*)
   let map_list = Array.to_list map.tiles in
@@ -282,7 +283,7 @@ let check_food_tile pos map=
       | ("Empty" | "Wall" | "Special"| "Ghost") -> acc
       | _ -> check_main t
   in
-  check_main map_list
+  check_main map_list*)
 
 let check_contains2 pos bottom_left = 
   ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
@@ -542,7 +543,7 @@ let draw_wall (tile: map_tile) (wall_type: wall) : unit =
 
 (**[draw_food tile radius] will draw food in the map tile [tile] with a 
    radius [radius]. *) 
-let draw_food_tile (tile: map_tile) (radius: int) : unit = 
+let draw_food_tile (tile: map_tile) (radius: int) (food_color: Graphics.color): unit = 
   set_color food_color;
   let tile_corner = tile.bottom_left in 
   let x_center = fst tile_corner + tile_size / 2 in 
@@ -553,7 +554,8 @@ let draw_food_tile (tile: map_tile) (radius: int) : unit =
    tile. Otherwise, the function does nothing. *)
 let draw_food_helper (tile: map_tile) : unit = 
   match tile.tile_type with 
-  | Food -> draw_food_tile tile food_radius
+  | Food -> draw_food_tile tile food_radius food_color
+  | Special -> draw_food_tile tile special_radius special_color
   | _ -> ()
 
 (** [draw_food_row] will draw all Food tiles in the tile array [food_row] to the
@@ -579,8 +581,7 @@ let draw_food (map: t) : unit =
    to draw food is in a separate function).  *) 
 let draw_tile (tile: map_tile) : unit =
   match tile.tile_type with
-  | Empty | Food | Ghost -> ()
-  | Special -> draw_food_tile tile special_radius
+  | Empty | Food | Ghost | Special-> ()
   | Wall wall -> draw_wall tile wall
 
 (**[draw_map_row] will draw the correct display of all tiles in the tile 

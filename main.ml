@@ -196,14 +196,14 @@ let rec loop state map_image  =
   let map = map state in 
   let ghosts = ghosts state in
   move_player user map; 
-  let new_state = State.update_state_food state map in
-  (*draw_string (tile_type (Map.get_tile_type (get_position user) map));*)
-  (*draw_string (check_move (Map.check_move (get_position user) map dir));*)
+  let new_state = State.update_state_food state map 
+      (Map.get_tile_type (Player.get_position user) (map)) in
   move_ghosts ghosts map user; 
-  draw_game new_state map_image;
+  let new_lives_state = State.update_state_lives new_state map in
+  draw_game new_state map_image user;
   synchronize ();
   Unix.sleepf(sleep_time); 
-  loop state map_image 
+  loop new_lives_state map_image 
 
 and move_player user map  = 
   let prev_move = player_prev_move user in 
@@ -218,9 +218,9 @@ and move_player user map  =
   make_move user map current_move;
   move_attempt user next_move;
 
-and draw_game state map_image = 
+and draw_game state map_image user= 
   draw_current_map (map state) map_image;
-  draw_state state;
+  draw_state state user;
   draw_player (player state);
   draw_ghosts (ghosts state);
 
@@ -259,10 +259,11 @@ and draw_current_map (map: Map.t) (map_image: Graphics.image) =
   set_color blue;
   draw_map map
 
-and draw_state state = 
+and draw_state state user = 
   moveto 175 75;
   set_color red;
   draw_string ("Points: " ^ string_of_int (points state));
+  draw_string (tile_type (Map.get_tile_type (Player.get_position user) (map state)));
   moveto 175 675;
   draw_string ("Level: " ^ string_of_int (current_level state));
   draw_lives state;
