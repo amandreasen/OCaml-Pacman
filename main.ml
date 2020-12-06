@@ -273,7 +273,6 @@ and draw_lives state =
     | h::t -> begin 
         let x = (fst prev_pos) + 50 in 
         let y = snd prev_pos in 
-        (** TODO: make the cherry png 50x50 for use here *)
         let img = h |> sprite_image |> Graphic_image.of_image in 
         Graphics.draw_image img x y;
         (* set_color red;
