@@ -36,7 +36,7 @@ let map state =
 
 let initial_state player map ghosts_entry = {
   player = player;
-  points = 5;
+  points = 0;
   lives = 3;
   ghosts = ghosts_entry;
   current_level = 1;
@@ -50,9 +50,6 @@ let sprite_sheet =
   Images.blit black_box 0 0 sheet 100 45 350 100;
   sheet
 
-let update_state_food state map = 
-  {state with points = (points state) + 1}
-
 (* {
    points = state.points + 1;
    lives = 3;
@@ -61,6 +58,35 @@ let update_state_food state map =
    map = map;
    follower_ghosts = []
    } *)
+let update_state_food state map tile_type= 
+  if tile_type = "Food" then
+    {state with points = (points state) + 1}
+  else if tile_type = "Special" then
+    {state with points = (points state) + 5}
+  else
+    state
+
+let update_state_lives state map = 
+  let player_pos = Player.get_position (player state) in
+  let new_lives = ref (lives state) in
+  let ghosts = ghosts state in
+  for i=0 to (Array.length(ghosts))-1 do
+    let ghost_pos = Ghost.get_position ghosts.(i) in
+    if player_pos=ghost_pos then
+      new_lives:=(!new_lives -1)
+  done;
+  {state with lives = !new_lives}
+
+
+
+(*{
+  points = state.points + 1;
+  lives = 3;
+  ghosts = state.ghosts;
+  current_level = 1;
+  map = map;
+  follower_ghosts = []
+  }*)
 
 let new_follower state ghost = 
   {state with follower_ghosts = ghost::(followers state)}
