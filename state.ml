@@ -10,7 +10,8 @@ type t = {
   ghosts : Ghost.t array;
   current_level : int;
   map : Map.t;
-  follower_ghosts : Ghost.t list
+  follower_ghosts : Ghost.t list;
+  food_left: int;
 }
 
 let player state = 
@@ -41,7 +42,8 @@ let initial_state player map ghosts_entry = {
   ghosts = ghosts_entry;
   current_level = 1;
   map = map;
-  follower_ghosts = []
+  follower_ghosts = [];
+  food_left = food_count map;
 } 
 
 let sprite_sheet = 

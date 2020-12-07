@@ -682,3 +682,12 @@ let get_tile_value (point: point) (map: t) : int =
   | Fruit fruit -> fruit.points 
   | _ -> 0
 
+let food_count (map: t) : int = 
+  let tiles = map.tiles in 
+  let check_food acc tile =
+    match tile.tile_type with 
+    | Food | Special -> acc + 1 
+    | _ -> acc 
+  in
+  let fold_col acc col = Array.fold_left check_food acc col in 
+  Array.fold_left fold_col 0 tiles

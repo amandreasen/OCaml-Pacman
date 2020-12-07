@@ -136,10 +136,26 @@ let ghost_tests =
       (Ghost.incr_following_count ghost_2; ghost_2) 0;
   ]
 
+let food_count_test 
+    (name: string)
+    (map: Map.t)
+    (expected_output: int) : test =
+  name >:: (fun _ ->
+      assert_equal expected_output (food_count map) ~printer: string_of_int)
+
+let standard_map = make_map (0, 0) "standard"
+let ocaml_map = make_map (0, 0) "OCaml"
+
+let map_tests = [
+  food_count_test "count initial food in standard map" standard_map 134;
+  food_count_test "count initial food in OCaml map" ocaml_map 132;
+]
+
 let suite =
   "test suite"  >::: List.flatten [
     player_tests;
     ghost_tests;
+    map_tests;
   ]
 
 let _ = run_test_tt_main suite

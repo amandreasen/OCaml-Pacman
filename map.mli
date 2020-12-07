@@ -46,3 +46,7 @@ val get_tile_value: point -> t -> int
 (**[generate_fruit map] will randomly place a fruit tile on an empty tile in 
    the map [map]. If there are no empty tiles, this function does nothing.*) 
 val generate_fruit: t -> unit
+
+(**[food_count map] will return the total number of food and special tiles 
+   in the map [map]. *)
+val food_count: t -> int
