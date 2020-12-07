@@ -80,7 +80,6 @@ type t =
     bottom_left: point;
   }
 
-
 (* load sprites *)
 let sprite_sheet = 
   let sheet = Png.load_as_rgb24 ("./sprites/sprite_sheet.png") [] in 
@@ -88,7 +87,7 @@ let sprite_sheet =
   Images.blit black_box 0 0 sheet 100 45 350 100;
   sheet
 
-let fruit_tiles = 
+let fruit_tiles : tile array = 
   let cherry_img = 
     sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2
   in 
@@ -626,8 +625,34 @@ let draw_map (map: t) : unit =
   ignore (Array.map draw_map_row map.tiles);
   ()
 
-let generate_fruit (map: t) : unit = 
-  failwith "unimplemented"
+let select_empty (tiles: map_tile array array) : map_tile = 
+  (* let tile = ref {tile_type = Special; bottom_left = (0, 0)} in
+     let width = Array.length tiles in 
+     let height = Array.length tiles.(0) in
+     Random.self_init ();
+     let init_col = Random.int width in 
+     let init_row = Random.int height in
+     let col = ref init_col in 
+     let row = ref init_row in 
+     while !tile.tile_type <> Empty && !col <> (init_col - 1) mod width do
+     while !tile.tile_type <> Empty && !row <> (init_row - 1) mod height do 
+      tile := tiles.(!col).(!row);
+      row := (!row + 1) mod height;
+     done;
+     col := (!col + 1) mod width;
+     done;
+     !tile *)
+
+  let generate_fruit (map: t) : unit = 
+    let tiles = map.tiles in 
+    let tile = select_empty tiles in 
+    match tile.tile_type with 
+    | Empty -> 
+      let pos = tile.bottom_left in 
+      let x = fst pos in 
+      let y = snd pos in 
+      tiles.(x).(y) <- {tile with tile_type = fruit_tiles.(0)}
+    | _ -> ()
 
 let get_tile_value (point: point) (map: t) : int = 
   let coordinate = position_to_coordinate point in 

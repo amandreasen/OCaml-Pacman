@@ -42,3 +42,7 @@ val check_food: point -> t -> unit
 (**[get_tile_value point map] will get the tile point value of the tile at 
    the pixel position [point] in the map [map]. *) 
 val get_tile_value: point -> t -> int
+
+(**[generate_fruit map] will randomly place a fruit tile on an empty tile in 
+   the map [map]. If there are no empty tiles, this function does nothing.*) 
+val generate_fruit: t -> unit
