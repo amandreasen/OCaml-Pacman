@@ -27,7 +27,7 @@ val map: t -> Map.t
 val initial_state: Player.t -> Map.t -> Ghost.t array -> t
 
 (** [update_state_food] is the state after food has been consumed. *)
-val update_state_food: t -> Map.t -> string -> t
+val update_state_food: t -> int -> t
 
 val update_state_lives: t -> Map.t -> t
 

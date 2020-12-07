@@ -58,22 +58,18 @@ let sprite_sheet =
    map = map;
    follower_ghosts = []
    } *)
-let update_state_food state map tile_type= 
-  if tile_type = "Food" then
-    {state with points = (points state) + 1}
-  else if tile_type = "Special" then
-    {state with points = (points state) + 5}
-  else
-    state
+let update_state_food (state: t) (value: int) = 
+  let points = state.points in
+  {state with points = points + value}
 
 let update_state_lives state map = 
   let player_pos = Player.get_position (player state) in
   let new_lives = ref (lives state) in
   let ghosts = ghosts state in
-  for i=0 to (Array.length(ghosts))-1 do
+  for i = 0 to (Array.length ghosts) - 1 do
     let ghost_pos = Ghost.get_position ghosts.(i) in
-    if player_pos=ghost_pos then
-      new_lives:=(!new_lives -1)
+    if player_pos = ghost_pos then
+      new_lives := (!new_lives -1)
   done;
   {state with lives = !new_lives}
 

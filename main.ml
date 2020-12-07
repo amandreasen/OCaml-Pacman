@@ -186,8 +186,7 @@ let pick_move (user : Player.t) map next prev  =
 (** [make_move] moves the player in the direction specificed by [dir] and 
     consumes food on the new tile, if there is any food. *)
 let make_move user map dir  = 
-  Player.move user dir; 
-  check_food (Player.get_position user) map
+  Player.move user dir
 
 (** [prev_move] is the actual move that the user just made. 
     [prev_move_attempt] is their last input that may or may not have passed. *)
@@ -195,9 +194,10 @@ let rec loop state map_image  =
   let user = player state in 
   let map = map state in 
   let ghosts = ghosts state in
-  move_player user map; 
-  let new_state = State.update_state_food state map 
-      (Map.get_tile_type (Player.get_position user) (map)) in
+  move_player user map;  
+  let point_val = Map.get_tile_value (Player.get_position user) map in
+  check_food (Player.get_position user) map;
+  let new_state = State.update_state_food state point_val in
   move_ghosts ghosts map user; 
   let new_lives_state = State.update_state_lives new_state map in
   draw_game new_state map_image user;
@@ -301,7 +301,7 @@ let ghost_helper (ghost: Ghost.t) : unit =
 
 let main (settings: string) : unit = 
   window_init settings;
-  let map = make_map (100,100) "OCaml" in 
+  let map = make_map (100, 100) "OCaml" in 
   let map_background = map_init map in
   set_color yellow; 
   let player = new_player in 

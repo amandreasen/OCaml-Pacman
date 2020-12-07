@@ -38,3 +38,7 @@ val get_tile_type: point -> t -> string
    [point] contains food. If it is, the function will update that tile to be 
    empty. Otherwise, the function does nothing.*)
 val check_food: point -> t -> unit
+
+(**[get_tile_value point map] will get the tile point value of the tile at 
+   the pixel position [point] in the map [map]. *) 
+val get_tile_value: point -> t -> int

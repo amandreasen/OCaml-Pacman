@@ -1,17 +1,25 @@
 open Graphics
 open Sprite
+open Images
 
 (* Constants *)
 let tile_size = 50
 let wall_width = 20
+
 let food_radius = 3
 let special_radius = 6
+
 let fruit_width = 50
 let fruit_height = 50
+
 let food_color = rgb 255 184 245
 let special_color = rgb 0 255 100
 let wall_color = Graphics.blue
+
 let pacman_rad = 25
+
+let food_val = 1
+let special_val = 5 
 
 (** A [point] is of the form (x,y) and represents a pixel position in the GUI 
     window. In (x,y), x is the x-coordinate of the pixel position and y is the
@@ -38,7 +46,7 @@ type corner = orientation * orientation
 type wall = Vert | Horz | Corner of corner | End of orientation
 
 type fruit = {
-  sprite: Graphics.image;
+  sprite: Sprite.t;
   points: int; 
 }
 
@@ -82,8 +90,7 @@ let sprite_sheet =
 
 let fruit_tiles = 
   let cherry_img = 
-    sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2 
-    |> sprite_image |> Graphic_image.of_image
+    sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2
   in 
   let cherry = {sprite = cherry_img; points = 100} in 
   [|Fruit cherry|]
@@ -95,7 +102,7 @@ let standard_map =
     tiles = [||];
     width = 1300;
     height = 550;
-    bottom_left = (0,0)
+    bottom_left = (0,0);
   } 
 
 (** The standard_maze is a 2D array of tile_types that represents the layout
@@ -246,7 +253,7 @@ let get_tile_type2 pos (tile_array:map_tile array) =
       else check_tile t in
   check_tile h_list
 
-let get_tile_type pos map=   
+let get_tile_type pos map =   
   (* The position of the pacman is the center of the circle, each time it moves 
      1/5 of a tile*)
   let map_list = Array.to_list map.tiles in
@@ -278,12 +285,12 @@ let check_move2 pos (tile_array: map_tile array) =
       else check_tile t in
   check_tile h_list
 
-let check_move pos map dir=   
+let check_move pos map dir =   
   (* The position of the pacman is the center of the circle, each time it moves 
      1/5 of a tile*)
   let new_pos = (fst pos + fst dir, snd pos + snd dir) in
   let map_list = Array.to_list map.tiles in
-  let rec check_main map_l=
+  let rec check_main map_l =
     match map_l with
     | []-> false
     | h::t -> 
@@ -349,10 +356,8 @@ let check_food (pos: point) (map: t) =
   let y = snd coordinate in 
   let tile = map.tiles.(x).(y) in 
   match tile.tile_type with 
-  | Food -> 
+  | Food | Special -> 
     map.tiles.(x).(y) <- {tile with tile_type = Empty} 
-  | Special -> 
-    map.tiles.(x).(y) <- {tile with tile_type = Empty}
   | _ -> ()
 
 (** [make_tile x y map_corner tile_type] will make a map_tile with a bottom
@@ -394,10 +399,8 @@ let make_map (corner: point) (maze_name: string) : t =
     | "OCaml" -> make_tiles 11 26 corner ocaml_maze
     | _ -> failwith "map not found"
   in
-  match maze_name with
-  | "standard" -> {standard_map with bottom_left = corner; tiles = tile_list}
-  | "OCaml" -> {standard_map with bottom_left = corner; tiles = tile_list}
-  | _ -> failwith "map not found"
+  {standard_map with bottom_left = corner; tiles = tile_list}
+
 (** [draw_corner_single first second] will draw a corner to the GUI window 
     with one endpoint of point [first] and the other endpoint at point [second]. 
 *) 
@@ -587,7 +590,8 @@ let draw_food_helper (tile: map_tile) : unit =
     let corner = tile.bottom_left in 
     let x = fst corner in 
     let y = snd corner in 
-    Graphics.draw_image fruit.sprite x y 
+    let image = fruit.sprite |> sprite_image |> Graphic_image.of_image in
+    Graphics.draw_image image x y 
   | _ -> ()
 
 (** [draw_food_row] will draw all Food tiles in the tile array [food_row] to the
@@ -621,3 +625,18 @@ let draw_map_row (map_row : map_tile array) : unit =
 let draw_map (map: t) : unit = 
   ignore (Array.map draw_map_row map.tiles);
   ()
+
+let generate_fruit (map: t) : unit = 
+  failwith "unimplemented"
+
+let get_tile_value (point: point) (map: t) : int = 
+  let coordinate = position_to_coordinate point in 
+  let x = fst coordinate in 
+  let y = snd coordinate in 
+  let tile = map.tiles.(x).(y) in 
+  match tile.tile_type with 
+  | Food -> food_val 
+  | Special -> special_val 
+  | Fruit fruit -> fruit.points 
+  | _ -> 0
+
