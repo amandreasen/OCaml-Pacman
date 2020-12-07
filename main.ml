@@ -104,13 +104,19 @@ let will_follow ghost map dir_attempt try_random_move random_move =
   let pos = get_position ghost in 
   let continue =  Map.check_move pos map dir_attempt in 
   if continue 
-  then begin start_following ghost; 
-    Ghost.move ghost dir_attempt; 
-    continue end 
+  then 
+    begin 
+      start_following ghost; 
+      Ghost.move ghost dir_attempt; 
+      continue 
+    end 
   else 
   if try_random_move 
-  then begin randomly_move_ghost ghost map random_move; 
-    continue end 
+  then 
+    begin 
+      randomly_move_ghost ghost map random_move; 
+      continue
+    end 
   else continue
 
 (** [helper_following_make_move] finds the direction the ghost needs to move in
@@ -142,7 +148,14 @@ let move_ghost_following ghost map user =
 (** [try_ghost_follow] determines whether the ghost should start following the 
     player or move randomly, and then makes that move. *)
 let try_ghost_follow g map user= 
-  reset_following g; 
+  if following_counter g > int_of_float max_follow_time
+  then 
+    begin 
+      reset_following g; randomly_move_ghost g map
+        (Random.self_init (); 
+         Random.int 4 |> rand_char |> parse_dir) 
+    end 
+  else 
   if are_close g user 
   then move_ghost_following g map user 
   else 
@@ -161,7 +174,8 @@ let try_ghost_follow g map user=
     possible - at this point the ghost will make a random move. *)
 let move_ghosts ghosts map (user : Player.t) = 
   Array.iter (fun g ->
-      if is_following g && following_counter g <= int_of_float max_follow_time 
+      if (is_following g || are_close g user) 
+      && following_counter g <= int_of_float max_follow_time 
       then move_ghost_following g map user 
       else try_ghost_follow g map user)
     ghosts 
@@ -178,10 +192,13 @@ let flush () =
 let pick_move (user : Player.t) map next prev  = 
   let user_pos = Player.get_position user in 
   if Map.check_move user_pos map next
-  then next else
-  if Map.check_move user_pos map prev
-  then prev
-  else (0,0)
+  then next 
+  else
+    begin 
+      if Map.check_move user_pos map prev
+      then prev
+      else (0,0)
+    end 
 
 (** [make_move] moves the player in the direction specificed by [dir] and 
     consumes food on the new tile, if there is any food. *)
@@ -294,25 +311,21 @@ let map_init (map: Map.t): Graphics.image =
   draw_map map;
   Graphics.get_image 0 0 window_width window_height 
 
-let ghost_helper (ghost: Ghost.t) : unit = 
-  let pos = get_position ghost in 
-  let x = fst pos in 
-  let y = snd pos in 
-  fill_circle x y ghost_radius
+(* let ghost_helper (ghost: Ghost.t) : unit = 
+   let pos = get_position ghost in 
+   let x = fst pos in 
+   let y = snd pos in 
+   fill_circle x y ghost_radius *)
 
 let main (settings: string) : unit = 
   window_init settings;
   let map = make_map (100,100) "OCaml" in 
   let map_background = map_init map in
-  set_color yellow; 
+  (* set_color yellow;  *)
   let player = new_player in 
   let ghosts = State.make_ghosts num_ghosts 725 375 in 
   let state = initial_state player map ghosts in 
-  set_color cyan; 
-  Array.iter ghost_helper ghosts; (** replace with draw ghosts (?) *)
-  set_color red;
-  set_text_size 32;
-  (* draw_string (game_status state); *)
+  draw_game state map_background player;
   auto_synchronize false;
   ignore (loop state map_background);
   ()

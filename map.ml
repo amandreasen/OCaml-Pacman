@@ -43,8 +43,8 @@ type wall = Vert | Horz | Corner of corner | End of orientation
     tiles.  *)
 type tile = Empty | Food | Special | Ghost | Wall of wall
 
-(** A [map_tile] represents a tile in the map. A map_tile has a tile_type of type
-    tile and a bottom_left position of type point. *) 
+(** A [map_tile] represents a tile in the map. A map_tile has a tile_type of 
+    type tile and a bottom_left position of type point. *) 
 type map_tile = 
   {
     tile_type: tile;
@@ -151,7 +151,8 @@ let ocaml_maze =
       Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Empty; Wall Horz; Food; 
       Wall Horz; Food; Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Special; Wall (Corner (Bot, Right)); Wall Vert; 
+    [|Wall Horz; Food; Wall Horz; Special; Wall (Corner (Bot, Right)); 
+      Wall Vert; 
       Wall (Corner (Top, Right)); Food; Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; 
       Food; Wall Horz|];
@@ -189,7 +190,8 @@ let ocaml_maze =
       Wall (End Top); Food; Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Food; Food; Food; Wall Horz;
       Food; Wall Horz|];
-    [|Wall Horz; Food; Wall (End Right); Food; Wall (End Right); Food; Food; Food; 
+    [|Wall Horz; Food; Wall (End Right); Food; Wall (End Right); Food; Food; 
+      Food; 
       Wall (End Right); Food; Wall Horz|];
     [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food;
       Wall Horz|];
@@ -543,7 +545,8 @@ let draw_wall (tile: map_tile) (wall_type: wall) : unit =
 
 (**[draw_food tile radius] will draw food in the map tile [tile] with a 
    radius [radius]. *) 
-let draw_food_tile (tile: map_tile) (radius: int) (food_color: Graphics.color): unit = 
+let draw_food_tile (tile: map_tile) (radius: int) 
+    (food_color: Graphics.color): unit = 
   set_color food_color;
   let tile_corner = tile.bottom_left in 
   let x_center = fst tile_corner + tile_size / 2 in 

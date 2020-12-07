@@ -47,10 +47,12 @@ let initial_state player map ghosts_entry = {
 let update_state_food state map tile_type= 
   if tile_type = "Food" then
     {state with points = (points state) + 1}
-  else if tile_type = "Special" then
-    {state with points = (points state) + 5}
-  else
-    state
+  else begin 
+    if tile_type = "Special" then
+      {state with points = (points state) + 5}
+    else
+      state
+  end 
 
 let update_state_lives state map = 
   let player_pos = Player.get_position (player state) in

@@ -1,19 +1,22 @@
 open Graphics 
 open Images
 
-type t = {
-  sprite : Images.t; 
-  height : int;
-  width : int;
-}
+type t = 
+  {
+    sprite : Images.t; 
+    height : int;
+    width : int;
+  }
 
-let load_png str = Png.load_as_rgb24 ("./sprites/" ^ str) []
+let load_png str = 
+  Png.load_as_rgb24 ("./sprites/" ^ str) []
 
-let make_sprite str = {
-  sprite = load_png str; 
-  height = 45; 
-  width = 45;
-}
+let make_sprite str = 
+  {
+    sprite = load_png str; 
+    height = 45; 
+    width = 45;
+  }
 
 let sprite_from_sheet (sheet: Images.t) (x: int) (y: int) (width: int) 
     (height: int) (shift: int) : t = 

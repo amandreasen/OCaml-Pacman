@@ -4,8 +4,11 @@ open Map
 open Player
 
 let pp_tuple coordinates = 
-  "( " ^ string_of_int (fst coordinates) ^ " , " ^ 
-  string_of_int (snd coordinates) ^ " )"
+  let x = fst coordinates in 
+  let x_str = string_of_int x in 
+  let y = snd coordinates in 
+  let y_str = string_of_int y in 
+  "( " ^ x_str ^ " , " ^ y_str ^ " )"
 
 let player_move_pos_test  
     (name : string) 
@@ -101,8 +104,8 @@ let following_counter_test
   name >:: (fun _ -> 
       assert_equal expected_output (Ghost.following_counter ghost))
 
-let ghost_1 = new_ghost 225 275 (50,0) [] 
-let ghost_2 = new_ghost 0 0 (0,0) []
+let ghost_1 = new_ghost 225 275 (50,0) "cyan" 
+let ghost_2 = new_ghost 0 0 (0,0) "cyan"
 
 let ghost_tests = 
   [
