@@ -195,8 +195,9 @@ let rec loop state map_image  =
   let map = map state in 
   let ghosts = ghosts state in
   move_player user map;  
-  let point_val = Map.get_tile_value (Player.get_position user) map in
-  check_food (Player.get_position user) map;
+  let player_pos = Player.get_position user in 
+  let point_val = Map.get_tile_value player_pos map in
+  check_food player_pos map;
   let new_state = State.update_state_food state point_val in
   move_ghosts ghosts map user; 
   let new_lives_state = State.update_state_lives new_state map in

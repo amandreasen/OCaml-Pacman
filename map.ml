@@ -75,6 +75,7 @@ type map_tile =
 type t =
   {
     tiles: map_tile array array;
+    player_tiles: coordinate array;
     width: int;
     height: int;
     bottom_left: point;
@@ -99,6 +100,7 @@ let fruit_tiles : tile array =
 let standard_map = 
   {
     tiles = [||];
+    player_tiles = [||];
     width = 1300;
     height = 550;
     bottom_left = (0,0);
@@ -179,7 +181,7 @@ let ocaml_maze =
     [|Wall Horz; Food; Wall (End Left); Food; Wall (Corner (Bot, Left)); 
       Wall Vert; Wall (Corner (Top, Left)); Food; Wall (End Left); Food;
       Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Empty; Wall Horz; Food; 
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Ghost; Wall Horz; Food; 
       Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Special; Wall (Corner (Bot, Right)); Wall Vert; 
       Wall (Corner (Top, Right)); Food; Wall Horz; Food; Wall Horz|];
@@ -295,7 +297,7 @@ let check_move pos map dir =
     | h::t -> 
       match (check_move2 new_pos h) with
       | "Wall"-> false
-      | ("Empty" | "Food" | "Special"| "Ghost") -> true
+      | ("Empty" | "Food" | "Special"| "Ghost"| "Fruit") -> true
       | _ -> check_main t
   in
   check_main map_list
@@ -355,7 +357,7 @@ let check_food (pos: point) (map: t) =
   let y = snd coordinate in 
   let tile = map.tiles.(x).(y) in 
   match tile.tile_type with 
-  | Food | Special -> 
+  | Food | Special | Fruit _ -> 
     map.tiles.(x).(y) <- {tile with tile_type = Empty} 
   | _ -> ()
 
@@ -398,7 +400,18 @@ let make_map (corner: point) (maze_name: string) : t =
     | "OCaml" -> make_tiles 11 26 corner ocaml_maze
     | _ -> failwith "map not found"
   in
-  {standard_map with bottom_left = corner; tiles = tile_list}
+  let player_tiles = ref [||] in
+  for x = 0 to Array.length tile_list - 1 do 
+    for y = 0 to Array.length tile_list.(0) - 1 do 
+      let tile = tile_list.(x).(y) in 
+      match tile.tile_type with 
+      | Food | Special | Empty -> 
+        player_tiles := Array.append !player_tiles [|(x, y)|]
+      | _ -> ()
+    done;
+  done;
+  {standard_map with bottom_left = corner; player_tiles = !player_tiles; 
+                     tiles = tile_list}
 
 (** [draw_corner_single first second] will draw a corner to the GUI window 
     with one endpoint of point [first] and the other endpoint at point [second]. 
@@ -625,34 +638,35 @@ let draw_map (map: t) : unit =
   ignore (Array.map draw_map_row map.tiles);
   ()
 
-let select_empty (tiles: map_tile array array) : map_tile = 
-  (* let tile = ref {tile_type = Special; bottom_left = (0, 0)} in
-     let width = Array.length tiles in 
-     let height = Array.length tiles.(0) in
-     Random.self_init ();
-     let init_col = Random.int width in 
-     let init_row = Random.int height in
-     let col = ref init_col in 
-     let row = ref init_row in 
-     while !tile.tile_type <> Empty && !col <> (init_col - 1) mod width do
-     while !tile.tile_type <> Empty && !row <> (init_row - 1) mod height do 
-      tile := tiles.(!col).(!row);
-      row := (!row + 1) mod height;
-     done;
-     col := (!col + 1) mod width;
-     done;
-     !tile *)
+let select_empty (map_tiles: map_tile array array) 
+    (tiles: coordinate array) : map_tile = 
+  let tile_size = Array.length tiles in 
+  let index = ref (Random.int tile_size) in 
+  let coordinate = tiles.(!index) in 
+  let x = fst coordinate in 
+  let y = snd coordinate in 
+  let tile = ref (map_tiles.(x).(y)) in 
+  let counter = ref 0 in
+  while !tile.tile_type <> Empty && !counter < tile_size do 
+    index := (!index + 1) mod tile_size;
+    let coordinate = tiles.(!index) in 
+    let x = fst coordinate in 
+    let y = snd coordinate in 
+    tile := map_tiles.(x).(y);
+    counter := !counter + 1;
+  done;
+  !tile
 
-  let generate_fruit (map: t) : unit = 
-    let tiles = map.tiles in 
-    let tile = select_empty tiles in 
-    match tile.tile_type with 
-    | Empty -> 
-      let pos = tile.bottom_left in 
-      let x = fst pos in 
-      let y = snd pos in 
-      tiles.(x).(y) <- {tile with tile_type = fruit_tiles.(0)}
-    | _ -> ()
+let generate_fruit (map: t) : unit = 
+  let tiles = map.tiles in 
+  let tile = select_empty tiles map.player_tiles in 
+  match tile.tile_type with 
+  | Empty -> 
+    let pos = tile.bottom_left |> position_to_coordinate in 
+    let x = fst pos in 
+    let y = snd pos in 
+    tiles.(x).(y) <- {tile with tile_type = fruit_tiles.(0)}
+  | _ -> ()
 
 let get_tile_value (point: point) (map: t) : int = 
   let coordinate = position_to_coordinate point in 
