@@ -3,6 +3,9 @@ open Map
 open Player
 open Sprite
 
+(* constants *)
+let fruit_limit = 50
+
 type t = {
   player : Player.t;
   points : int;
@@ -12,6 +15,7 @@ type t = {
   map : Map.t;
   follower_ghosts : Ghost.t list;
   food_left: int;
+  fruit_generated: bool;
 }
 
 let player state = 
@@ -44,6 +48,7 @@ let initial_state player map ghosts_entry = {
   map = map;
   follower_ghosts = [];
   food_left = food_count map;
+  fruit_generated = false;
 } 
 
 let sprite_sheet = 
@@ -62,7 +67,19 @@ let sprite_sheet =
    } *)
 let update_state_food (state: t) (value: int) = 
   let points = state.points in
-  {state with points = points + value}
+  let food_left = 
+    match value with 
+    | 0 -> state.food_left 
+    | _ -> state.food_left - 1
+  in
+  if food_left = fruit_limit && not state.fruit_generated then 
+    begin 
+      generate_fruit state.map;
+      {state with points = points + value; 
+                  food_left = food_left; 
+                  fruit_generated = true}
+    end 
+  else {state with points = points + value; food_left = food_left}
 
 let update_state_lives state map = 
   let player_pos = Player.get_position (player state) in

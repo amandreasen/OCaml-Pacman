@@ -407,7 +407,7 @@ let make_map (corner: point) (maze_name: string) : t =
     for y = 0 to Array.length tile_list.(0) - 1 do 
       let tile = tile_list.(x).(y) in 
       match tile.tile_type with 
-      | Food | Special | Empty -> 
+      | Food | Special -> 
         player_tiles := Array.append !player_tiles [|(x, y)|]
       | _ -> ()
     done;

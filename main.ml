@@ -218,7 +218,7 @@ let rec loop state map_image  =
   let new_state = State.update_state_food state point_val in
   move_ghosts ghosts map user; 
   let new_lives_state = State.update_state_lives new_state map in
-  generate_fruit map;
+  (* generate_fruit map; *)
   draw_game new_state map_image user;
   synchronize ();
   Unix.sleepf(sleep_time); 
