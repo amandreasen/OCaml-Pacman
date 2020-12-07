@@ -47,7 +47,7 @@ let initial_state player map ghosts_entry = {
 let sprite_sheet = 
   let sheet = Png.load_as_rgb24 ("./sprites/sprite_sheet.png") [] in 
   let black_box = Png.load_as_rgb24 ("./sprites/black.png") [] in 
-  Images.blit black_box 0 0 sheet 100 45 350 100;
+  Images.blit black_box 0 0 sheet 100 45 305 100;
   sheet
 
 (* {
@@ -122,7 +122,7 @@ let make_ghosts num min_x min_y =
 let lives_img_lst state = 
   let rec make_lst acc = function 
     | n when n > 0 -> 
-      let image = sprite_from_sheet sprite_sheet 2 3 50 50 2 in 
+      let image = sprite_from_sheet sprite_sheet 8 1 50 50 2 in 
       make_lst (image::acc) (n-1)
     | _ -> acc
   in 

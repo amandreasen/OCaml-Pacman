@@ -1,10 +1,13 @@
 open Graphics
+open Sprite
 
 (* Constants *)
 let tile_size = 50
 let wall_width = 20
 let food_radius = 3
 let special_radius = 6
+let fruit_width = 50
+let fruit_height = 50
 let food_color = rgb 255 184 245
 let special_color = rgb 0 255 100
 let wall_color = Graphics.blue
@@ -34,6 +37,11 @@ type corner = orientation * orientation
     be a wall end (End), meaning that it is capped at one end. *) 
 type wall = Vert | Horz | Corner of corner | End of orientation
 
+type fruit = {
+  sprite: Graphics.image;
+  points: int; 
+}
+
 (** A [tile] represents tiles in the map. Empty tiles do not have anything. Food
     tiles have food in their centers. Special tiles have special food in their
     centers that give the player certain powerups. Ghost tiles do not have 
@@ -41,7 +49,7 @@ type wall = Vert | Horz | Corner of corner | End of orientation
     and may not be traversed by players or ghosts. Players can traverse empty, 
     food, and special tiles. Ghosts can traverse empty, food, special, and ghost
     tiles.  *)
-type tile = Empty | Food | Special | Ghost | Wall of wall
+type tile = Empty | Food | Special | Ghost | Wall of wall | Fruit of fruit
 
 (** A [map_tile] represents a tile in the map. A map_tile has a tile_type of type
     tile and a bottom_left position of type point. *) 
@@ -63,6 +71,22 @@ type t =
     height: int;
     bottom_left: point;
   }
+
+
+(* load sprites *)
+let sprite_sheet = 
+  let sheet = Png.load_as_rgb24 ("./sprites/sprite_sheet.png") [] in 
+  let black_box = Png.load_as_rgb24 ("./sprites/black.png") [] in 
+  Images.blit black_box 0 0 sheet 100 45 350 100;
+  sheet
+
+let fruit_tiles = 
+  let cherry_img = 
+    sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2 
+    |> sprite_image |> Graphic_image.of_image
+  in 
+  let cherry = {sprite = cherry_img; points = 100} in 
+  [|Fruit cherry|]
 
 (** The standard_map is a Map.t type and represents a standard game map with
     standard dimensions. *)  
@@ -204,7 +228,6 @@ let check_contains pos bottom_left =
   ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
   ((snd) pos - pacman_rad <= (snd) bottom_left) 
 
-
 let get_tile_type2 pos (tile_array:map_tile array) = 
   let h_list = Array.to_list tile_array in
   let rec check_tile (list:map_tile list) =
@@ -218,6 +241,7 @@ let get_tile_type2 pos (tile_array:map_tile array) =
         | Food -> "Food"
         | Special -> "Special"
         | Ghost -> "Ghost"
+        | Fruit _ -> "Fruit"
 
       else check_tile t in
   check_tile h_list
@@ -236,9 +260,9 @@ let get_tile_type pos map=
   in
   check_main map_list
 
-let check_move2 pos (tile_array:map_tile array) = 
+let check_move2 pos (tile_array: map_tile array) = 
   let h_list = Array.to_list tile_array in
-  let rec check_tile (list:map_tile list) =
+  let rec check_tile (list: map_tile list) =
     match list with
     | []-> ""
     | h::t ->
@@ -249,6 +273,7 @@ let check_move2 pos (tile_array:map_tile array) =
         | Food -> "Food"
         | Special ->"Special"
         | Ghost -> "Ghost"
+        | Fruit _ -> "Fruit"
 
       else check_tile t in
   check_tile h_list
@@ -326,6 +351,8 @@ let check_food (pos: point) (map: t) =
   match tile.tile_type with 
   | Food -> 
     map.tiles.(x).(y) <- {tile with tile_type = Empty} 
+  | Special -> 
+    map.tiles.(x).(y) <- {tile with tile_type = Empty}
   | _ -> ()
 
 (** [make_tile x y map_corner tile_type] will make a map_tile with a bottom
@@ -556,6 +583,11 @@ let draw_food_helper (tile: map_tile) : unit =
   match tile.tile_type with 
   | Food -> draw_food_tile tile food_radius food_color
   | Special -> draw_food_tile tile special_radius special_color
+  | Fruit fruit -> 
+    let corner = tile.bottom_left in 
+    let x = fst corner in 
+    let y = snd corner in 
+    Graphics.draw_image fruit.sprite x y 
   | _ -> ()
 
 (** [draw_food_row] will draw all Food tiles in the tile array [food_row] to the
@@ -564,24 +596,18 @@ let draw_food_row (food_row: map_tile array) : unit =
   ignore (Array.map draw_food_helper food_row);
   ()
 
-(**[draw_food map] will draw food in all Food tiles in the map [map]. *) 
+(**[draw_food map] will draw the appropriate food in all Food, Special, or Fruit 
+   tiles in the map [map]. *) 
 let draw_food (map: t) : unit =
   ignore (Array.map draw_food_row map.tiles);
   ()
-(* temporary helper function to make map tile outlines visible *)
-(* let draw_outline (tile: map_tile) : unit = 
-   set_color wall_color;
-   let bottom_corner = tile.bottom_left in 
-   let x_position = fst bottom_corner in 
-   let y_position = snd bottom_corner in 
-   draw_rect x_position y_position tile_size tile_size *)
 
 (**[draw_tile tile] will draw the correct display of the tile [tile] according
    to its tile type. Food tiles will be drawn the same as Empty tiles (the logic
    to draw food is in a separate function).  *) 
 let draw_tile (tile: map_tile) : unit =
   match tile.tile_type with
-  | Empty | Food | Ghost | Special-> ()
+  | Empty | Food | Ghost | Special | Fruit _ -> ()
   | Wall wall -> draw_wall tile wall
 
 (**[draw_map_row] will draw the correct display of all tiles in the tile 
