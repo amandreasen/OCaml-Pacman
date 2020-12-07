@@ -671,6 +671,20 @@ let generate_fruit (map: t) : unit =
     tiles.(x).(y) <- {tile with tile_type = fruit_tiles.(0)}
   | _ -> ()
 
+let clear_fruit (map: t) : unit = 
+  let tiles = map.tiles in 
+  let cols = Array.length tiles in 
+  let rows = Array.length tiles.(0) in 
+  for x = 0 to cols - 1 do 
+    for y = 0 to rows - 1 do 
+      let tile = tiles.(x).(y) in 
+      match tile.tile_type with 
+      | Fruit _ -> 
+        tiles.(x).(y) <- {tile with tile_type = Empty}
+      | _ -> ()
+    done;
+  done
+
 let get_tile_value (point: point) (map: t) : int = 
   let coordinate = position_to_coordinate point in 
   let x = fst coordinate in 

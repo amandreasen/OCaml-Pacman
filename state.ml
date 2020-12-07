@@ -5,6 +5,7 @@ open Sprite
 
 (* constants *)
 let fruit_limit = 50
+let fruit_timer = 200
 
 type t = {
   player : Player.t;
@@ -16,6 +17,8 @@ type t = {
   follower_ghosts : Ghost.t list;
   food_left: int;
   fruit_generated: bool;
+  fruit_active: bool;
+  mutable fruit_timer: int;
 }
 
 let player state = 
@@ -49,6 +52,8 @@ let initial_state player map ghosts_entry = {
   follower_ghosts = [];
   food_left = food_count map;
   fruit_generated = false;
+  fruit_active = false;
+  fruit_timer = 0;
 } 
 
 let sprite_sheet = 
@@ -57,14 +62,6 @@ let sprite_sheet =
   Images.blit black_box 0 0 sheet 100 45 305 100;
   sheet
 
-(* {
-   points = state.points + 1;
-   lives = 3;
-   ghosts = state.ghosts;
-   current_level = 1;
-   map = map;
-   follower_ghosts = []
-   } *)
 let update_state_food (state: t) (value: int) = 
   let points = state.points in
   let food_left = 
@@ -77,11 +74,13 @@ let update_state_food (state: t) (value: int) =
       generate_fruit state.map;
       {state with points = points + value; 
                   food_left = food_left; 
-                  fruit_generated = true}
+                  fruit_generated = true;
+                  fruit_active = true;
+                  fruit_timer = fruit_timer}
     end 
   else {state with points = points + value; food_left = food_left}
 
-let update_state_lives state map = 
+let update_state_lives state = 
   let player_pos = Player.get_position (player state) in
   let new_lives = ref (lives state) in
   let ghosts = ghosts state in
@@ -92,16 +91,20 @@ let update_state_lives state map =
   done;
   {state with lives = !new_lives}
 
-
-
-(*{
-  points = state.points + 1;
-  lives = 3;
-  ghosts = state.ghosts;
-  current_level = 1;
-  map = map;
-  follower_ghosts = []
-  }*)
+let update_state (state: t) (map: Map.t) : t = 
+  let state' = update_state_lives state in 
+  let player_pos = Player.get_position state.player in 
+  let point_val = Map.get_tile_value player_pos map in
+  let state'' = update_state_food state' point_val in 
+  let timer = 
+    if state''.fruit_timer > 0 then state''.fruit_timer - 1 else 0 
+  in 
+  if timer = 0 && state''.fruit_active then 
+    begin 
+      clear_fruit map;
+      {state'' with fruit_timer = timer; fruit_active = false}
+    end 
+  else {state'' with fruit_timer = timer}
 
 let new_follower state ghost = 
   {state with follower_ghosts = ghost::(followers state)}

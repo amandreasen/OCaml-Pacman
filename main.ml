@@ -212,17 +212,13 @@ let rec loop state map_image  =
   let map = map state in 
   let ghosts = ghosts state in
   move_player user map;  
-  let player_pos = Player.get_position user in 
-  let point_val = Map.get_tile_value player_pos map in
-  check_food player_pos map;
-  let new_state = State.update_state_food state point_val in
   move_ghosts ghosts map user; 
-  let new_lives_state = State.update_state_lives new_state map in
-  (* generate_fruit map; *)
-  draw_game new_state map_image user;
+  let state' = State.update_state state map in
+  check_food (Player.get_position user) map;
+  draw_game state' map_image user;
   synchronize ();
   Unix.sleepf(sleep_time); 
-  loop new_lives_state map_image 
+  loop state' map_image 
 
 and move_player user map  = 
   let prev_move = player_prev_move user in 

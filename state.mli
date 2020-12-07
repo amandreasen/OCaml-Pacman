@@ -26,10 +26,14 @@ val map: t -> Map.t
 (** [initial_state] initialies a new state for a new player *)
 val initial_state: Player.t -> Map.t -> Ghost.t array -> t
 
+(**[update_state state map] will return the new state after food has been 
+   consumed and the life counter has been updated, if applicable. *) 
+val update_state: t -> Map.t -> t
+
 (** [update_state_food] is the state after food has been consumed. *)
 val update_state_food: t -> int -> t
 
-val update_state_lives: t -> Map.t -> t
+val update_state_lives: t -> t
 
 (** [make_ghosts] is the array of n number of ghosts where the second and third 
     inputs are the minimum x and y values, respectively. Initially the ghosts 

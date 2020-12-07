@@ -50,3 +50,6 @@ val generate_fruit: t -> unit
 (**[food_count map] will return the total number of food and special tiles 
    in the map [map]. *)
 val food_count: t -> int
+
+(**[clear_fruit map] will clear any remaining fruit tiles from the map [map]. *) 
+val clear_fruit: t -> unit
