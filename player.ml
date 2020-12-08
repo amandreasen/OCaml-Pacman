@@ -78,8 +78,11 @@ let move (player : t) (dir : int * int) =
     | _ -> player.direction
   in 
   let counter = 
-    if player.direction <> update_dir then 0 
-    else (player.move_counter + 1) mod 3
+    if player.direction <> update_dir 
+    then 0 
+    else if dir <> (0,0) || (dir = (0, 0) && player.move_counter <> 1)
+    then (player.move_counter + 1) mod 3
+    else player.move_counter
   in 
   player.move_counter <- counter;
   player.direction <- update_dir; 

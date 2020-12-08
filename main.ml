@@ -253,7 +253,6 @@ and draw_ghosts ghosts =
                 |> Graphic_image.of_image 
     in 
     Graphics.draw_image image (x - ghost_radius) (y - ghost_radius)
-    (* fill_circle x y ghost_radius; *)
   done
 
 (** TODO: update direction when needed - also import more sprites *)
