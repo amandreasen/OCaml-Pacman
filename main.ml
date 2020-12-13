@@ -97,7 +97,7 @@ let update_active (game: game) (key: key): game =
     begin 
       let next_fruit = Array.length game.fruit_basket in
       let fruit = fruits.(next_fruit) in
-      game.fruit_basket <- Array.append [|fruit|] game.fruit_basket
+      game.fruit_basket <- Array.append game.fruit_basket [|fruit|] 
     end
   else ();
   update_active_game game key key_char level'
@@ -131,6 +131,15 @@ let draw_labels (game: game) : unit =
   moveto 1275 675;
   draw_string ("Level: " ^ string_of_int game.level)
 
+let draw_fruits (game: game) : unit = 
+  let draw_helper x y index fruit : unit = 
+    let x = x - 50 * index in
+    let img = fruit.sprite |> sprite_image |> Graphic_image.of_image in 
+    Graphics.draw_image img x y 
+  in 
+  ignore (Array.mapi (draw_helper 1275 60) game.fruit_basket);
+  ()
+
 let rec update (game: game) : unit = 
   let key = 
     if Graphics.key_pressed() 
@@ -146,6 +155,7 @@ let rec update (game: game) : unit =
     | Loading -> update_loading game
   in 
   draw_labels game';
+  draw_fruits game';
   synchronize ();
   Unix.sleepf(sleep_time); 
   update game'

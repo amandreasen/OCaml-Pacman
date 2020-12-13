@@ -9,7 +9,7 @@ let player_radius = 25
 
 let move_amt = 15
 
-let sleep_time = 0.05
+let sleep_time = 0.048
 
 let num_ghosts = 1
 
