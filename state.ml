@@ -59,9 +59,8 @@ let initial_state player map ghosts_entry map_background = {
 let update_state_food (state: t) (value: int) = 
   let points = state.points in
   let food_left = 
-    match value with 
-    | 0 -> state.food_left 
-    | _ -> state.food_left - 1
+    if value = food_val || value = special_val then state.food_left - 1 
+    else state.food_left
   in
   if food_left = fruit_limit && not state.fruit_generated then 
     begin 
@@ -392,6 +391,7 @@ let init_level (map_name: string): t =
   let ghosts = 
     match map_name with 
     | "OCaml" -> make_ghosts num_ghosts 725 375 
+    | "standard" -> make_ghosts num_ghosts 725 375
     | _ -> failwith "Invalid map!"
   in
   initial_state player map ghosts map_background
@@ -406,3 +406,8 @@ let update_level (state: t) (key: char) : t =
   check_food (Player.get_position user) map;
   draw_game state';
   state'
+
+let check_win (state: t) : int = 
+  if state.food_left = 0 then 1 
+  else if state.lives = 0 then -1 
+  else 0

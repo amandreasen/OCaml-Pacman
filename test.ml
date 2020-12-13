@@ -148,7 +148,7 @@ let ocaml_map = make_map (0, 0) "OCaml"
 
 let map_tests = [
   food_count_test "count initial food in standard map" standard_map 134;
-  food_count_test "count initial food in OCaml map" ocaml_map 132;
+  food_count_test "count initial food in OCaml map" ocaml_map 133;
 ]
 
 let suite =

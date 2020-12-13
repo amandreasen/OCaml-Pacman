@@ -1,6 +1,7 @@
 open Graphics
 open Sprite
 open Images
+open Constants
 
 (* Constants *)
 let tile_size = 50
@@ -17,9 +18,6 @@ let special_color = rgb 0 255 100
 let wall_color = Graphics.blue
 
 let pacman_rad = 25
-
-let food_val = 1
-let special_val = 5 
 
 (** A [point] is of the form (x,y) and represents a pixel position in the GUI 
     window. In (x,y), x is the x-coordinate of the pixel position and y is the
@@ -80,13 +78,6 @@ type t =
     height: int;
     bottom_left: point;
   }
-
-(* load sprites *)
-let sprite_sheet = 
-  let sheet = Png.load_as_rgb24 ("./sprites/sprite_sheet.png") [] in 
-  let black_box = Png.load_as_rgb24 ("./sprites/black.png") [] in 
-  Images.blit black_box 0 0 sheet 100 45 350 100;
-  sheet
 
 let fruit_tiles : tile array = 
   let cherry_img = 
@@ -176,14 +167,14 @@ let ocaml_maze =
     [|Wall (Corner (Bot, Left)); Wall Vert; Wall Vert; Wall Vert;
       Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
       Wall Vert; Wall(Corner (Top, Left))|];
-    [|Wall Horz; Special; Food; Food; Food; Food; Food; Food; Food; Food; 
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
       Wall Horz|];
     [|Wall Horz; Food; Wall (End Left); Food; Wall (Corner (Bot, Left)); 
       Wall Vert; Wall (Corner (Top, Left)); Food; Wall (End Left); Food;
       Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Ghost; Wall Horz; Food; 
       Wall Horz; Food; Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Special; Wall (Corner (Bot, Right)); 
+    [|Wall Horz; Food; Wall Horz; Food; Wall (Corner (Bot, Right)); 
       Wall Vert; 
       Wall (Corner (Top, Right)); Food; Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; 
@@ -192,7 +183,7 @@ let ocaml_maze =
       Wall (Corner (Top, Left)); Food; Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall (End Right); Food; Wall Horz; Food; Wall Horz;
       Food; Wall (End Right); Food; Wall Horz|];
-    [|Wall Horz; Food; Special; Food; Wall (End Right); Food; Wall (End Right);
+    [|Wall Horz; Food; Food; Food; Wall (End Right); Food; Wall (End Right);
       Food; Food; Food; Wall Horz|];
     [|Wall Horz; Food; Wall (End Left); Food; Food; Food; Food; Food; Wall (
           End Left); Food; Wall Horz|];
@@ -218,7 +209,7 @@ let ocaml_maze =
       Wall (Corner (Top, Right)); Food; Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; Food;
       Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Special; Wall (Corner (Bot, Left)); Wall Vert; 
+    [|Wall Horz; Food; Wall Horz; Food; Wall (Corner (Bot, Left)); Wall Vert; 
       Wall (End Top); Food; Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Food; Food; Food; Wall Horz;
       Food; Wall Horz|];
@@ -228,7 +219,7 @@ let ocaml_maze =
     [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food;
       Wall Horz|];
     [|Wall (Corner (Bot, Right)); Wall Vert; Wall Vert; Wall Vert; Wall Vert;
-      Wall Vert; Wall Vert; Wall Vert; Wall Vert;Wall Vert; 
+      Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert; 
       Wall(Corner (Top, Right))|];
   |]
 
@@ -412,7 +403,8 @@ let make_map (corner: point) (maze_name: string) : t =
       | _ -> ()
     done;
   done;
-  {standard_map with bottom_left = corner; player_tiles = !player_tiles; 
+  {standard_map with bottom_left = corner;
+                     player_tiles = !player_tiles; 
                      tiles = tile_list}
 
 (** [draw_corner_single first second] will draw a corner to the GUI window 
@@ -698,6 +690,16 @@ let get_tile_value (point: point) (map: t) : int =
 
 let food_count (map: t) : int = 
   let tiles = map.tiles in 
+  (* let acc = ref 0 in
+     for x = 0 to Array.length tiles - 1 do 
+     for y = 0 to Array.length tiles.(0) - 1 do
+      let tile = tiles.(x).(y) in 
+      match tile.tile_type with 
+      | Food | Special -> acc := !acc + 1 
+      | _ -> ()
+     done;
+     done;
+     !acc *)
   let check_food acc tile =
     match tile.tile_type with 
     | Food | Special -> acc + 1 

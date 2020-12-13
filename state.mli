@@ -13,6 +13,12 @@ val init_level: string -> t
    after it has been updated. *) 
 val update_level: t -> char -> t
 
+(**[check_win state] will return 1 if the player has won the level (all food
+   has been eaten and player has at least one life left), -1 if the player
+   has lost (player does not have any lives left), or 0 if the player 
+   has neither won or lost the current level.*)
+val check_win: t -> int
+
 (* val draw_game: t -> unit *)
 
 (* * [player] is the current player in the game.

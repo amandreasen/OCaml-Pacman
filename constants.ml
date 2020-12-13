@@ -25,3 +25,6 @@ let sprite_sheet =
   let black_box = Png.load_as_rgb24 ("./sprites/black.png") [] in 
   Images.blit black_box 0 0 sheet 100 45 305 100;
   sheet
+
+let food_val = 1
+let special_val = 5 
