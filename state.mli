@@ -19,6 +19,9 @@ val update_level: t -> char -> t
    has neither won or lost the current level.*)
 val check_win: t -> int
 
+(**[points state] will return the number of points in the current level. *)
+val points: t -> int
+
 (* val draw_game: t -> unit *)
 
 (* * [player] is the current player in the game.

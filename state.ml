@@ -347,12 +347,7 @@ let draw_lives state =
   draw_helper (1125,60) (lives_img_lst state) 
 
 let draw_state state user = 
-  moveto 175 75;
-  set_color red;
-  draw_string ("Points: " ^ string_of_int (points state));
-  draw_string (Map.get_tile_type (Player.get_position user) (map state));
-  moveto 175 675;
-  (* draw_string ("Level: " ^ string_of_int (current_level state)); *)
+  (* draw_string (Map.get_tile_type (Player.get_position user) (map state)); *)
   draw_lives state
 
 let move_player user map key = 
@@ -367,18 +362,6 @@ let draw_game state =
   draw_state state state.player;
   draw_player state.player;
   draw_ghosts state.ghosts
-
-(** [prev_move] is the actual move that the user just made. 
-    [prev_move_attempt] is their last input that may or may not have passed. *)
-(* let loop state = 
-   let user = state.player in 
-   let map = state.map in 
-   let ghosts = state.ghosts in
-   move_player user map;  
-   move_ghosts ghosts map user; 
-   let state' = update_state state in
-   check_food (Player.get_position user) map;
-   draw_game state'  *)
 
 let map_init (map: Map.t): Graphics.image = 
   draw_map map;
