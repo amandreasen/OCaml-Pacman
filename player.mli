@@ -4,7 +4,7 @@ type t
 
 (** [new_player] is a hard-coded player with initial coordinates centered at 
     (175,175). *)
-val new_player: t
+val new_player: unit -> t
 
 (** [get_position] returns the Player t's current position as a tuple (x, y).*)
 val get_position: t -> int * int 

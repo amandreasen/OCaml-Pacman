@@ -55,6 +55,7 @@ let make_images : player_sprites =
 
 
 let new_player = 
+  fun () ->
   {
     x = fst init_pos; 
     y = snd init_pos;
@@ -93,7 +94,6 @@ let move (player : t) (dir : int * int) =
 let player_direction (player : t) = 
   player.direction
 
-(* TODO: edit player image *)
 let player_image (user : t) = 
   let images = user.images in 
   let sprite_list = 

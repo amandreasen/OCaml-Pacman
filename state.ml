@@ -368,16 +368,18 @@ let map_init (map: Map.t): Graphics.image =
   Graphics.get_image 0 0 window_width window_height 
 
 let init_level (map_name: string): t =
-  let map = make_map (100, 100) map_name in 
-  let map_background = map_init map in
-  let player = new_player in 
-  let ghosts = 
-    match map_name with 
-    | "OCaml" -> make_ghosts num_ghosts 725 375 
-    | "standard" -> make_ghosts num_ghosts 725 375
-    | _ -> failwith "Invalid map!"
-  in
-  initial_state player map ghosts map_background
+  let make_level map_name =
+    let map = make_map (100, 100) map_name in 
+    let map_background = map_init map in
+    let player = new_player () in 
+    let ghosts = 
+      match map_name with 
+      | "OCaml" -> make_ghosts num_ghosts 725 375 
+      | "standard" -> make_ghosts num_ghosts 725 375
+      | _ -> failwith "Invalid map!"
+    in
+    initial_state player map ghosts map_background
+  in make_level map_name
 
 let update_level (state: t) (key: char) : t = 
   let user = state.player in 

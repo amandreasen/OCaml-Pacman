@@ -78,7 +78,7 @@ let update_win (game: game) (key: key) : game =
   else {game with prev_key = key}
 
 let update_lose (game: game) : game =
-  failwith "unimplemented"
+  game
 
 let update_loading (game: game) : game = 
   clear_graph();
