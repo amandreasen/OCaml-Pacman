@@ -19,7 +19,26 @@ type game = {
   prev_key: key;
   prev_move: char;
   points: int;
+  mutable fruit_basket: fruit array
 }
+
+let cherry = 
+  let img = sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2 in 
+  {sprite = img; points = 100}
+
+let strawberry = 
+  let img = sprite_from_sheet sprite_sheet 3 3 fruit_width fruit_height 2 in 
+  {sprite = img; points = 300}
+
+let peach = 
+  let img = sprite_from_sheet sprite_sheet 4 3 fruit_width fruit_height 2 in 
+  {sprite = img; points = 500}
+
+let grapes = 
+  let img = sprite_from_sheet sprite_sheet 5 3 fruit_width fruit_height 2 in 
+  {sprite = img; points = 700}
+
+let fruits = [|cherry; strawberry; peach; grapes|]
 
 let tile_type str = 
   ("Tile type: " ^ str)
@@ -36,26 +55,34 @@ let window_init (settings: string) : unit =
   set_color black;
   fill_rect 0 0 (size_x ()) (size_y ())
 
-let init_game (map_name: string) (points: int) (level: int) : game = 
+let init_game (map_name: string) (points: int) (level: int) 
+    (fruit_basket: fruit array) (next_fruit: int): game = 
+  let fruit = 
+    if next_fruit = fruit_num 
+    then fruits.(fruit_num - 1) 
+    else fruits.(next_fruit)
+  in
   {level = level + 1;
-   current = init_level map_name; 
+   current = init_level map_name fruit; 
    state = Active; 
    prev_key = None; 
    prev_move = 'z';
-   points = points}
+   points = points;
+   fruit_basket = fruit_basket}
 
 let update_active_game (game: game) (key: key) (key_char: char) 
     (level: State.t) : game =
   let win_code = State.check_win level in
+  let game' = {game with current = level; prev_key = key} in
   if win_code = 1 
-  then {game with current = level; prev_key = key; state = Win} 
+  then {game' with state = Win} 
   else if win_code = -1
-  then {game with current = level; prev_key = key; state = Lose} 
+  then {game' with state = Lose} 
   else 
     begin
       if key = Key ' ' && not (game.prev_key = Key ' ')
-      then {game with current = level; prev_key = key; state = Paused}
-      else {game with current = level; prev_key = key; prev_move = key_char}
+      then {game' with state = Paused}
+      else {game' with prev_move = key_char}
     end
 
 let update_active (game: game) (key: key): game = 
@@ -65,6 +92,14 @@ let update_active (game: game) (key: key): game =
     | None -> game.prev_move 
   in
   let level' = update_level game.current key_char in 
+  if (fruit_eaten level') && not (fruit_eaten game.current) 
+  then
+    begin 
+      let next_fruit = Array.length game.fruit_basket in
+      let fruit = fruits.(next_fruit) in
+      game.fruit_basket <- Array.append [|fruit|] game.fruit_basket
+    end
+  else ();
   update_active_game game key key_char level'
 
 let update_paused (game: game) (key: key) : game = 
@@ -85,14 +120,15 @@ let update_loading (game: game) : game =
   set_color black;
   fill_rect 0 0 (size_x ()) (size_y ());
   let points = game.points + points game.current in
-  init_game "OCaml" points game.level 
+  let next_fruit = Array.length game.fruit_basket in
+  init_game "OCaml" points game.level game.fruit_basket next_fruit
 
 let draw_labels (game: game) : unit = 
   set_color red;
-  moveto 175 75;
+  moveto 175 675;
   let points = game.points + (points game.current) in
   draw_string ("Points: " ^ string_of_int points);
-  moveto 175 675;
+  moveto 1275 675;
   draw_string ("Level: " ^ string_of_int game.level)
 
 let rec update (game: game) : unit = 
@@ -117,7 +153,7 @@ let rec update (game: game) : unit =
 let main (settings: string) : unit = 
   window_init settings;
   auto_synchronize false;
-  let game = init_game "OCaml" 0 0 in
+  let game = init_game "OCaml" 0 0 [||] 0 in
   ignore (update game);
   ()
 

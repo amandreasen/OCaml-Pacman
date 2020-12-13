@@ -26,5 +26,24 @@ let sprite_sheet =
   Images.blit black_box 0 0 sheet 100 45 305 100;
   sheet
 
+(* map constants *)
+
+(* point value for food *)
 let food_val = 1
+
+(* point value for special food *)
 let special_val = 5 
+
+(* Constants *)
+let tile_size = 50
+let wall_width = 20
+
+let food_radius = 3
+let special_radius = 6
+
+let fruit_width = 50
+let fruit_height = 50
+
+let pacman_rad = 25
+
+let fruit_num = 4

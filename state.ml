@@ -21,11 +21,9 @@ type t = {
   food_left: int;
   fruit_generated: bool;
   fruit_active: bool;
+  fruit_eaten: bool;
   mutable fruit_timer: int;
 }
-
-let player state = 
-  state.player
 
 let points state =
   state.points
@@ -33,14 +31,8 @@ let points state =
 let lives state =
   state.lives
 
-let ghosts state =
-  state.ghosts
-
-let followers state = 
-  state.follower_ghosts
-
-let map state = 
-  state.map
+let fruit_eaten state =   
+  state.fruit_eaten
 
 let initial_state player map ghosts_entry map_background = {
   player = player;
@@ -53,6 +45,7 @@ let initial_state player map ghosts_entry map_background = {
   food_left = food_count map;
   fruit_generated = false;
   fruit_active = false;
+  fruit_eaten = false;
   fruit_timer = 0;
 } 
 
@@ -62,21 +55,24 @@ let update_state_food (state: t) (value: int) =
     if value = food_val || value = special_val then state.food_left - 1 
     else state.food_left
   in
+  let fruit_eaten = if value > 10 then true else state.fruit_eaten in
+  let state' = {state with points = points + value; 
+                           food_left = food_left; 
+                           fruit_eaten = fruit_eaten;} 
+  in
   if food_left = fruit_limit && not state.fruit_generated then 
     begin 
       generate_fruit state.map;
-      {state with points = points + value; 
-                  food_left = food_left; 
-                  fruit_generated = true;
-                  fruit_active = true;
-                  fruit_timer = fruit_timer}
+      {state' with fruit_generated = true;
+                   fruit_active = true;
+                   fruit_timer = fruit_timer;}
     end 
-  else {state with points = points + value; food_left = food_left}
+  else state'
 
 let update_state_lives state = 
-  let player_pos = Player.get_position (player state) in
+  let player_pos = Player.get_position state.player in
   let new_lives = ref (lives state) in
-  let ghosts = ghosts state in
+  let ghosts = state.ghosts in
   for i = 0 to (Array.length ghosts) - 1 do
     let ghost_pos = Ghost.get_position ghosts.(i) in
     if player_pos = ghost_pos then
@@ -100,7 +96,7 @@ let update_state (state: t) : t =
   else {state'' with fruit_timer = timer}
 
 let new_follower state ghost = 
-  {state with follower_ghosts = ghost::(followers state)}
+  {state with follower_ghosts = ghost :: state.follower_ghosts}
 
 let remove_follower state ghost = 
   let rec find_follower acc = function 
@@ -111,7 +107,7 @@ let remove_follower state ghost =
         else find_follower (h::acc) t
       end 
   in 
-  find_follower [] (followers state)
+  find_follower [] state.follower_ghosts
 
 let make_ghosts num min_x min_y = 
   let color_list = [|"cyan"; "pink"; "red"; "orange"|] in 
@@ -146,7 +142,7 @@ let parse_dir (dir: char) =
   |'s' -> (0, -move_amt)
   |'a' -> (-move_amt, 0)
   |'d' -> (move_amt, 0)
-  |_ -> (0,0)
+  | _ -> (0,0)
 
 (** [rand_char] is the char for a movement as determined by [num]. For ghost 
     movement, [num] is a random int in the range [0,3]. *)
@@ -344,7 +340,7 @@ let draw_lives state =
         draw_helper (x,y) t
       end
   in 
-  draw_helper (1125,60) (lives_img_lst state) 
+  draw_helper (100, 60) (lives_img_lst state) 
 
 let draw_state state user = 
   (* draw_string (Map.get_tile_type (Player.get_position user) (map state)); *)
@@ -367,9 +363,9 @@ let map_init (map: Map.t): Graphics.image =
   draw_map map;
   Graphics.get_image 0 0 window_width window_height 
 
-let init_level (map_name: string): t =
+let init_level (map_name: string) (fruit: fruit): t =
   let make_level map_name =
-    let map = make_map (100, 100) map_name in 
+    let map = make_map (100, 100) map_name fruit in 
     let map_background = map_init map in
     let player = new_player () in 
     let ghosts = 

@@ -17,11 +17,16 @@ type map_tile
     y-coordinate of the pixel position. *)
 type point = int * int
 
+type fruit = {
+  sprite: Sprite.t;
+  points: int; 
+}
+
 (** [make_map point name] returns a Map.t with a bottom left corner at 
     [point] and a tile layout according to the map name [name]. Fails if 
     [name] is not a valid map name (current valid map names are "standard"
     and "OCaml")*)
-val make_map: point -> string -> t
+val make_map: point -> string -> fruit -> t
 
 (**[draw_map map] will draw the map [map] to the active GUI window. *) 
 val draw_map: t -> unit

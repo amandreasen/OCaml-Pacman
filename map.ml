@@ -3,21 +3,9 @@ open Sprite
 open Images
 open Constants
 
-(* Constants *)
-let tile_size = 50
-let wall_width = 20
-
-let food_radius = 3
-let special_radius = 6
-
-let fruit_width = 50
-let fruit_height = 50
-
 let food_color = rgb 255 184 245
 let special_color = rgb 0 255 100
 let wall_color = Graphics.blue
-
-let pacman_rad = 25
 
 (** A [point] is of the form (x,y) and represents a pixel position in the GUI 
     window. In (x,y), x is the x-coordinate of the pixel position and y is the
@@ -77,25 +65,18 @@ type t =
     width: int;
     height: int;
     bottom_left: point;
+    fruit: fruit
   }
 
-let fruit_tiles : tile array = 
-  let cherry_img = 
-    sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2
-  in 
-  let cherry = {sprite = cherry_img; points = 100} in 
-  [|Fruit cherry|]
+(* let make_fruit (fruit_img: Sprite.t) (points: int) =
+   {sprite = fruit_img; points = points} *)
 
-(** The standard_map is a Map.t type and represents a standard game map with
-    standard dimensions. *)  
-let standard_map = 
-  {
-    tiles = [||];
-    player_tiles = [||];
-    width = 1300;
-    height = 550;
-    bottom_left = (0,0);
-  } 
+(* let fruit_tiles : tile array = 
+   let cherry_img = 
+    sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2
+   in 
+   let cherry = {sprite = cherry_img; points = 100} in 
+   [|Fruit cherry|] *)
 
 (** The standard_maze is a 2D array of tile_types that represents the layout
     of the default game map. *) 
@@ -386,7 +367,7 @@ let make_tiles (x_dim: int) (y_dim: int) (map_corner: point)
 (** [make_map corner maze_name] will return a map with a bottom left corner at 
     [corner] and a tile layout represented by the maze label [maze_name]. Fails
     if [maze_name] is not a valid maze name.*)
-let make_map (corner: point) (maze_name: string) : t =   
+let make_map (corner: point) (maze_name: string) (fruit: fruit) : t =   
   let tile_list = 
     match maze_name with 
     | "standard" -> make_tiles 11 26 corner standard_maze
@@ -403,9 +384,14 @@ let make_map (corner: point) (maze_name: string) : t =
       | _ -> ()
     done;
   done;
-  {standard_map with bottom_left = corner;
-                     player_tiles = !player_tiles; 
-                     tiles = tile_list}
+  {
+    tiles = tile_list; 
+    player_tiles = !player_tiles;
+    width = 1300;
+    height = 550;
+    bottom_left = (0,0);
+    fruit = fruit;
+  }
 
 (** [draw_corner_single first second] will draw a corner to the GUI window 
     with one endpoint of point [first] and the other endpoint at point [second]. 
@@ -660,7 +646,7 @@ let generate_fruit (map: t) : unit =
     let pos = tile.bottom_left |> position_to_coordinate in 
     let x = fst pos in 
     let y = snd pos in 
-    tiles.(x).(y) <- {tile with tile_type = fruit_tiles.(0)}
+    tiles.(x).(y) <- {tile with tile_type = Fruit map.fruit}
   | _ -> ()
 
 let clear_fruit (map: t) : unit = 
@@ -690,16 +676,6 @@ let get_tile_value (point: point) (map: t) : int =
 
 let food_count (map: t) : int = 
   let tiles = map.tiles in 
-  (* let acc = ref 0 in
-     for x = 0 to Array.length tiles - 1 do 
-     for y = 0 to Array.length tiles.(0) - 1 do
-      let tile = tiles.(x).(y) in 
-      match tile.tile_type with 
-      | Food | Special -> acc := !acc + 1 
-      | _ -> ()
-     done;
-     done;
-     !acc *)
   let check_food acc tile =
     match tile.tile_type with 
     | Food | Special -> acc + 1 

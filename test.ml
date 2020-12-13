@@ -2,6 +2,8 @@ open OUnit2
 open Ghost
 open Map
 open Player
+open Sprite
+open Constants
 
 let pp_tuple coordinates = 
   let x = fst coordinates in 
@@ -37,12 +39,12 @@ let player_prev_move_test
       assert_equal input_dir (Player.move player input_dir; 
                               Player.player_prev_move player)) 
 
-let player_1 = new_player
+let player_1 = new_player()
 
 let player_tests =
   [
     player_move_pos_test "Initial position at (175,175)"
-      new_player (0,0) (175,175);
+      (new_player ()) (0,0) (175,175);
     player_move_pos_test "Initial player moves up 50" 
       player_1 (0,50) (175,225);
     player_move_pos_test "After moving up 50, move right 50" 
@@ -143,8 +145,12 @@ let food_count_test
   name >:: (fun _ ->
       assert_equal expected_output (food_count map) ~printer: string_of_int)
 
-let standard_map = make_map (0, 0) "standard"
-let ocaml_map = make_map (0, 0) "OCaml"
+let cherry = 
+  let img = sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2 in 
+  {sprite = img; points = 100}
+
+let standard_map = make_map (0, 0) "standard" cherry
+let ocaml_map = make_map (0, 0) "OCaml" cherry
 
 let map_tests = [
   food_count_test "count initial food in standard map" standard_map 134;
