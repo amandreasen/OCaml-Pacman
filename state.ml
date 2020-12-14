@@ -10,6 +10,8 @@ open Graphic_image
 let fruit_limit = 50
 let fruit_timer = 200
 
+let png_wl = 50
+
 type t = {
   player : Player.t;
   points : int;
@@ -69,19 +71,25 @@ let update_state_food (state: t) (value: int) =
     end 
   else state'
 
-let update_state_lives state = 
+let check_overlap ghost_pos user_pos =
+  (((fst) ghost_pos - png_wl/2 < (fst) user_pos + png_wl/2) &&
+   ((fst) ghost_pos - png_wl/2 > (fst) user_pos - png_wl/2) &&
+   ((snd) ghost_pos - png_wl/2 > (snd) user_pos + png_wl/2) &&
+   ((snd) ghost_pos + png_wl/2 < (snd) user_pos - png_wl/2))
+
+let update_state_lives state map = 
   let player_pos = Player.get_position state.player in
   let new_lives = ref (lives state) in
   let ghosts = state.ghosts in
   for i = 0 to (Array.length ghosts) - 1 do
     let ghost_pos = Ghost.get_position ghosts.(i) in
-    if player_pos = ghost_pos then
-      new_lives := (!new_lives -1)
+    if check_overlap ghost_pos player_pos then
+      new_lives:=(!new_lives -1);
   done;
   {state with lives = !new_lives}
 
 let update_state (state: t) : t = 
-  let state' = update_state_lives state in 
+  let state' = update_state_lives state state.map in 
   let player_pos = Player.get_position state.player in 
   let point_val = Map.get_tile_value player_pos state.map in
   let state'' = update_state_food state' point_val in 

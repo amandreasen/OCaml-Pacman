@@ -37,6 +37,8 @@ val draw_food: t -> unit
 
 val check_move: point -> t -> point -> bool
 
+val check_move_new: point -> t -> point -> bool
+
 val get_tile_type: point -> t -> string
 
 (**[check_food point map] will check if the tile in [map] at pixel position

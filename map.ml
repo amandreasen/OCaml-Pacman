@@ -6,6 +6,8 @@ open Constants
 let food_color = rgb 255 184 245
 let special_color = rgb 0 255 100
 let wall_color = Graphics.blue
+let png_wl = 46
+let check_tile_size = 51
 
 (** A [point] is of the form (x,y) and represents a pixel position in the GUI 
     window. In (x,y), x is the x-coordinate of the pixel position and y is the
@@ -194,11 +196,74 @@ let ocaml_maze =
       Wall(Corner (Top, Right))|];
   |]
 
-let check_contains pos bottom_left = 
+
+
+
+
+
+
+(*let check_food_tile pos map=   
+  (* The position of the pacman is the center of the circle, each time it moves 
+     1/5 of a tile*)
+  let map_list = Array.to_list map.tiles in
+  let acc=0 in
+  let rec check_main map_l=
+    match map_l with
+    | []-> acc
+    | h::t ->
+      match (check_move2 pos h) with
+      | "Food"-> acc+1
+      | ("Empty" | "Wall" | "Special"| "Ghost") -> acc
+      | _ -> check_main t
+  in
+  check_main map_list*)
+
+(*let check_contains2 pos bottom_left = 
   ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
   ((fst) pos - pacman_rad <= (fst) bottom_left) &&
   ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
-  ((snd) pos - pacman_rad <= (snd) bottom_left) 
+  ((snd) pos - pacman_rad <= (snd) bottom_left) *)
+
+(** [position_to_coordinate p] will convert a pixel position [p] in the GUI to 
+    a coordinate in the map array.
+    Requires: [p] is a valid pixel position in the map.*) 
+let position_to_coordinate (position: point) : coordinate = 
+  let map_shift = 100 in
+  let x_position = fst position - map_shift in 
+  let y_position = snd position - map_shift in 
+  let x_coordinate = x_position / tile_size in 
+  let y_coordinate = y_position / tile_size in 
+  (x_coordinate, y_coordinate)
+
+(** [coordinate_to_position c] will convert a map coordinate [c] to a pixel
+    position in the GUI window. 
+    Requires: [c] is a valid coordinate in the map array.*) 
+let coordinate_to_position (coordinate: coordinate) (map_corner: point) : 
+  point = 
+  let x_coordinate = fst coordinate in 
+  let y_coordinate = snd coordinate in 
+  let map_x = fst map_corner in 
+  let map_y = snd map_corner in 
+  let x_position = x_coordinate * tile_size + map_x in 
+  let y_position = y_coordinate * tile_size + map_y in 
+  (x_position, y_position)
+
+let check_move_new (pos: point) (map: t) (dir: point) =
+  let new_point = (fst pos + fst dir+3, snd pos + snd dir+3) in
+  let coordinate = position_to_coordinate new_point in 
+  let x = fst coordinate in 
+  let y = snd coordinate in 
+  let tile = map.tiles.(x).(y) in 
+  match tile.tile_type with 
+  | Wall _ -> 
+    false
+  | _ -> true
+
+let check_contains pos bottom_left = 
+  ((fst) pos + check_tile_size/2 +5<= (fst) bottom_left + tile_size) &&
+  ((fst) pos - check_tile_size/2 +5 <= (fst) bottom_left) &&
+  ((snd) pos + check_tile_size/2<= (snd) bottom_left + tile_size) &&
+  ((snd) pos - check_tile_size/2 <= (snd) bottom_left) 
 
 let get_tile_type2 pos (tile_array:map_tile array) = 
   let h_list = Array.to_list tile_array in
@@ -206,7 +271,7 @@ let get_tile_type2 pos (tile_array:map_tile array) =
     match list with
     | []-> ""
     | h::t ->
-      if check_contains pos ((*position_to_coordinate*) h.bottom_left) then
+      if check_contains (pos) (h.bottom_left) then
         match h.tile_type with
         | Wall _ -> "Wall"
         | Empty -> "Empty"
@@ -231,6 +296,19 @@ let get_tile_type pos map =
       | str-> str
   in
   check_main map_list
+(** [check_food p m] will check if the tile at pixel position [p] in map [m] 
+    is a Food tile. If it is, it will replace the Food tile with an Empty tile.
+    If not, the functions does nothing.*) 
+let check_food (pos: point) (map: t) =
+  let coordinate = position_to_coordinate pos in 
+  let x = fst coordinate in 
+  let y = snd coordinate in 
+  let tile = map.tiles.(x).(y) in 
+  match tile.tile_type with 
+  | Food | Special -> 
+    map.tiles.(x).(y) <- {tile with tile_type = Empty} 
+  | _ -> ()
+
 
 let check_move2 pos (tile_array: map_tile array) = 
   let h_list = Array.to_list tile_array in
@@ -238,7 +316,7 @@ let check_move2 pos (tile_array: map_tile array) =
     match list with
     | []-> ""
     | h::t ->
-      if check_contains pos ((*position_to_coordinate*) h.bottom_left) then
+      if check_contains ( pos) ( h.bottom_left) then
         match h.tile_type with
         | Wall _ -> "Wall"
         | Empty -> "Empty"
