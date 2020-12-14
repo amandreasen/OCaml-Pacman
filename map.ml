@@ -68,16 +68,6 @@ type t =
     fruit: fruit
   }
 
-(* let make_fruit (fruit_img: Sprite.t) (points: int) =
-   {sprite = fruit_img; points = points} *)
-
-(* let fruit_tiles : tile array = 
-   let cherry_img = 
-    sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2
-   in 
-   let cherry = {sprite = cherry_img; points = 100} in 
-   [|Fruit cherry|] *)
-
 (** The standard_maze is a 2D array of tile_types that represents the layout
     of the default game map. *) 
 let standard_maze = 
