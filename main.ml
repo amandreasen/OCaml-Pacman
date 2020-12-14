@@ -16,7 +16,7 @@ let map_height = 550
 let ghost_radius = 25
 let player_radius = 25 
 
-let move_amt = 15
+let move_amt = 10
 
 let sleep_time = 0.05
 
@@ -28,6 +28,12 @@ let food_count food =
 
 let check_move b = 
   ("Can Move: " ^ string_of_bool b)
+
+let number_of_lives i = 
+  ("Number of Lives: " ^ string_of_int i)
+
+let player_position pos = 
+  ("Can Move: " ^ string_of_int (fst pos) ^ " ,  " ^ string_of_int (snd pos))
 
 let set_window (title: string) (color: Graphics.color) : unit = 
   set_window_title title;
@@ -92,7 +98,7 @@ let position_diff ghost user =
 (** [randomly_move_ghost] tries random moves until the ghost makes a successful 
     move. *)
 let rec randomly_move_ghost ghost map dir = 
-  if Map.check_move (get_position ghost) map dir 
+  if Map.check_move (get_position ghost) map dir && Map.check_move_new (get_position ghost) map dir 
   then Ghost.move ghost dir 
   else randomly_move_ghost ghost map 
       (parse_dir (rand_char (Random.self_init (); Random.int 4)))
@@ -102,7 +108,7 @@ let rec randomly_move_ghost ghost map dir =
     ghost makes a random move. *)
 let will_follow ghost map dir_attempt try_random_move random_move = 
   let pos = get_position ghost in 
-  let continue =  Map.check_move pos map dir_attempt in 
+  let continue =  Map.check_move pos map dir_attempt && Map.check_move_new pos map dir_attempt in 
   if continue 
   then begin start_following ghost; 
     Ghost.move ghost dir_attempt; 
@@ -147,7 +153,7 @@ let try_ghost_follow g map user=
   then move_ghost_following g map user 
   else 
     begin 
-      if Map.check_move (get_position g) map (prev_move g)
+      if Map.check_move (get_position g) map (prev_move g) && Map.check_move_new (get_position g) map (prev_move g)
       then Ghost.move g (prev_move g) 
       else randomly_move_ghost g map
           (Random.self_init (); 
@@ -177,9 +183,9 @@ let flush () =
     command and their previous move. *)
 let pick_move (user : Player.t) map next prev  = 
   let user_pos = Player.get_position user in 
-  if Map.check_move user_pos map next
+  if Map.check_move user_pos map next && Map.check_move_new user_pos map next
   then next else
-  if Map.check_move user_pos map prev
+  if Map.check_move user_pos map prev &&Map.check_move_new user_pos map prev 
   then prev
   else (0,0)
 
@@ -264,8 +270,10 @@ and draw_state state user =
   set_color red;
   draw_string ("Points: " ^ string_of_int (points state));
   draw_string (tile_type (Map.get_tile_type (Player.get_position user) (map state)));
+  draw_string (player_position (Player.get_position user));
   moveto 175 675;
   draw_string ("Level: " ^ string_of_int (current_level state));
+  draw_string ("Lives: " ^ string_of_int (lives state));
   draw_lives state;
 
 and draw_lives state = 

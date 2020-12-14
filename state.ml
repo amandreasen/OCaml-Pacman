@@ -3,6 +3,8 @@ open Map
 open Player
 open Sprite
 
+let png_wl = 50
+
 type t = {
   player : Player.t;
   points : int;
@@ -52,14 +54,20 @@ let update_state_food state map tile_type=
   else
     state
 
+let check_overlap ghost_pos user_pos =
+  if (((fst) ghost_pos - png_wl/2 < (fst) user_pos + png_wl/2) &&
+      ((fst) ghost_pos - png_wl/2 > (fst) user_pos - png_wl/2) &&
+      ((snd) ghost_pos - png_wl/2 > (snd) user_pos + png_wl/2) &&
+      ((snd) ghost_pos + png_wl/2 < (snd) user_pos - png_wl/2)) then true else false
+
 let update_state_lives state map = 
   let player_pos = Player.get_position (player state) in
   let new_lives = ref (lives state) in
   let ghosts = ghosts state in
   for i=0 to (Array.length(ghosts))-1 do
     let ghost_pos = Ghost.get_position ghosts.(i) in
-    if player_pos=ghost_pos then
-      new_lives:=(!new_lives -1)
+    if check_overlap ghost_pos player_pos then
+      new_lives:=(!new_lives -1);
   done;
   {state with lives = !new_lives}
 
