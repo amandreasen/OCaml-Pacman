@@ -18,7 +18,9 @@ let closeness_threshold = 50.0 *. sqrt 2.0
 
 (** [max_follow_time] is the maximum number of seconds that a ghost will follow
     the user. *)
-let max_follow_time = 5.0 (*100. *. sleep_time*)
+let max_follow_time = 100. *. sleep_time
+
+let max_role_rev_time = 75. *. sleep_time
 
 let sprite_sheet = 
   let sheet = Png.load_as_rgb24 ("./sprites/sprite_sheet.png") [] in 
