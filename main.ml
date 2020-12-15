@@ -8,7 +8,7 @@ open Ghost
 open Sprite
 open Constants
 
-type state = Loading | Active | Paused | Death| Win | Lose
+type state = Loading | Active | Paused | Death| Win | Lose | Waiting
 
 type key = None | Key of char
 
@@ -136,6 +136,9 @@ let update_death (game: game) : game =
   Unix.sleepf(2.);
   {game with current = level'; state = Active; prev_key = None; prev_move = 'z'}
 
+let update_waiting (game: game) : game = 
+  failwith "unimplemented"
+
 let draw_labels (game: game) : unit = 
   set_color red;
   moveto 175 675;
@@ -167,10 +170,11 @@ let rec update (game: game) : unit =
     | Lose -> update_lose game
     | Loading -> update_loading game
     | Death -> update_death game
+    | Waiting -> update_waiting game
   in 
+  draw_game game'.current game'.player_visible game'.ghosts_visible;
   draw_labels game';
   draw_fruits game';
-  draw_game game'.current game'.player_visible game'.ghosts_visible;
   synchronize ();
   Unix.sleepf(sleep_time); 
   update game'

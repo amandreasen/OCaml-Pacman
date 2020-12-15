@@ -359,10 +359,6 @@ let draw_lives state =
   in 
   draw_helper (100, 60) (lives_img_lst state) 
 
-let draw_state state user = 
-  (* draw_string (Map.get_tile_type (Player.get_position user) (map state)); *)
-  draw_lives state
-
 let move_player user map key = 
   let prev_move = player_prev_move user in 
   let next_move = parse_dir key in 
@@ -373,7 +369,7 @@ let move_player user map key =
 
 let draw_game (state: t) (display_player: bool) (display_ghosts: bool) = 
   draw_current_map state.map state.map_background;
-  draw_state state state.player;
+  draw_lives state;
   if display_player then draw_player state.player else ();
   if display_ghosts then draw_ghosts state.ghosts else ()
 
