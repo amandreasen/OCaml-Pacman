@@ -41,3 +41,7 @@ val start_following: t -> unit
 (** [get_sprite] is the sprite representing the ghost in the direction specified
     by the input. *)
 val get_sprite: t -> Sprite.t
+
+val made_move: t -> bool
+
+val reset_move: t -> unit
