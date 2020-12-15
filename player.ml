@@ -1,4 +1,5 @@
 open Sprite
+open Constants
 
 type direction = Up | Right | Down | Left
 
@@ -16,13 +17,6 @@ let player_up = [(2, 0); (1, 2); (0, 2)]
 let player_death = [(2, 0); (3, 0); (4, 0); (5, 0); (6, 0); (7, 0); (8, 0); 
                     (9, 0); (10, 0); (11, 0); (12, 0); (13, 0)]
 
-(* load sprites *)
-let sprite_sheet = 
-  let sheet = Png.load_as_rgb24 ("./sprites/sprite_sheet.png") [] in 
-  let black_box = Png.load_as_rgb24 ("./sprites/black.png") [] in 
-  Images.blit black_box 0 0 sheet 100 45 350 100;
-  sheet
-
 type player_sprites = {
   right : Sprite.t list;
   left : Sprite.t list;
@@ -38,7 +32,8 @@ type t = {
   mutable move_counter : int;
   images : player_sprites;
   mutable prev_move : int * int;
-  mutable prev_move_attempt : int * int 
+  mutable prev_move_attempt : int * int;
+  dying: bool
 }
 
 let make_images : player_sprites = 
@@ -63,7 +58,8 @@ let new_player =
     move_counter = 0;
     images = make_images;
     prev_move = (0,0);
-    prev_move_attempt = (0,0)
+    prev_move_attempt = (0,0);
+    dying = false;
   }
 
 let get_position player = 
@@ -87,8 +83,8 @@ let move (player : t) (dir : int * int) =
   in 
   player.move_counter <- counter;
   player.direction <- update_dir; 
-  player.x <- fst (get_position player) + fst dir; 
-  player.y <- snd (get_position player) + snd dir;
+  player.x <- player.x + fst dir; 
+  player.y <- player.y + snd dir;
   player.prev_move <- dir
 
 let player_direction (player : t) = 
@@ -97,11 +93,12 @@ let player_direction (player : t) =
 let player_image (user : t) = 
   let images = user.images in 
   let sprite_list = 
-    match user.direction with 
-    | Right -> images.right 
-    | Left -> images.left
-    | Up -> images.up 
-    | Down -> images.down 
+    if user.dying then images.death 
+    else match user.direction with 
+      | Right -> images.right 
+      | Left -> images.left
+      | Up -> images.up 
+      | Down -> images.down 
   in 
   List.nth sprite_list user.move_counter
 [@@coverage off]
@@ -113,4 +110,16 @@ let player_prev_attempt user =
   user.prev_move_attempt
 
 let move_attempt user move = 
-  user.prev_move_attempt <- move
+  user.prev_move_attempt <- move 
+
+let start_death user = 
+  {user with move_counter = 0; dying = true;}
+
+let animate_death user : bool =  
+  let move = user.move_counter in 
+  if move < 12 
+  then begin 
+    user.move_counter <- move + 1;
+    true
+  end
+  else false

@@ -8,7 +8,7 @@ open Ghost
 open Sprite
 open Constants
 
-type state = Loading | Active | Paused | Win | Lose
+type state = Loading | Active | Paused | Death| Win | Lose
 
 type key = None | Key of char
 
@@ -19,7 +19,9 @@ type game = {
   prev_key: key;
   prev_move: char;
   points: int;
-  mutable fruit_basket: fruit array
+  mutable fruit_basket: fruit array;
+  ghosts_visible: bool;
+  player_visible: bool
 }
 
 let cherry = 
@@ -68,7 +70,9 @@ let init_game (map_name: string) (points: int) (level: int)
    prev_key = None; 
    prev_move = 'z';
    points = points;
-   fruit_basket = fruit_basket}
+   fruit_basket = fruit_basket;
+   ghosts_visible = true;
+   player_visible = true;}
 
 let update_active_game (game: game) (key: key) (key_char: char) 
     (level: State.t) : game =
@@ -100,7 +104,11 @@ let update_active (game: game) (key: key): game =
       game.fruit_basket <- Array.append game.fruit_basket [|fruit|] 
     end
   else ();
-  update_active_game game key key_char level'
+  let game' = 
+    if (lives game.current) > lives level'
+    then {game with state = Death} else game
+  in
+  update_active_game game' key key_char level'
 
 let update_paused (game: game) (key: key) : game = 
   if key = Key ' ' && not (game.prev_key = Key ' ')
@@ -122,6 +130,11 @@ let update_loading (game: game) : game =
   let points = game.points + points game.current in
   let next_fruit = Array.length game.fruit_basket in
   init_game "OCaml" points game.level game.fruit_basket next_fruit
+
+let update_death (game: game) : game = 
+  let level' = reset_player game.current in 
+  Unix.sleepf(2.);
+  {game with current = level'; state = Active; prev_key = None; prev_move = 'z'}
 
 let draw_labels (game: game) : unit = 
   set_color red;
@@ -153,9 +166,11 @@ let rec update (game: game) : unit =
     | Win -> update_win game key 
     | Lose -> update_lose game
     | Loading -> update_loading game
+    | Death -> update_death game
   in 
   draw_labels game';
   draw_fruits game';
+  draw_game game'.current game'.player_visible game'.ghosts_visible;
   synchronize ();
   Unix.sleepf(sleep_time); 
   update game'
@@ -172,3 +187,4 @@ let () =
     string_of_int window_width ^ "x" ^ string_of_int window_height
   in
   main (" " ^ settings) 
+

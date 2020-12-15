@@ -9,9 +9,12 @@ type t
    by returning a State.t with the appropriate initial values.*) 
 val init_level: string -> fruit -> t
 
-(**[update_level state] will return a State.t representing the state [state] 
-   after it has been updated. *) 
+(**[update_level state key display_player display_ghosts] 
+   will return a State.t representing the state [state] after it has been 
+   updated with the key press [key] interpreted as user input *) 
 val update_level: t -> char -> t
+
+val draw_game: t -> bool -> bool -> unit
 
 (**[check_win state] will return 1 if the player has won the level (all food
    has been eaten and player has at least one life left), -1 if the player
@@ -28,3 +31,7 @@ val lives: t -> int
 (**[fruit_eaten state] will return a boolean value that is true if the fruit 
    in the current level has been eaten and false otherwise. *)
 val fruit_eaten: t -> bool
+
+(**[reset player state] will return a new state record with the player's 
+   position and move history reset.s *) 
+val reset_player: t -> t

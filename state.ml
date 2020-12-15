@@ -10,6 +10,8 @@ open Graphic_image
 let fruit_limit = 50
 let fruit_timer = 200
 
+let png_wl = 50
+
 type t = {
   player : Player.t;
   points : int;
@@ -36,6 +38,9 @@ let lives state =
 let fruit_eaten state =   
   state.fruit_eaten
 
+let reset_player state = 
+  {state with player = new_player ()}
+
 let initial_state player map ghosts_entry map_background = {
   player = player;
   points = 0;
@@ -53,7 +58,7 @@ let initial_state player map ghosts_entry map_background = {
   reversal_timer = 0;
 } 
 
-let update_state_food (state: t) (value: int) = 
+let update_state_food (value: int) (state: t) = 
   let points = state.points in
   let food_left = 
     if value = food_val || value = special_val then state.food_left - 1 
@@ -73,31 +78,47 @@ let update_state_food (state: t) (value: int) =
     end 
   else state'
 
-let update_state_lives state = 
+let check_overlap user_pos acc ghost =
+  let ghost_pos = Ghost.get_position ghost in
+  let ghost_x = fst ghost_pos in 
+  let ghost_y = snd ghost_pos in 
+  let user_x = fst user_pos in 
+  let user_y = snd user_pos in 
+  let threshold = png_wl / 2 in
+  let overlap = 
+    (Int.abs (ghost_x - user_x) <= threshold && user_y = ghost_y) || 
+    (Int.abs (ghost_y - user_y) <= threshold && user_x = ghost_x)
+  in
+  acc && overlap
+(* acc && ((ghost_x - png_wl/2 < user_x + png_wl/2) &&
+        (ghost_x + png_wl/2 > user_x - png_wl/2) &&
+        (ghost_y  - png_wl/2 > user_y + png_wl/2) &&
+        (ghost_y  + png_wl/2 < user_y - png_wl/2)) *)
+
+let update_state_lives state map = 
   let player_pos = Player.get_position state.player in
-  let new_lives = ref (lives state) in
   let ghosts = state.ghosts in
-  for i = 0 to (Array.length ghosts) - 1 do
-    let ghost_pos = Ghost.get_position ghosts.(i) in
-    if player_pos = ghost_pos then
-      new_lives := (!new_lives -1)
-  done;
-  {state with lives = !new_lives}
+  let overlap = Array.fold_left (check_overlap player_pos) true ghosts in 
+  let new_lives = 
+    if overlap then state.lives - 1 else state.lives 
+  in
+  {state with lives = new_lives}
 
 let update_state (state: t) : t = 
-  let state' = update_state_lives state in 
   let player_pos = Player.get_position state.player in 
   let point_val = Map.get_tile_value player_pos state.map in
-  let state'' = update_state_food state' point_val in 
-  let timer = 
-    if state''.fruit_timer > 0 then state''.fruit_timer - 1 else 0 
+  let state' = update_state_lives state state.map 
+               |> update_state_food point_val 
   in 
-  if timer = 0 && state''.fruit_active then 
+  let timer = 
+    if state'.fruit_timer > 0 then state'.fruit_timer - 1 else 0 
+  in 
+  if timer = 0 && state'.fruit_active then 
     begin 
       clear_fruit state.map;
-      {state'' with fruit_timer = timer; fruit_active = false}
+      {state' with fruit_timer = timer; fruit_active = false}
     end 
-  else {state'' with fruit_timer = timer}
+  else {state' with fruit_timer = timer}
 
 let new_follower state ghost = 
   {state with follower_ghosts = ghost :: state.follower_ghosts}
@@ -133,10 +154,10 @@ let lives_img_lst state =
   let rec make_lst acc = function 
     | n when n > 0 -> 
       let image = sprite_from_sheet sprite_sheet 8 1 50 50 2 in 
-      make_lst (image::acc) (n-1)
+      make_lst (image :: acc) (n - 1)
     | _ -> acc
   in 
-  make_lst [] (lives state)
+  make_lst [] state.lives
 
 (** [parse_dir] is the tuple representing the change in coordinates from the 
     user's character input. *)
@@ -280,16 +301,13 @@ let flush () =
 
 (** [pick_move] is the viable move that the player can make given their current
     command and their previous move. *)
-let pick_move (user : Player.t) map next prev  = 
+let pick_move (user : Player.t) (map: Map.t) (next: point) (prev: point) 
+    (prev_attempt: point) = 
   let user_pos = Player.get_position user in 
-  if Map.check_move user_pos map next
-  then next 
-  else
-    begin 
-      if Map.check_move user_pos map prev
-      then prev
-      else (0,0)
-    end 
+  if Map.check_move user_pos map next then next 
+  else if Map.check_move user_pos map prev_attempt then prev_attempt
+  else if Map.check_move user_pos map prev then prev 
+  else (0,0)
 
 let draw_ghosts ghosts = 
   set_color cyan;
@@ -332,7 +350,7 @@ let draw_lives state =
         let y = snd prev_pos in 
         let img = h |> sprite_image |> Graphic_image.of_image in 
         Graphics.draw_image img x y;
-        draw_helper (x,y) t
+        draw_helper (x, y) t
       end
   in 
   draw_helper (100, 60) (lives_img_lst state) 
@@ -344,16 +362,16 @@ let draw_state state user =
 let move_player user map key = 
   let prev_move = player_prev_move user in 
   let next_move = parse_dir key in 
-  let current_move = pick_move user map next_move prev_move in 
-  (* make_move user map current_move; *)
+  let prev_attempt = player_prev_attempt user in
+  let current_move = pick_move user map next_move prev_move prev_attempt in 
   Player.move user current_move;
   move_attempt user next_move
 
-let draw_game state = 
+let draw_game (state: t) (display_player: bool) (display_ghosts: bool) = 
   draw_current_map state.map state.map_background;
   draw_state state state.player;
-  draw_player state.player;
-  draw_ghosts state.ghosts
+  if display_player then draw_player state.player else ();
+  if display_ghosts then draw_ghosts state.ghosts else ()
 
 let map_init (map: Map.t): Graphics.image = 
   draw_map map;
@@ -381,7 +399,6 @@ let update_level (state: t) (key: char) : t =
   move_ghosts state ghosts map user; 
   let state' = update_state state in
   check_food (Player.get_position user) map;
-  draw_game state';
   state'
 
 let check_win (state: t) : int = 
