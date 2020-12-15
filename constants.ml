@@ -7,9 +7,9 @@ let map_height = 550
 let ghost_radius = 25
 let player_radius = 25 
 
-let move_amt = 15
+let move_amt = 10
 
-let sleep_time = 0.048
+let sleep_time = 0.037
 
 let num_ghosts = 1
 
@@ -47,3 +47,6 @@ let fruit_height = 50
 let pacman_rad = 25
 
 let fruit_num = 4
+
+let player_width = 50
+let player_height = 50

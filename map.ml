@@ -196,34 +196,6 @@ let ocaml_maze =
       Wall(Corner (Top, Right))|];
   |]
 
-
-
-
-
-
-
-(*let check_food_tile pos map=   
-  (* The position of the pacman is the center of the circle, each time it moves 
-     1/5 of a tile*)
-  let map_list = Array.to_list map.tiles in
-  let acc=0 in
-  let rec check_main map_l=
-    match map_l with
-    | []-> acc
-    | h::t ->
-      match (check_move2 pos h) with
-      | "Food"-> acc+1
-      | ("Empty" | "Wall" | "Special"| "Ghost") -> acc
-      | _ -> check_main t
-  in
-  check_main map_list*)
-
-(*let check_contains2 pos bottom_left = 
-  ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
-  ((fst) pos - pacman_rad <= (fst) bottom_left) &&
-  ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
-  ((snd) pos - pacman_rad <= (snd) bottom_left) *)
-
 (** [position_to_coordinate p] will convert a pixel position [p] in the GUI to 
     a coordinate in the map array.
     Requires: [p] is a valid pixel position in the map.*) 
@@ -249,7 +221,7 @@ let coordinate_to_position (coordinate: coordinate) (map_corner: point) :
   (x_position, y_position)
 
 let check_move_new (pos: point) (map: t) (dir: point) =
-  let new_point = (fst pos + fst dir+3, snd pos + snd dir+3) in
+  let new_point = (fst pos + fst dir + 3, snd pos + snd dir + 3) in
   let coordinate = position_to_coordinate new_point in 
   let x = fst coordinate in 
   let y = snd coordinate in 
@@ -343,22 +315,27 @@ let check_move pos map dir =
       | _ -> check_main t
   in
   check_main map_list
+(* 
+let check_valid (pos: point) (map: t) =
+  let coordinate = position_to_coordinate pos in 
+  let x = fst coordinate in 
+  let y = snd coordinate in 
+  let tile = map.tiles.(x).(y) in
+  match tile.tile_type with
+  | Ghost | Wall _ -> false 
+  | _ -> true
 
-(*let check_food_tile pos map=   
-  (* The position of the pacman is the center of the circle, each time it moves 
-     1/5 of a tile*)
-  let map_list = Array.to_list map.tiles in
-  let acc=0 in
-  let rec check_main map_l=
-    match map_l with
-    | []-> acc
-    | h::t ->
-      match (check_move2 pos h) with
-      | "Food"-> acc+1
-      | ("Empty" | "Wall" | "Special"| "Ghost") -> acc
-      | _ -> check_main t
-  in
-  check_main map_list*)
+let check_move (pos: point) (map: t) (dir: point) =
+  let new_x = fst pos + fst dir in 
+  let new_y = snd pos + snd dir in 
+  let half_x = player_width / 2 in 
+  let half_y = player_height / 2 in
+  let top = (new_x, new_y + half_y) in
+  let bot = (new_x, new_y - half_y) in 
+  let right = (new_x + half_x, new_y) in 
+  let left = (new_x - half_x, new_y) in
+  check_valid top map && check_valid bot map && 
+  check_valid right map && check_valid left map *)
 
 let check_contains2 pos bottom_left = 
   ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&

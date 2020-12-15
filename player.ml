@@ -32,7 +32,8 @@ type t = {
   mutable move_counter : int;
   images : player_sprites;
   mutable prev_move : int * int;
-  mutable prev_move_attempt : int * int 
+  mutable prev_move_attempt : int * int;
+  dying: bool
 }
 
 let make_images : player_sprites = 
@@ -57,7 +58,8 @@ let new_player =
     move_counter = 0;
     images = make_images;
     prev_move = (0,0);
-    prev_move_attempt = (0,0)
+    prev_move_attempt = (0,0);
+    dying = false;
   }
 
 let get_position player = 
@@ -81,8 +83,8 @@ let move (player : t) (dir : int * int) =
   in 
   player.move_counter <- counter;
   player.direction <- update_dir; 
-  player.x <- fst (get_position player) + fst dir; 
-  player.y <- snd (get_position player) + snd dir;
+  player.x <- player.x + fst dir; 
+  player.y <- player.y + snd dir;
   player.prev_move <- dir
 
 let player_direction (player : t) = 
@@ -91,11 +93,12 @@ let player_direction (player : t) =
 let player_image (user : t) = 
   let images = user.images in 
   let sprite_list = 
-    match user.direction with 
-    | Right -> images.right 
-    | Left -> images.left
-    | Up -> images.up 
-    | Down -> images.down 
+    if user.dying then images.death 
+    else match user.direction with 
+      | Right -> images.right 
+      | Left -> images.left
+      | Up -> images.up 
+      | Down -> images.down 
   in 
   List.nth sprite_list user.move_counter
 [@@coverage off]
@@ -107,4 +110,16 @@ let player_prev_attempt user =
   user.prev_move_attempt
 
 let move_attempt user move = 
-  user.prev_move_attempt <- move
+  user.prev_move_attempt <- move 
+
+let start_death user = 
+  {user with move_counter = 0; dying = true;}
+
+let animate_death user : bool =  
+  let move = user.move_counter in 
+  if move < 12 
+  then begin 
+    user.move_counter <- move + 1;
+    true
+  end
+  else false
