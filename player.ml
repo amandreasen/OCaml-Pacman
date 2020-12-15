@@ -47,7 +47,7 @@ let make_images : player_sprites =
   let up = List.map map_sprites player_up in 
   let death = List.map map_sprites player_death in 
   {right = right; left = left; down = down; up = up; death = death}
-
+[@@coverage off]
 
 let new_player = 
   fun () ->
@@ -87,8 +87,8 @@ let move (player : t) (dir : int * int) =
   player.y <- player.y + snd dir;
   player.prev_move <- dir
 
-let player_direction (player : t) = 
-  player.direction
+(* let player_direction (player : t) = 
+   player.direction *)
 
 let player_image (user : t) = 
   let images = user.images in 
@@ -123,3 +123,4 @@ let animate_death user : bool =
     true
   end
   else false
+[@@coverage off]

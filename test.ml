@@ -22,14 +22,14 @@ let player_move_pos_test
                                     Player.get_position player)
         ~printer:pp_tuple)
 
-let player_direction_test 
+(* let player_direction_test 
     (name : string) 
     (player : Player.t)
     (input_dir : int * int)
     (expected_output : Player.direction) : test = 
-  name >:: (fun _ -> 
+   name >:: (fun _ -> 
       assert_equal expected_output (Player.move player input_dir; 
-                                    Player.player_direction player))
+                                    Player.player_direction player)) *)
 
 let player_prev_move_test
     (name : string) 
@@ -50,14 +50,14 @@ let player_tests =
     player_move_pos_test "After moving up 50, move right 50" 
       player_1 (50,0) (225,225);
 
-    player_direction_test "direction after moving (50,0) is Right" 
-      player_1 (50,0) Right; 
-    player_direction_test "direction after moving (-50,0) is Left" 
-      player_1 (-50,0) Left; 
-    player_direction_test "direction after moving (0,50) is Up" 
-      player_1 (0,50) Up; 
-    player_direction_test "direction after moving (0,-50) is Down" 
-      player_1 (0,-50) Down; 
+    (* player_direction_test "direction after moving (50,0) is Right" 
+       player_1 (50,0) Right; 
+       player_direction_test "direction after moving (-50,0) is Left" 
+       player_1 (-50,0) Left; 
+       player_direction_test "direction after moving (0,50) is Up" 
+       player_1 (0,50) Up; 
+       player_direction_test "direction after moving (0,-50) is Down" 
+       player_1 (0,-50) Down;  *)
 
     player_prev_move_test "starting at (225,275), move up one tile (0,50)"
       player_1 (0,50);
@@ -104,38 +104,55 @@ let following_counter_test
     (ghost : Ghost.t)
     (expected_output : int): test = 
   name >:: (fun _ -> 
-      assert_equal expected_output (Ghost.following_counter ghost))
+      assert_equal expected_output (Ghost.following_counter ghost) 
+        ~printer: string_of_int)
 
-let ghost_1 = new_ghost 225 275 (50,0) "cyan" 
-let ghost_2 = new_ghost 0 0 (0,0) "cyan"
+let move_made_test 
+    (name : string) 
+    (ghost : Ghost.t)
+    (expected_output : bool): test = 
+  name >:: (fun _ -> 
+      assert_equal expected_output (Ghost.made_move ghost)
+        ~printer: string_of_bool)
+
+let ghost_cyan = new_ghost 225 275 (50,0) "cyan" 
+let ghost_red = new_ghost 0 0 (0,0) "red"
+let ghost_pink = new_ghost 50 50 (0,0) "pink"
+let ghost_orange = new_ghost 175 175 (0,50) "orange" 
 
 let ghost_tests = 
   [
     ghost_move_pos_test "start position at (225,275) and move (0,0)" 
-      ghost_1 (0,0) (225,275);
+      ghost_cyan (0,0) (225,275);
     ghost_move_pos_test "start position at (225,275) and move (100,-50)" 
-      ghost_1 (100,-50) (325,225);
+      ghost_cyan (100,-50) (325,225);
 
     ghost_prev_move_test "starting at (225,275), move up one tile (0,50)"
-      ghost_1 (0,50);
+      ghost_cyan (0,50);
     ghost_prev_move_test "starting at (225,275), move up and right (50,50)"
-      ghost_1 (50,50);
+      ghost_cyan (50,50);
 
     start_following_test "new ghost at position (0,0) starts following" 
-      ghost_2 true;
+      ghost_red true;
     start_following_test "ghost that is already following starts following" 
-      ghost_2 true;
+      ghost_red true;
 
     stop_following_test "ghost that is following now stops following"
-      ghost_2 false;
+      ghost_red false;
     stop_following_test "ghost that is not following stops following"
-      ghost_2 false;
+      ghost_red false;
 
     following_counter_test "new ghost has following count of 0 "
-      ghost_2 0;
+      ghost_pink 0;
     following_counter_test "incremented following of a new ghost is a following 
-    count of 1"
-      (Ghost.incr_following_count ghost_2; ghost_2) 0;
+    count of 1" (Ghost.incr_following_count ghost_orange; ghost_orange) 1;
+
+    move_made_test "new ghost has made a move" ghost_orange true;
+    move_made_test "when reset, the ghost has not made a move" 
+      (Ghost.reset_move ghost_red; ghost_red) false;
+    move_made_test "once reset, then the ghost makes a move"  
+      (Ghost.reset_move ghost_cyan; Ghost.move ghost_cyan (0,0); ghost_cyan) 
+      true;
   ]
 
 let food_count_test 

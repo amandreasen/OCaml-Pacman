@@ -11,9 +11,9 @@ val make_sprite: string -> t
 val sprite_from_sheet: Images.t -> int -> int -> int -> int -> int -> t
 
 (** [sprite_h] is the height of the sprite. *)
-val sprite_h: t -> int
+(* val sprite_h: t -> int *)
 
 (** [sprite_w] is the width of the sprite. *)
-val sprite_w: t -> int
+(* val sprite_w: t -> int *)
 
 val sprite_image: t -> Images.t
