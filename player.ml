@@ -110,7 +110,7 @@ let player_prev_attempt user =
   user.prev_move_attempt
 
 let move_attempt user move = 
-  user.prev_move_attempt <- move 
+  if move <> (0, 0) then user.prev_move_attempt <- move else ()
 
 let start_death user = 
   {user with move_counter = 0; dying = true;}

@@ -8,7 +8,7 @@ open Ghost
 open Sprite
 open Constants
 
-type state = Loading | Active | Paused | Win | Lose 
+type state = Loading | Active | Paused | Win | Lose | Waiting
 
 type key = None | Key of char
 
@@ -37,6 +37,10 @@ let peach =
 let apple = 
   let img = sprite_from_sheet sprite_sheet 5 3 fruit_width fruit_height 2 in 
   {sprite = img; points = 700}
+
+let grapes = 
+  let img = sprite_from_sheet sprite_sheet 5 4 fruit_width fruit_height 2 in 
+  {sprite = img; points = 900}
 
 let fruits = [|cherry; strawberry; peach; apple|]
 
@@ -77,7 +81,7 @@ let check_key (key_char: char) : bool =
   | 'a' | 'w' | 's' | 'd' -> true 
   | _ -> false
 
-let check_space (game: game) (key: key) (key_char: char): game = 
+let check_space (game: game) (key: key) (key_char: char) : game = 
   if key = Key ' ' && not (game.prev_key = Key ' ')
   then {game with state = Paused}
   else if check_key key_char 
@@ -94,22 +98,30 @@ let update_active_game (game: game) (key: key) (key_char: char)
   then {game' with state = Lose} 
   else check_space game' key key_char
 
-let update_active (game: game) (key: key): game = 
-  let key_char = 
-    match key with 
-    | Key k -> k 
-    | None -> game.prev_move 
-  in
-  let level' = update_level game.current key_char in 
-  if (fruit_eaten level') && not (fruit_eaten game.current) 
+let check_fruits (game: game) (level: State.t) : unit =
+  if (fruit_eaten level) && not (fruit_eaten game.current) 
   then
     begin 
       let next_fruit = Array.length game.fruit_basket in
       let fruit = fruits.(next_fruit) in
       game.fruit_basket <- Array.append game.fruit_basket [|fruit|] 
     end
-  else ();
-  update_active_game game key key_char level'
+  else ()
+
+let update_active (game: game) (key: key) : game = 
+  let key_char = 
+    match key with 
+    | Key k -> k 
+    | None -> 'z'
+  in
+  let level' = update_level game.current key_char in 
+  check_fruits game level';
+  if (lives game.current) > (lives level') 
+  then {game with current = level'; 
+                  prev_key = None; 
+                  prev_move = 'z'; 
+                  state = Waiting}
+  else update_active_game game key key_char level'
 
 let update_paused (game: game) (key: key) : game = 
   if key = Key ' ' && not (game.prev_key = Key ' ')
@@ -132,6 +144,10 @@ let update_loading (game: game) : game =
   let next_fruit = Array.length game.fruit_basket in
   init_game "OCaml" points game.level game.fruit_basket next_fruit
 
+let update_waiting (game: game) : game = 
+  Unix.sleep(1);
+  {game with state = Active}
+
 let draw_labels (game: game) : unit = 
   set_color red;
   moveto 175 675;
@@ -149,6 +165,12 @@ let draw_fruits (game: game) : unit =
   ignore (Array.mapi (draw_helper 1275 60) game.fruit_basket);
   ()
 
+let draw (game: game) : unit =
+  let level = game.current in
+  draw_game level (check_visibility level);
+  draw_labels game;
+  draw_fruits game
+
 let rec update (game: game) : unit = 
   let key = 
     if Graphics.key_pressed() 
@@ -162,11 +184,9 @@ let rec update (game: game) : unit =
     | Win -> update_win game key 
     | Lose -> update_lose game
     | Loading -> update_loading game
+    | Waiting -> update_waiting game
   in 
-  let level = game'.current in
-  draw_game level (check_visibility level);
-  draw_labels game';
-  draw_fruits game';
+  draw game';
   synchronize ();
   Unix.sleepf(sleep_time); 
   update game'
