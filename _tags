@@ -1,3 +1,3 @@
-<{player,ghost,state,map,leaderboard}.ml>: coverage
+<{player,ghost,state,map}.ml>: coverage
 <test.{byte,native}>: coverage
 true: package(csv), package(unix), package(ounit2), package(graphics), package(camlimages, camlimages.all_formats, camlimages.png, camlimages.graphics), package(bisect_ppx)
