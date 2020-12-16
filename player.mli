@@ -39,4 +39,6 @@ val start_death: t -> t
    to the next animation frame, if possible. If the death animation can be 
    updated to the next frame, the function will return true. Otherwise, if the 
    death animation has concluded, the function will return false. *) 
-val animate_death: t -> bool
+val animate_death: t -> unit 
+
+val death_ended: t -> bool

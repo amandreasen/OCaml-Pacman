@@ -115,11 +115,9 @@ let move_attempt user move =
 let start_death user = 
   {user with move_counter = 0; dying = true;}
 
-let animate_death user : bool =  
+let animate_death user : unit =  
   let move = user.move_counter in 
-  if move < 12 
-  then begin 
-    user.move_counter <- move + 1;
-    true
-  end
-  else false
+  if move < 12 then user.move_counter <- move + 1 else ()
+
+let death_ended user : bool = 
+  user.dying && user.move_counter = 11

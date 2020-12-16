@@ -12,7 +12,10 @@ let fruit_timer = 200
 
 let png_wl = 50
 
+type game_state = Active | Waiting | Dying
+
 type t = {
+  map_name: string;
   player : Player.t;
   points : int;
   lives : int;
@@ -25,6 +28,7 @@ type t = {
   fruit_active: bool;
   fruit_eaten: bool;
   mutable fruit_timer: int;
+  game_state: game_state;
 }
 
 let points state =
@@ -39,7 +43,8 @@ let fruit_eaten state =
 let reset_player state = 
   {state with player = new_player ()}
 
-let initial_state player map ghosts_entry map_background = {
+let initial_state player map ghosts_entry map_background map_name = {
+  map_name = map_name;
   player = player;
   points = 0;
   lives = 3;
@@ -52,6 +57,7 @@ let initial_state player map ghosts_entry map_background = {
   fruit_active = false;
   fruit_eaten = false;
   fruit_timer = 0;
+  game_state = Active;
 } 
 
 let update_state_food (value: int) (state: t) = 
@@ -91,19 +97,16 @@ let check_overlap user_pos acc ghost =
         (ghost_y  - png_wl/2 > user_y + png_wl/2) &&
         (ghost_y  + png_wl/2 < user_y - png_wl/2)) *)
 
-let update_state_lives state map = 
+let update_game_state state map = 
   let player_pos = Player.get_position state.player in
   let ghosts = state.ghosts in
   let overlap = Array.fold_left (check_overlap player_pos) true ghosts in 
-  let new_lives = 
-    if overlap then state.lives - 1 else state.lives 
-  in
-  {state with lives = new_lives}
+  if overlap then {state with game_state = Waiting; ghosts = [||]} else state
 
 let update_state (state: t) : t = 
   let player_pos = Player.get_position state.player in 
   let point_val = Map.get_tile_value player_pos state.map in
-  let state' = update_state_lives state state.map 
+  let state' = update_game_state state state.map 
                |> update_state_food point_val 
   in 
   let timer = 
@@ -314,7 +317,6 @@ let pick_move (user : Player.t) (map: Map.t) (next: point) (prev: point)
   else (0,0)
 
 let draw_ghosts ghosts = 
-  set_color cyan;
   for i = 0 to Array.length ghosts - 1 do 
     let g = ghosts.(i) in 
     let pos = Ghost.get_position g in 
@@ -367,31 +369,32 @@ let move_player user map key =
   Player.move user current_move;
   move_attempt user next_move
 
-let draw_game (state: t) (display_player: bool) (display_ghosts: bool) = 
+let draw_game (state: t) (display_player: bool)  = 
   draw_current_map state.map state.map_background;
   draw_lives state;
   if display_player then draw_player state.player else ();
-  if display_ghosts then draw_ghosts state.ghosts else ()
+  draw_ghosts state.ghosts
 
 let map_init (map: Map.t): Graphics.image = 
   draw_map map;
   Graphics.get_image 0 0 window_width window_height 
+
+let make_ghosts (map_name: string) =
+  match map_name with 
+  | "OCaml" -> make_ghosts num_ghosts 725 375 
+  | "standard" -> make_ghosts num_ghosts 725 375
+  | _ -> failwith "Invalid map!"
 
 let init_level (map_name: string) (fruit: fruit): t =
   let make_level map_name =
     let map = make_map (100, 100) map_name fruit in 
     let map_background = map_init map in
     let player = new_player () in 
-    let ghosts = 
-      match map_name with 
-      | "OCaml" -> make_ghosts num_ghosts 725 375 
-      | "standard" -> make_ghosts num_ghosts 725 375
-      | _ -> failwith "Invalid map!"
-    in
-    initial_state player map ghosts map_background
+    let ghosts = make_ghosts map_name in
+    initial_state player map ghosts map_background map_name
   in make_level map_name
 
-let update_level (state: t) (key: char) : t = 
+let update_active (state: t) (key: char) : t = 
   let user = state.player in 
   let map = state.map in 
   let ghosts = state.ghosts in
@@ -400,6 +403,40 @@ let update_level (state: t) (key: char) : t =
   let state' = update_state state in
   check_food (Player.get_position user) map;
   state'
+
+let update_dying (state: t) : t =
+  if death_ended state.player 
+  then 
+    begin
+      Unix.sleep(1);
+      {state with game_state = Active; 
+                  ghosts = make_ghosts state.map_name;
+                  player = new_player();
+                  lives = state.lives - 1}
+    end
+  else 
+    begin 
+      animate_death state.player;
+      state
+    end
+
+let update_waiting (state: t) : t = 
+  Unix.sleep(1);
+  let user' = start_death state.player in 
+  if state.food_left = 0 then state
+  else {state with game_state = Dying; player = user'}
+
+let update_level (state: t) (key: char) : t = 
+  match state.game_state with 
+  | Active -> update_active state key 
+  | Dying -> update_dying state
+  | Waiting -> update_waiting state
+
+let check_visibility (state: t) : bool =
+  match state.game_state with 
+  | Active | Waiting -> true
+  | Dying -> 
+    if Player.death_ended state.player then false else true
 
 let check_win (state: t) : int = 
   if state.food_left = 0 then 1 

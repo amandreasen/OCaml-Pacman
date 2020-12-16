@@ -14,7 +14,7 @@ val init_level: string -> fruit -> t
    updated with the key press [key] interpreted as user input *) 
 val update_level: t -> char -> t
 
-val draw_game: t -> bool -> bool -> unit
+val draw_game: t -> bool -> unit
 
 (**[check_win state] will return 1 if the player has won the level (all food
    has been eaten and player has at least one life left), -1 if the player
@@ -35,3 +35,7 @@ val fruit_eaten: t -> bool
 (**[reset player state] will return a new state record with the player's 
    position and move history reset.s *) 
 val reset_player: t -> t
+
+(**[check_visibility state] will return a boolean of whether the player 
+   should be visible or not in the current frame of the level [state].*) 
+val check_visibility: t -> bool 
