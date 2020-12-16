@@ -41,3 +41,11 @@ val start_following: t -> unit
 (** [get_sprite] is the sprite representing the ghost in the direction specified
     by the input. *)
 val get_sprite: t -> Sprite.t
+
+(** [made_move] is true if the ghost has made a successful move this turn and 
+    false otherwise. *)
+val made_move: t -> bool
+
+(** [reset_move] resets the ghost's [made_move] field to be false at the 
+    beginning of the turn. *)
+val reset_move: t -> unit

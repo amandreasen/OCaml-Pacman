@@ -34,11 +34,13 @@ let peach =
   let img = sprite_from_sheet sprite_sheet 4 3 fruit_width fruit_height 2 in 
   {sprite = img; points = 500}
 
-let grapes = 
+let apple = 
   let img = sprite_from_sheet sprite_sheet 5 3 fruit_width fruit_height 2 in 
   {sprite = img; points = 700}
 
-let fruits = [|cherry; strawberry; peach; grapes|]
+let fruits = [|cherry; strawberry; peach; apple|]
+
+let fruit_num = Array.length fruits
 
 let tile_type str = 
   ("Tile type: " ^ str)

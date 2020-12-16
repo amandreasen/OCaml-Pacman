@@ -19,7 +19,8 @@ type t = {
   mutable prev_move : int * int;
   mutable move_counter : int;
   sprites : ghost_sprites;
-  mutable direction: direction
+  mutable direction: direction;
+  mutable made_move : bool;
 }
 (* constants for ghosts *)
 let ghost_width = 50
@@ -73,7 +74,8 @@ let new_ghost x_pos y_pos init_move color = {
   prev_move = init_move;
   move_counter = 0;
   sprites = make_sprites color;
-  direction = Right
+  direction = Right;
+  made_move = true;
 }
 
 let get_position g =
@@ -99,7 +101,8 @@ let move (g : t) (dir : int * int) =
   in 
   g.prev_move <- dir;
   g.direction <- direction;
-  g.move_counter <- counter
+  g.move_counter <- counter;
+  g.made_move <- true
 
 let is_following g = 
   g.is_following
@@ -129,4 +132,10 @@ let get_sprite g =
   in 
   List.nth sprite_list g.move_counter
 [@@coverage off]
+
+let made_move ghost = 
+  ghost.made_move
+
+let reset_move ghost = 
+  ghost.made_move <- false
 

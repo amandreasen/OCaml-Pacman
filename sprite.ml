@@ -28,11 +28,11 @@ let sprite_from_sheet (sheet: Images.t) (x: int) (y: int) (width: int)
   let img = Images.sub sheet x_pos y_pos width height in 
   {sprite = img; height = height; width = width}
 
-let sprite_h sprite = 
-  sprite.height
+(* let sprite_h sprite = 
+   sprite.height *)
 
-let sprite_w sprite = 
-  sprite.width
+(* let sprite_w sprite = 
+   sprite.width *)
 
 let sprite_image sprite = 
   sprite.sprite
