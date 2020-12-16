@@ -303,7 +303,7 @@ let flush () =
 let pick_move (user : Player.t) (map: Map.t) (next: point) (prev: point) 
     (prev_attempt: point) = 
   let user_pos = Player.get_position user in 
-  if Map.check_move user_pos map next then next 
+  if Map.check_move user_pos map next && next <> (0, 0) then next 
   else if Map.check_move user_pos map prev_attempt then prev_attempt
   else if Map.check_move user_pos map prev then prev 
   else (0,0)
