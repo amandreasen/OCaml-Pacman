@@ -227,9 +227,9 @@ let helper_possible_moves ghost user rev =
   let y_sign = pos_dif |> snd |> number_sign in 
   let helper_lst_maker = function 
     | (n,0) ->  [(x_sign * move_amt, 0); (0, y_sign * move_amt); 
-                 (0, y_sign * (-1) * move_amt)]
+                 (0, y_sign * (-1) * move_amt); (x_sign * (-1) * move_amt, 0)]
     | (0,m) -> [(0, y_sign * move_amt); (x_sign * move_amt, 0); 
-                (x_sign * (-1) * move_amt,0)]
+                (x_sign * (-1) * move_amt,0); (0, y_sign * (-1) * move_amt)]
     | (n,m) -> [(x_sign * move_amt, 0); (0, y_sign * move_amt);
                 (x_sign * (-1) * move_amt, 0); (0, y_sign * (-1) * move_amt);]
   in 
@@ -240,7 +240,7 @@ let rec helper_stop_following_move ghost user map =
   let current_position = Ghost.get_position ghost in 
   let rec helper_find_dir prev_move current_position = 
     let dir =  Random.self_init (); Random.int 4 |> rand_char |> parse_dir in 
-    if prev_move == dir && Map.check_move current_position map dir 
+    if prev_move <> dir && Map.check_move current_position map dir 
     then Ghost.move ghost dir 
     else helper_find_dir prev_move current_position
   in 
@@ -251,7 +251,7 @@ let helper_make_aimed_move ghost user map rev =
   let rec move_lst_iter lst = 
     while not (made_move ghost) do 
       match lst with  
-      | [] -> move_ghost_prev ghost map
+      | [] -> Ghost.move ghost (0,0)
       | h::t -> begin if Map.check_move (Ghost.get_position ghost) map h 
           then Ghost.move ghost h
           else move_lst_iter t 
