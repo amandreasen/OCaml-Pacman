@@ -232,10 +232,10 @@ let check_move_new (pos: point) (map: t) (dir: point) =
   | _ -> true
 
 let check_contains pos dir bottom_left = 
-  ((fst) pos + check_tile_size/2 + (fst dir)/2<= (fst) bottom_left + tile_size) &&
-  ((fst) pos - check_tile_size/2 +(fst dir)/2 <= (fst) bottom_left) &&
-  ((snd) pos + check_tile_size/2 + (snd dir)/2<= (snd) bottom_left + tile_size) &&
-  ((snd) pos - check_tile_size/2 + (snd dir)/2<= (snd) bottom_left) 
+  ((fst) pos + check_tile_size/2 + (fst dir)<= (fst) bottom_left + tile_size) &&
+  ((fst) pos - check_tile_size/2 +(fst dir) <= (fst) bottom_left) &&
+  ((snd) pos + check_tile_size/2 + (snd dir)<= (snd) bottom_left + tile_size) &&
+  ((snd) pos - check_tile_size/2 + (snd dir)<= (snd) bottom_left) 
 
 let get_tile_type2 pos (tile_array:map_tile array) = 
   let h_list = Array.to_list tile_array in
