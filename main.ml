@@ -72,6 +72,11 @@ let init_game (map_name: string) (points: int) (level: int)
    points = points;
    fruit_basket = fruit_basket;}
 
+let check_space (game: game) (key: key) (key_char: char): game = 
+  if key = Key ' ' && not (game.prev_key = Key ' ')
+  then {game with state = Paused}
+  else {game with prev_move = key_char}
+
 let update_active_game (game: game) (key: key) (key_char: char) 
     (level: State.t) : game =
   let win_code = State.check_win level in
@@ -80,12 +85,7 @@ let update_active_game (game: game) (key: key) (key_char: char)
   then {game' with state = Win} 
   else if win_code = -1
   then {game' with state = Lose} 
-  else 
-    begin
-      if key = Key ' ' && not (game.prev_key = Key ' ')
-      then {game' with state = Paused}
-      else {game' with prev_move = key_char}
-    end
+  else check_space game' key key_char
 
 let update_active (game: game) (key: key): game = 
   let key_char = 

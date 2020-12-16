@@ -95,16 +95,12 @@ let check_overlap user_pos acc ghost =
     (Int.abs (ghost_x - user_x) <= threshold && user_y = ghost_y) || 
     (Int.abs (ghost_y - user_y) <= threshold && user_x = ghost_x)
   in
-  acc && overlap
-(* acc && ((ghost_x - png_wl/2 < user_x + png_wl/2) &&
-        (ghost_x + png_wl/2 > user_x - png_wl/2) &&
-        (ghost_y  - png_wl/2 > user_y + png_wl/2) &&
-        (ghost_y  + png_wl/2 < user_y - png_wl/2)) *)
+  acc || overlap
 
 let update_game_state state map = 
   let player_pos = Player.get_position state.player in
   let ghosts = state.ghosts in
-  let overlap = Array.fold_left (check_overlap player_pos) true ghosts in 
+  let overlap = Array.fold_left (check_overlap player_pos) false ghosts in 
   if overlap then {state with game_state = Waiting; ghosts = [||]} else state
 
 let update_state (state: t) : t = 
