@@ -231,11 +231,11 @@ let check_move_new (pos: point) (map: t) (dir: point) =
     false
   | _ -> true
 
-let check_contains pos bottom_left = 
-  ((fst) pos + check_tile_size/2 +5<= (fst) bottom_left + tile_size) &&
-  ((fst) pos - check_tile_size/2 +5 <= (fst) bottom_left) &&
-  ((snd) pos + check_tile_size/2<= (snd) bottom_left + tile_size) &&
-  ((snd) pos - check_tile_size/2 <= (snd) bottom_left) 
+let check_contains pos dir bottom_left = 
+  ((fst) pos + check_tile_size/2 + (fst dir)/2<= (fst) bottom_left + tile_size) &&
+  ((fst) pos - check_tile_size/2 +(fst dir)/2 <= (fst) bottom_left) &&
+  ((snd) pos + check_tile_size/2 + (snd dir)/2<= (snd) bottom_left + tile_size) &&
+  ((snd) pos - check_tile_size/2 + (snd dir)/2<= (snd) bottom_left) 
 
 let get_tile_type2 pos (tile_array:map_tile array) = 
   let h_list = Array.to_list tile_array in
@@ -243,7 +243,7 @@ let get_tile_type2 pos (tile_array:map_tile array) =
     match list with
     | []-> ""
     | h::t ->
-      if check_contains (pos) (h.bottom_left) then
+      if check_contains (pos) (0,0) (h.bottom_left) then
         match h.tile_type with
         | Wall _ -> "Wall"
         | Empty -> "Empty"
@@ -282,13 +282,13 @@ let check_food (pos: point) (map: t) =
   | _ -> ()
 
 
-let check_move2 pos (tile_array: map_tile array) = 
+let check_move2 pos dir (tile_array: map_tile array) = 
   let h_list = Array.to_list tile_array in
   let rec check_tile (list: map_tile list) =
     match list with
     | []-> ""
     | h::t ->
-      if check_contains ( pos) ( h.bottom_left) then
+      if check_contains ( pos) dir ( h.bottom_left) then
         match h.tile_type with
         | Wall _ -> "Wall"
         | Empty -> "Empty"
@@ -309,7 +309,7 @@ let check_move pos map dir =
     match map_l with
     | []-> false
     | h::t -> 
-      match (check_move2 new_pos h) with
+      match (check_move2 new_pos dir h) with
       | "Wall"-> false
       | ("Empty" | "Food" | "Special"| "Ghost"| "Fruit") -> true
       | _ -> check_main t
