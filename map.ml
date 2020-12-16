@@ -409,16 +409,7 @@ let make_tiles (x_dim: int) (y_dim: int) (map_corner: point)
   done;
   tile_array
 
-(** [make_map corner maze_name] will return a map with a bottom left corner at 
-    [corner] and a tile layout represented by the maze label [maze_name]. Fails
-    if [maze_name] is not a valid maze name.*)
-let make_map (corner: point) (maze_name: string) (fruit: fruit) : t =   
-  let tile_list = 
-    match maze_name with 
-    | "standard" -> make_tiles 11 26 corner standard_maze
-    | "OCaml" -> make_tiles 11 26 corner ocaml_maze
-    | _ -> failwith "map not found"
-  in
+let make_player_tiles (tile_list: map_tile array array) : coordinate array = 
   let player_tiles = ref [||] in
   for x = 0 to Array.length tile_list - 1 do 
     for y = 0 to Array.length tile_list.(0) - 1 do 
@@ -429,9 +420,22 @@ let make_map (corner: point) (maze_name: string) (fruit: fruit) : t =
       | _ -> ()
     done;
   done;
+  !player_tiles
+
+(** [make_map corner maze_name] will return a map with a bottom left corner at 
+    [corner] and a tile layout represented by the maze label [maze_name]. Fails
+    if [maze_name] is not a valid maze name.*)
+let make_map (corner: point) (maze_name: string) (fruit: fruit) : t =   
+  let tile_list = 
+    match maze_name with 
+    | "standard" -> make_tiles 11 26 corner standard_maze
+    | "OCaml" -> make_tiles 11 26 corner ocaml_maze
+    | _ -> failwith "map not found"
+  in
+  let player_tiles = make_player_tiles tile_list in
   {
     tiles = tile_list; 
-    player_tiles = !player_tiles;
+    player_tiles = player_tiles;
     width = 1300;
     height = 550;
     bottom_left = (0,0);
