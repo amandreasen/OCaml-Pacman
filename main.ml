@@ -8,7 +8,7 @@ open Ghost
 open Sprite
 open Constants
 
-type state = Loading | Active | Paused | Win | Lose | Waiting
+type state = Loading | Active | Paused | Waiting | Win | Lose 
 
 type key = None | Key of char
 
@@ -129,9 +129,7 @@ let update_paused (game: game) (key: key) : game =
   else {game with prev_key = key}
 
 let update_win (game: game) (key: key) : game = 
-  if key = Key ' ' && not (game.prev_key = Key ' ')
-  then {game with state = Loading; prev_key = key} 
-  else {game with prev_key = key}
+  {game with state = Loading}
 
 let update_lose (game: game) : game =
   game
@@ -141,11 +139,13 @@ let update_loading (game: game) : game =
   set_color black;
   fill_rect 0 0 (size_x ()) (size_y ());
   let points = game.points + points game.current in
-  let next_fruit = Array.length game.fruit_basket in
-  init_game "OCaml" points game.level game.fruit_basket next_fruit
+  let fruits = game.fruit_basket in
+  let next_fruit = Array.length fruits in
+  let game' = init_game "OCaml" points game.level fruits next_fruit in 
+  {game' with state = Waiting}
 
 let update_waiting (game: game) : game = 
-  Unix.sleep(1);
+  Unix.sleep(2);
   {game with state = Active}
 
 let draw_labels (game: game) : unit = 

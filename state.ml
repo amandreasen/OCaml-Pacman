@@ -323,7 +323,6 @@ let draw_ghosts ghosts =
     Graphics.draw_image image (x - ghost_radius) (y - ghost_radius)
   done
 
-(** TODO: update direction when needed - also import more sprites *)
 let draw_player user = 
   let pos = Player.get_position user in 
   let x = fst pos in 

@@ -162,17 +162,44 @@ let food_count_test
   name >:: (fun _ ->
       assert_equal expected_output (food_count map) ~printer: string_of_int)
 
+let tile_value_test 
+    (name: string)
+    (point: point)
+    (map: Map.t)
+    (expected_output: int) : test = 
+  name >:: (fun _ -> 
+      assert_equal expected_output (Map.get_tile_value point map) 
+        ~printer: string_of_int)
+
 let cherry = 
   let img = sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2 in 
   {sprite = img; points = 100}
 
-let standard_map = make_map (0, 0) "standard" cherry
+let standard_map = make_map (0, 0) "standard" cherry 
 let ocaml_map = make_map (0, 0) "OCaml" cherry
 
 let map_tests = [
   food_count_test "count initial food in standard map" standard_map 134;
   food_count_test "count initial food in OCaml map" ocaml_map 132;
+  tile_value_test "tile value of food tile - OCaml map" (175, 175) ocaml_map 1;
+  tile_value_test "tile value of empty tile - OCaml map" (425, 375) ocaml_map 0;
+  tile_value_test "tile value of ghost tile - OCaml map" (675, 325) ocaml_map 0;
+  tile_value_test "tile value of wall tile - OCaml map" (125, 125) ocaml_map 0;
 ]
+
+(* 
+let check_win_test 
+    (name: string)
+    (state: State.t)
+    (expected_output: int) : test = 
+  name >:: (fun _ -> 
+      assert_equal expected_output (State.check_win state))
+
+let init_state = State.init_level "OCaml" cherry
+
+let state_tests = [
+  check_win_test "neither win nor lose in initial level state" init_state 0;
+] *)
 
 let suite =
   "test suite"  >::: List.flatten [

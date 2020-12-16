@@ -145,7 +145,7 @@ let ocaml_maze =
     [|Wall Horz; Food; Wall (End Left); Food; Wall (Corner (Bot, Left)); 
       Wall Vert; Wall (Corner (Top, Left)); Food; Wall (End Left); Food;
       Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Ghost; Wall Horz; Food; 
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Empty; Wall Horz; Food; 
       Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Wall (Corner (Bot, Right)); 
       Wall Vert; 
