@@ -1,4 +1,4 @@
-MODULES=player map state ghost sprite authors
+MODULES=player map state ghost sprite authors leaderboard
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
