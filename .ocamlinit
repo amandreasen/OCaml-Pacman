@@ -1,3 +1,4 @@
+#require "csv";;
 #require "ounit2";;
 #require "graphics";;
 #require "ANSITerminal";;

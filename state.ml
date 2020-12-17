@@ -97,6 +97,15 @@ let check_overlap user_pos acc ghost =
   in
   acc || overlap
 
+let update_special_food state pts = 
+  if pts = special_val 
+  then {state with role_reversed = true; reversal_timer = 1} 
+  else begin 
+    if state.reversal_timer >= int_of_float max_role_rev_time 
+    then {state with role_reversed = false; reversal_timer = 0}
+    else state
+  end 
+
 let update_game_state state map = 
   let player_pos = Player.get_position state.player in
   let ghosts = state.ghosts in
@@ -112,12 +121,14 @@ let update_state (state: t) : t =
   let timer = 
     if state'.fruit_timer > 0 then state'.fruit_timer - 1 else 0 
   in 
+  let state'' = update_special_food state' point_val in 
   if timer = 0 && state'.fruit_active then 
     begin 
       clear_fruit state.map;
-      {state' with fruit_timer = timer; fruit_active = false}
+      {state'' with fruit_timer = timer; fruit_active = false}
     end 
-  else {state' with fruit_timer = timer}
+  else {state'' with fruit_timer = timer} 
+
 
 let new_follower state ghost = 
   {state with follower_ghosts = ghost :: state.follower_ghosts}
@@ -204,6 +215,17 @@ let position_diff ghost user rev =
   let y_u = snd (Player.get_position user) in 
   if rev then (x_g - x_u, y_g - y_u)
   else (x_u - x_g, y_u - y_g)
+
+(* let move_ghost_randomly ghost map = 
+   let rand_list = [0;1;2;3] in 
+   let start = Random.self_init (); Random.int 4 in 
+   let next = ref start in 
+   let dir = ref (!next |> rand_char |> parse_dir) in 
+   while not (Map.check_move (Ghost.get_position ghost) map !dir) do 
+    next := (!next + 1) mod 4;
+    dir := !next |> rand_char |> parse_dir;
+   done;
+   Ghost.move ghost !dir *)
 
 let rec move_ghost_randomly ghost map = 
   let dir = Random.self_init (); Random.int 4 |> rand_char |> parse_dir in 
@@ -373,8 +395,8 @@ let map_init (map: Map.t): Graphics.image =
 
 let make_ghosts (map_name: string) =
   match map_name with 
-  | "OCaml" -> make_ghosts num_ghosts 725 375 
-  | "standard" -> make_ghosts num_ghosts 725 375
+  | "OCaml" -> make_ghosts num_ghosts 675 375 
+  | "standard" -> make_ghosts num_ghosts 675 375
   | _ -> failwith "Invalid map!"
 
 let init_level (map_name: string) (fruit: fruit): t =

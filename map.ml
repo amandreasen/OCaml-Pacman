@@ -220,22 +220,22 @@ let coordinate_to_position (coordinate: coordinate) (map_corner: point) :
   let y_position = y_coordinate * tile_size + map_y in 
   (x_position, y_position)
 
-let check_move_new (pos: point) (map: t) (dir: point) =
-  let new_point = (fst pos + fst dir + 3, snd pos + snd dir + 3) in
-  let coordinate = position_to_coordinate new_point in 
-  let x = fst coordinate in 
-  let y = snd coordinate in 
-  let tile = map.tiles.(x).(y) in 
-  match tile.tile_type with 
-  | Wall _ -> 
+(* let check_move_new (pos: point) (map: t) (dir: point) =
+   let new_point = (fst pos + fst dir + 3, snd pos + snd dir + 3) in
+   let coordinate = position_to_coordinate new_point in 
+   let x = fst coordinate in 
+   let y = snd coordinate in 
+   let tile = map.tiles.(x).(y) in 
+   match tile.tile_type with 
+   | Wall _ -> 
     false
-  | _ -> true
+   | _ -> true *)
 
-let check_contains pos bottom_left = 
-  ((fst) pos + check_tile_size/2 +5<= (fst) bottom_left + tile_size) &&
-  ((fst) pos - check_tile_size/2 +5 <= (fst) bottom_left) &&
-  ((snd) pos + check_tile_size/2<= (snd) bottom_left + tile_size) &&
-  ((snd) pos - check_tile_size/2 <= (snd) bottom_left) 
+let check_contains pos dir bottom_left = 
+  ((fst) pos + check_tile_size/2 + (fst dir)<= (fst) bottom_left + tile_size) &&
+  ((fst) pos - check_tile_size/2 +(fst dir) <= (fst) bottom_left) &&
+  ((snd) pos + check_tile_size/2 + (snd dir)<= (snd) bottom_left + tile_size) &&
+  ((snd) pos - check_tile_size/2 + (snd dir)<= (snd) bottom_left) 
 
 let get_tile_type2 pos (tile_array:map_tile array) = 
   let h_list = Array.to_list tile_array in
@@ -243,7 +243,7 @@ let get_tile_type2 pos (tile_array:map_tile array) =
     match list with
     | []-> ""
     | h::t ->
-      if check_contains (pos) (h.bottom_left) then
+      if check_contains (pos) (0,0) (h.bottom_left) then
         match h.tile_type with
         | Wall _ -> "Wall"
         | Empty -> "Empty"
@@ -282,13 +282,13 @@ let check_food (pos: point) (map: t) =
   | _ -> ()
 
 
-let check_move2 pos (tile_array: map_tile array) = 
-  let h_list = Array.to_list tile_array in
-  let rec check_tile (list: map_tile list) =
+(* let check_move2 pos dir (tile_array: map_tile array) = 
+   let h_list = Array.to_list tile_array in
+   let rec check_tile (list: map_tile list) =
     match list with
     | []-> ""
     | h::t ->
-      if check_contains ( pos) ( h.bottom_left) then
+      if check_contains ( pos) dir ( h.bottom_left) then
         match h.tile_type with
         | Wall _ -> "Wall"
         | Empty -> "Empty"
@@ -298,44 +298,45 @@ let check_move2 pos (tile_array: map_tile array) =
         | Fruit _ -> "Fruit"
 
       else check_tile t in
-  check_tile h_list
+   check_tile h_list
 
-let check_move pos map dir =   
-  (* The position of the pacman is the center of the circle, each time it moves 
+   let check_move pos map dir =   
+   (* The position of the pacman is the center of the circle, each time it moves 
      1/5 of a tile*)
-  let new_pos = (fst pos + fst dir, snd pos + snd dir) in
-  let map_list = Array.to_list map.tiles in
-  let rec check_main map_l =
+   let new_pos = (fst pos + fst dir, snd pos + snd dir) in
+   let map_list = Array.to_list map.tiles in
+   let rec check_main map_l =
     match map_l with
     | []-> false
     | h::t -> 
-      match (check_move2 new_pos h) with
+      match (check_move2 new_pos dir h) with
       | "Wall"-> false
       | ("Empty" | "Food" | "Special"| "Ghost"| "Fruit") -> true
       | _ -> check_main t
-  in
-  check_main map_list
-(* 
+   in
+   check_main map_list *)
+
 let check_valid (pos: point) (map: t) =
   let coordinate = position_to_coordinate pos in 
   let x = fst coordinate in 
   let y = snd coordinate in 
   let tile = map.tiles.(x).(y) in
   match tile.tile_type with
-  | Ghost | Wall _ -> false 
+  | Wall _ -> false 
   | _ -> true
 
-let check_move (pos: point) (map: t) (dir: point) =
-  let new_x = fst pos + fst dir in 
-  let new_y = snd pos + snd dir in 
-  let half_x = player_width / 2 in 
-  let half_y = player_height / 2 in
-  let top = (new_x, new_y + half_y) in
-  let bot = (new_x, new_y - half_y) in 
-  let right = (new_x + half_x, new_y) in 
-  let left = (new_x - half_x, new_y) in
-  check_valid top map && check_valid bot map && 
-  check_valid right map && check_valid left map *)
+let check_directed (pos: point) (map: t) (dir: point) = 
+  let half = player_width / 2 in 
+  let pos' = (fst pos + fst dir, snd pos + snd dir) in
+  let top_right = (fst pos' + half - 1, snd pos' + half - 1) in
+  let top_left = (fst pos' - half, snd pos' + half - 1) in
+  let bot_right = (fst pos' + half - 1, snd pos' - half) in
+  let bot_left = (fst pos' - half, snd pos' - half) in
+  check_valid top_right map && check_valid top_left map && 
+  check_valid bot_right map && check_valid bot_left map
+
+let check_move (pos: point) (map: t) (dir: point) = 
+  check_directed pos map dir
 
 let check_contains2 pos bottom_left = 
   ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
