@@ -17,7 +17,6 @@ type game = {
   current: State.t; 
   state: state;
   prev_key: key;
-  prev_move: char;
   points: int;
   mutable fruit_basket: fruit array;
 }
@@ -72,7 +71,6 @@ let init_game (map_name: string) (points: int) (level: int)
    current = init_level map_name fruit; 
    state = Active; 
    prev_key = None; 
-   prev_move = 'z';
    points = points;
    fruit_basket = fruit_basket;}
 
@@ -85,7 +83,7 @@ let check_space (game: game) (key: key) (key_char: char) : game =
   if key = Key ' ' && not (game.prev_key = Key ' ')
   then {game with state = Paused; prev_key = key}
   else if check_key key_char 
-  then {game with prev_move = key_char; prev_key = key}
+  then {game with prev_key = key}
   else game
 
 let update_active_game (game: game) (key: key) (key_char: char) 
@@ -119,13 +117,12 @@ let update_active (game: game) (key: key) : game =
   if (lives game.current) > (lives level') 
   then {game with current = level'; 
                   prev_key = None; 
-                  prev_move = 'z'; 
                   state = Waiting}
   else update_active_game game key key_char level'
 
 let update_paused (game: game) (key: key) : game = 
   if key = Key ' ' && not (game.prev_key = Key ' ')
-  then {game with state = Active; prev_key = key} 
+  then {game with state = Active; prev_key = None} 
   else {game with prev_key = key}
 
 let update_win (game: game) (key: key) : game = 
