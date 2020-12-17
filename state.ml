@@ -401,7 +401,8 @@ let make_ghosts (map_name: string) =
 
 let init_level (map_name: string) (fruit: fruit): t =
   let make_level map_name =
-    let map = make_map (100, 100) map_name fruit in 
+    let map = make_map (100, 100) map_name fruit in
+    generate_special map; 
     let map_background = map_init map in
     let player = new_player () in 
     let ghosts = make_ghosts map_name in

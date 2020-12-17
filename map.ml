@@ -4,7 +4,7 @@ open Images
 open Constants
 
 let food_color = rgb 255 184 245
-let special_color = rgb 0 255 100
+let special_color = rgb 255 171 196
 let wall_color = Graphics.blue
 let png_wl = 46
 let check_tile_size = 51
@@ -679,8 +679,8 @@ let draw_map (map: t) : unit =
   ignore (Array.map draw_map_row map.tiles);
   ()
 
-let select_empty (map_tiles: map_tile array array) 
-    (tiles: coordinate array) : map_tile = 
+let select_tile (map_tiles: map_tile array array) 
+    (tiles: coordinate array) (tile_type: tile) : map_tile = 
   let tile_size = Array.length tiles in 
   let index = ref (Random.int tile_size) in 
   let coordinate = tiles.(!index) in 
@@ -688,7 +688,7 @@ let select_empty (map_tiles: map_tile array array)
   let y = snd coordinate in 
   let tile = ref (map_tiles.(x).(y)) in 
   let counter = ref 0 in
-  while !tile.tile_type <> Empty && !counter < tile_size do 
+  while !tile.tile_type <> tile_type && !counter < tile_size do 
     index := (!index + 1) mod tile_size;
     let coordinate = tiles.(!index) in 
     let x = fst coordinate in 
@@ -700,7 +700,7 @@ let select_empty (map_tiles: map_tile array array)
 
 let generate_fruit (map: t) : unit = 
   let tiles = map.tiles in 
-  let tile = select_empty tiles map.player_tiles in 
+  let tile = select_tile tiles map.player_tiles Empty in 
   match tile.tile_type with 
   | Empty -> 
     let pos = tile.bottom_left |> position_to_coordinate in 
@@ -743,3 +743,33 @@ let food_count (map: t) : int =
   in
   let fold_col acc col = Array.fold_left check_food acc col in 
   Array.fold_left fold_col 0 tiles
+
+let filter_bounds (lower_x: int) (upper_x: int) (lower_y: int) (upper_y: int)
+    (coordinate: int * int): bool = 
+  let x = fst coordinate in 
+  let y = snd coordinate in 
+  x >= lower_x && x <= upper_x && y >= lower_y && y <= upper_y 
+
+let special_helper (tiles: map_tile array array) 
+    (coordinates: coordinate list) : unit = 
+  let coord_array = Array.of_list coordinates in
+  let tile = select_tile tiles coord_array Food in 
+  match tile.tile_type with 
+  | Food -> 
+    let pos = tile.bottom_left |> position_to_coordinate in 
+    let x = fst pos in 
+    let y = snd pos in 
+    tiles.(x).(y) <- {tile with tile_type = Special}
+  | _ -> ()
+
+let generate_special (map: t) : unit = 
+  let tiles = map.tiles in
+  let tile_list = map.player_tiles |> Array.to_list in 
+  let upper_left = List.filter (filter_bounds 1 12 1 4) tile_list in 
+  let upper_right = List.filter (filter_bounds 12 24 1 4) tile_list in 
+  let lower_left = List.filter (filter_bounds 1 12 6 10) tile_list in
+  let lower_right = List.filter (filter_bounds 12 24 6 10) tile_list in
+  special_helper tiles upper_left;
+  special_helper tiles upper_right; 
+  special_helper tiles lower_left; 
+  special_helper tiles lower_right

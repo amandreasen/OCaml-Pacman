@@ -41,7 +41,7 @@ let tile_size = 50
 let wall_width = 20
 
 let food_radius = 3
-let special_radius = 6
+let special_radius = 8
 
 let fruit_width = 50
 let fruit_height = 50
