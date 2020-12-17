@@ -83,19 +83,19 @@ let check_key (key_char: char) : bool =
 
 let check_space (game: game) (key: key) (key_char: char) : game = 
   if key = Key ' ' && not (game.prev_key = Key ' ')
-  then {game with state = Paused}
+  then {game with state = Paused; prev_key = key}
   else if check_key key_char 
-  then {game with prev_move = key_char}
+  then {game with prev_move = key_char; prev_key = key}
   else game
 
 let update_active_game (game: game) (key: key) (key_char: char) 
     (level: State.t) : game =
   let win_code = State.check_win level in
-  let game' = {game with current = level; prev_key = key} in
+  let game' = {game with current = level} in
   if win_code = 1 
-  then {game' with state = Win} 
+  then {game' with state = Win; prev_key = key} 
   else if win_code = -1
-  then {game' with state = Lose} 
+  then {game' with state = Lose; prev_key = key} 
   else check_space game' key key_char
 
 let check_fruits (game: game) (level: State.t) : unit =

@@ -231,15 +231,15 @@ let coordinate_to_position (coordinate: coordinate) (map_corner: point) :
     false
    | _ -> true *)
 
-let check_contains pos dir bottom_left = 
-  ((fst) pos + check_tile_size/2 + (fst dir)<= (fst) bottom_left + tile_size) &&
-  ((fst) pos - check_tile_size/2 +(fst dir) <= (fst) bottom_left) &&
-  ((snd) pos + check_tile_size/2 + (snd dir)<= (snd) bottom_left + tile_size) &&
-  ((snd) pos - check_tile_size/2 + (snd dir)<= (snd) bottom_left) 
+(* let check_contains pos dir bottom_left = 
+   ((fst) pos + check_tile_size/2 + (fst dir)<= (fst) bottom_left + tile_size) &&
+   ((fst) pos - check_tile_size/2 +(fst dir) <= (fst) bottom_left) &&
+   ((snd) pos + check_tile_size/2 + (snd dir)<= (snd) bottom_left + tile_size) &&
+   ((snd) pos - check_tile_size/2 + (snd dir)<= (snd) bottom_left) 
 
-let get_tile_type2 pos (tile_array:map_tile array) = 
-  let h_list = Array.to_list tile_array in
-  let rec check_tile (list:map_tile list) =
+   let get_tile_type2 pos (tile_array:map_tile array) = 
+   let h_list = Array.to_list tile_array in
+   let rec check_tile (list:map_tile list) =
     match list with
     | []-> ""
     | h::t ->
@@ -253,21 +253,35 @@ let get_tile_type2 pos (tile_array:map_tile array) =
         | Fruit _ -> "Fruit"
 
       else check_tile t in
-  check_tile h_list
+   check_tile h_list
 
-let get_tile_type pos map =   
-  (* The position of the pacman is the center of the circle, each time it moves 
+   let get_tile_type pos map =   
+   (* The position of the pacman is the center of the circle, each time it moves 
      1/5 of a tile*)
-  let map_list = Array.to_list map.tiles in
-  let rec check_main map_l=
+   let map_list = Array.to_list map.tiles in
+   let rec check_main map_l=
     match map_l with
     | []-> ""
     | h::t -> 
       match (get_tile_type2 pos h) with
       | "" -> check_main t
       | str-> str
-  in
-  check_main map_list
+   in
+   check_main map_list *)
+
+let get_tile_type (pos: point) (map: t) = 
+  let coordinate = position_to_coordinate pos in 
+  let x = fst coordinate in 
+  let y = snd coordinate in 
+  let tile = map.tiles.(x).(y) in 
+  match tile.tile_type with 
+  | Wall _ -> "Wall"
+  | Empty -> "Empty"
+  | Food -> "Food"
+  | Special -> "Special"
+  | Ghost -> "Ghost"
+  | Fruit _ -> "Fruit"
+
 (** [check_food p m] will check if the tile at pixel position [p] in map [m] 
     is a Food tile. If it is, it will replace the Food tile with an Empty tile.
     If not, the functions does nothing.*) 
@@ -280,7 +294,6 @@ let check_food (pos: point) (map: t) =
   | Food | Special -> 
     map.tiles.(x).(y) <- {tile with tile_type = Empty} 
   | _ -> ()
-
 
 (* let check_move2 pos dir (tile_array: map_tile array) = 
    let h_list = Array.to_list tile_array in
@@ -335,11 +348,11 @@ let check_move (pos: point) (map: t) (dir: point) =
   check_valid top_right map && check_valid top_left map && 
   check_valid bot_right map && check_valid bot_left map
 
-let check_contains2 pos bottom_left = 
-  ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
-  ((fst) pos - pacman_rad <= (fst) bottom_left) &&
-  ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
-  ((snd) pos - pacman_rad <= (snd) bottom_left) 
+(* let check_contains2 pos bottom_left = 
+   ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
+   ((fst) pos - pacman_rad <= (fst) bottom_left) &&
+   ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
+   ((snd) pos - pacman_rad <= (snd) bottom_left)  *)
 
 (** [position_to_coordinate p] will convert a pixel position [p] in the GUI to 
     a coordinate in the map array.

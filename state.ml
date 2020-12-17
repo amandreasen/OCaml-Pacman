@@ -8,7 +8,7 @@ open Graphic_image
 
 (* constants *)
 let fruit_limit = 50
-let fruit_timer = 200
+let fruit_timer = 300
 
 let png_wl = 50
 
@@ -231,7 +231,7 @@ let rec move_ghost_randomly ghost map =
   let dir = Random.self_init (); Random.int 4 |> rand_char |> parse_dir in 
   if Map.check_move (Ghost.get_position ghost) map dir 
   then Ghost.move ghost dir 
-  else move_ghost_randomly ghost map 
+  else move_ghost_randomly ghost map  
 
 let move_ghost_prev ghost map = 
   let dir = Ghost.prev_move ghost in 
