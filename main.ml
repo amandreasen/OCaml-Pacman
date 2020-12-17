@@ -129,6 +129,7 @@ let update_paused (game: game) (key: key) : game =
   else {game with prev_key = key}
 
 let update_win (game: game) (key: key) : game = 
+  Unix.sleep(1);
   {game with state = Loading}
 
 let update_lose (game: game) : game =
