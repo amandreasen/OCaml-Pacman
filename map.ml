@@ -325,7 +325,7 @@ let check_valid (pos: point) (map: t) =
   | Wall _ -> false 
   | _ -> true
 
-let check_directed (pos: point) (map: t) (dir: point) = 
+let check_move (pos: point) (map: t) (dir: point) = 
   let half = player_width / 2 in 
   let pos' = (fst pos + fst dir, snd pos + snd dir) in
   let top_right = (fst pos' + half - 1, snd pos' + half - 1) in
@@ -334,9 +334,6 @@ let check_directed (pos: point) (map: t) (dir: point) =
   let bot_left = (fst pos' - half, snd pos' - half) in
   check_valid top_right map && check_valid top_left map && 
   check_valid bot_right map && check_valid bot_left map
-
-let check_move (pos: point) (map: t) (dir: point) = 
-  check_directed pos map dir
 
 let check_contains2 pos bottom_left = 
   ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
