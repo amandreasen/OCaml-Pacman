@@ -41,7 +41,9 @@ let grapes =
   let img = sprite_from_sheet sprite_sheet 5 4 fruit_width fruit_height 2 in 
   {sprite = img; points = 900}
 
-let fruits = [|cherry; strawberry; peach; apple|]
+let fruits = [|cherry; strawberry; peach; apple; grapes|]
+
+let maps = [|"standard"; "OCaml"; "3110"|]
 
 let fruit_num = Array.length fruits
 
@@ -139,7 +141,8 @@ let update_loading (game: game) : game =
   let points = game.points + points game.current in
   let fruits = game.fruit_basket in
   let next_fruit = Array.length fruits in
-  let game' = init_game "OCaml" points game.level fruits next_fruit in 
+  let map = Random.self_init (); Random.int (Array.length maps) in
+  let game' = init_game maps.(map) points game.level fruits next_fruit in 
   {game' with state = Waiting}
 
 let update_waiting (game: game) : game = 

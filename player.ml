@@ -116,7 +116,7 @@ let start_death user =
   {user with move_counter = 0; dying = true;}
 
 let animate_death user : unit =  
-  Unix.sleepf(0.015);
+  Unix.sleepf(0.02);
   let move = user.move_counter in 
   if move < 12 then user.move_counter <- move + 1 else ()
 

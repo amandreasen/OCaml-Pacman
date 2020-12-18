@@ -64,8 +64,6 @@ type t =
   {
     tiles: map_tile array array;
     player_tiles: coordinate array;
-    width: int;
-    height: int;
     bottom_left: point;
     fruit: fruit
   }
@@ -194,6 +192,72 @@ let ocaml_maze =
     [|Wall (Corner (Bot, Right)); Wall Vert; Wall Vert; Wall Vert; Wall Vert;
       Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert; 
       Wall(Corner (Top, Right))|];
+  |]
+
+let cs3110_maze =
+  [|
+    [|Wall (Corner (Bot, Left)); Wall Vert; Wall Vert; Wall Vert;
+      Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
+      Wall Vert; Wall(Corner (Top, Left))|];
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall (End Left); Food; Wall (Corner (Bot, Left)); 
+      Wall Vert; Wall Vert; Wall Vert; Wall (Corner (Top, Left)); Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Ghost; Ghost; Ghost; 
+      Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Wall (End Right); Ghost; Ghost; 
+      Ghost; Wall (End Right); Food; Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall (End Left); Food; Wall (End Left); Food; 
+      Wall (Corner (Bot, Left)); Wall Vert; Wall (Corner (Top, Left)); Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Food; Wall Horz; 
+      Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Wall (Corner (Bot, Right)); 
+      Wall Vert; Wall (Corner (Top, Right)); Food; Wall (End Right); Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall (End Left); Food; Wall (Corner (Bot, Left)); 
+      Wall (Corner (Top, Left)); Food; Wall (Corner (Bot, Left)); 
+      Wall (Corner (Top, Left)); Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (Corner (Bot, Right)); 
+      Wall (Corner (Top, Right)); Food; Wall (Corner (Bot, Right)); 
+      Wall (Corner (Top, Right)); Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Food; Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (End Left); Food; Wall (End Left);
+      Food; Wall (End Left); Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Food; Wall Horz; Food; 
+      Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Wall (Corner (Bot, Right)); 
+      Wall Vert; Wall Vert; Wall Vert; Wall (Corner (Top, Right)); Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall (End Left); Food; Wall (End Bot); Wall Vert; 
+      Wall Vert; Wall Vert; Wall (End Top); Food; Wall Horz|]; 
+    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Food; Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Wall (End Bot); Wall Vert; 
+      Wall Vert; Wall Vert; Wall (End Top); Food; Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall (End Left); Food; Wall (Corner (Bot, Left)); 
+      Wall Vert; Wall Vert; Wall Vert; Wall (Corner (Top, Left)); Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Ghost; Ghost; Ghost; 
+      Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Wall (Corner (Bot, Right)); 
+      Wall Vert; Wall Vert; Wall Vert; Wall (Corner (Top, Right)); Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
+      Wall Horz|];
+    [|Wall (Corner (Bot, Right)); Wall Vert; Wall Vert; Wall Vert;
+      Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
+      Wall Vert; Wall(Corner (Top, Right))|];
   |]
 
 (** [position_to_coordinate p] will convert a pixel position [p] in the GUI to 
@@ -441,14 +505,13 @@ let make_map (corner: point) (maze_name: string) (fruit: fruit) : t =
     match maze_name with 
     | "standard" -> make_tiles 11 26 corner standard_maze
     | "OCaml" -> make_tiles 11 26 corner ocaml_maze
+    | "3110" -> make_tiles 11 26 corner cs3110_maze
     | _ -> failwith "map not found"
   in
   let player_tiles = make_player_tiles tile_list in
   {
     tiles = tile_list; 
     player_tiles = player_tiles;
-    width = 1300;
-    height = 550;
     bottom_left = (0,0);
     fruit = fruit;
   }

@@ -216,22 +216,22 @@ let position_diff ghost user rev =
   if rev then (x_g - x_u, y_g - y_u)
   else (x_u - x_g, y_u - y_g)
 
-(* let move_ghost_randomly ghost map = 
-   let rand_list = [0;1;2;3] in 
-   let start = Random.self_init (); Random.int 4 in 
-   let next = ref start in 
-   let dir = ref (!next |> rand_char |> parse_dir) in 
-   while not (Map.check_move (Ghost.get_position ghost) map !dir) do 
+let move_ghost_randomly ghost map = 
+  let rand_list = [0;1;2;3] in 
+  let start = Random.self_init (); Random.int 4 in 
+  let next = ref start in 
+  let dir = ref (!next |> rand_char |> parse_dir) in 
+  while not (Map.check_move (Ghost.get_position ghost) map !dir) do 
     next := (!next + 1) mod 4;
     dir := !next |> rand_char |> parse_dir;
-   done;
-   Ghost.move ghost !dir *)
+  done;
+  Ghost.move ghost !dir 
 
-let rec move_ghost_randomly ghost map = 
-  let dir = Random.self_init (); Random.int 4 |> rand_char |> parse_dir in 
-  if Map.check_move (Ghost.get_position ghost) map dir 
-  then Ghost.move ghost dir 
-  else move_ghost_randomly ghost map  
+(* let rec move_ghost_randomly ghost map = 
+   let dir = Random.self_init (); Random.int 4 |> rand_char |> parse_dir in 
+   if Map.check_move (Ghost.get_position ghost) map dir 
+   then Ghost.move ghost dir 
+   else move_ghost_randomly ghost map   *)
 
 let move_ghost_prev ghost map = 
   let dir = Ghost.prev_move ghost in 
@@ -397,6 +397,7 @@ let make_ghosts (map_name: string) =
   match map_name with 
   | "OCaml" -> make_ghosts num_ghosts 675 375 
   | "standard" -> make_ghosts num_ghosts 675 375
+  | "3110" -> make_ghosts num_ghosts 325 375
   | _ -> failwith "Invalid map!"
 
 let init_level (map_name: string) (fruit: fruit): t =
@@ -421,19 +422,17 @@ let update_active (state: t) (key: char) : t =
 
 let update_dying (state: t) : t =
   if death_ended state.player 
-  then 
-    begin
-      Unix.sleep(1);
-      {state with game_state = Active; 
-                  ghosts = make_ghosts state.map_name;
-                  player = new_player();
-                  lives = state.lives - 1}
-    end
-  else 
-    begin 
-      animate_death state.player;
-      state
-    end
+  then begin
+    Unix.sleep(1);
+    {state with game_state = Active; 
+                ghosts = make_ghosts state.map_name;
+                player = new_player();
+                lives = state.lives - 1}
+  end
+  else begin 
+    animate_death state.player;
+    state
+  end
 
 let update_waiting (state: t) : t = 
   Unix.sleep(1);
