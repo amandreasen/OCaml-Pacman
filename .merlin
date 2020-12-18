@@ -1,5 +1,4 @@
 B _build
-PKG csv
 PKG unix
 PKG ounit2
 PKG graphics
