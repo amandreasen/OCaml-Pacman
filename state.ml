@@ -99,12 +99,16 @@ let check_overlap user_pos acc ghost =
 
 let update_special_food state pts = 
   if pts = special_val 
-  then {state with role_reversed = true; reversal_timer = 1} 
+  then 
+    {state with role_reversed = true; reversal_timer = 1} 
   else begin 
+    (* moveto 500 75; 
+       print_string "not special  "; *)
     if state.reversal_timer >= int_of_float max_role_rev_time 
     then {state with role_reversed = false; reversal_timer = 0}
     else state
   end 
+
 
 let update_game_state state map = 
   let player_pos = Player.get_position state.player in
@@ -217,7 +221,7 @@ let position_diff ghost user rev =
   else (x_u - x_g, y_u - y_g)
 
 let move_ghost_randomly ghost map = 
-  let rand_list = [0;1;2;3] in 
+  (* let rand_list = [0;1;2;3] in  *)
   let start = Random.self_init (); Random.int 4 in 
   let next = ref start in 
   let dir = ref (!next |> rand_char |> parse_dir) in 
@@ -278,6 +282,10 @@ let helper_make_aimed_move ghost user map rev =
   in 
   move_lst_iter move_lst
 
+
+(** [move_ghost_following] moves the ghost to follow the player if the timer 
+    isn't up and the move is possible. The move is determined by 
+    [helper_make_aimed_move] *)
 let move_ghost_following ghost user map =
   if Ghost.is_following ghost 
   then begin 
@@ -293,17 +301,22 @@ let move_ghost_following ghost user map =
     helper_make_aimed_move ghost user map false
   end
 
+(** [move_ghost_reversed] is  [helper_make_aimed_move] when the ghost is near 
+    the player or [move_ghost_prev] otherwise. *)
 let move_ghost_reversed state ghost user map = 
   if are_close ghost user 
   then helper_make_aimed_move ghost user map true
   else move_ghost_prev ghost map 
 
+(** [move_ghost_normal] is [move_ghost_following] when the ghost is near the 
+    player or [move_ghost_prev] otherwise. *)
 let move_ghost_normal ghost user map = 
   if are_close ghost user 
   then move_ghost_following ghost user map 
   else move_ghost_prev ghost map 
 
-(** TODO: UPDATED SPECS FOR GHOST MOVEMENT *)
+(** [move_ghosts] uses helper functions to determine and move the ghost 
+    according to the current situation in the game. *)
 let move_ghosts state ghosts map (user : Player.t) = 
   Array.iter (fun g ->
       reset_move g; 

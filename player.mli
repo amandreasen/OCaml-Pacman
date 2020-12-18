@@ -1,5 +1,3 @@
-(* type direction = Up | Right | Down | Left *)
-
 type t
 
 (** [new_player] is a hard-coded player with initial coordinates centered at 
@@ -17,10 +15,6 @@ val move: t -> int * int -> unit
 
 (** [player_image] is the Sprite.t representation of a player. *)
 val player_image: t -> Sprite.t
-
-(** [player_direction] is the direction that the player is facing. The 
-    direction is a variant of Up/Right/Down/Left. *)
-(* val player_direction: t -> direction *)
 
 (** [player_prev_move] is the previous move that the player made. *)
 val player_prev_move: t -> int * int 

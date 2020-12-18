@@ -151,7 +151,6 @@ let update_waiting (game: game) : game =
 
 let draw_labels (game: game) : unit = 
   set_color red;
-  (* set_font "-misc-dejavu sans mono-bold-r-normal--256-0-0-0-m-0-iso8859-1"; *)
   moveto 175 675;
   let points = game.points + (points game.current) in
   draw_string ("Points: " ^ string_of_int points);
