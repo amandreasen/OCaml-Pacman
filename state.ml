@@ -428,9 +428,9 @@ let move_player user map key =
 
 let draw_game (state: t) (display_player: bool)  = 
   draw_current_map state.map state.map_background;
-  draw_lives state
-(* if display_player then draw_player state.player else ();
-   draw_ghosts state.ghosts *)
+  draw_lives state;
+  if display_player then draw_player state.player else ();
+  draw_ghosts state.ghosts
 
 let map_init (map: Map.t): Graphics.image = 
   draw_map map;
