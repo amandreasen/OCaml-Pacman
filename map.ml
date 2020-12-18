@@ -184,9 +184,8 @@ let ocaml_maze =
       Wall (End Top); Food; Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Food; Food; Food; Wall Horz;
       Food; Wall Horz|];
-    [|Wall Horz; Food; Wall (End Right); Food; Wall (End Right); Food; Food; 
-      Food; 
-      Wall (End Right); Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Wall (End Right); Food; 
+      Wall (End Bot); Wall Vert; Wall (Corner (Top, Right)); Food; Wall Horz|];
     [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food;
       Wall Horz|];
     [|Wall (Corner (Bot, Right)); Wall Vert; Wall Vert; Wall Vert; Wall Vert;
@@ -257,7 +256,7 @@ let cs3110_maze =
       Wall Horz|];
     [|Wall (Corner (Bot, Right)); Wall Vert; Wall Vert; Wall Vert;
       Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
-      Wall Vert; Wall(Corner (Top, Right))|];
+      Wall Vert; Wall (Corner (Top, Right))|];
   |]
 
 (** [position_to_coordinate p] will convert a pixel position [p] in the GUI to 

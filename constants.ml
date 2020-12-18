@@ -11,8 +11,6 @@ let move_amt = 10
 
 let sleep_time = 0.035
 
-let num_ghosts = 2
-
 (** [closeness_threshold] encompassess the nearest 8 tiles around the user.  *)
 let closeness_threshold = 50.0 *. sqrt 2.0  
 

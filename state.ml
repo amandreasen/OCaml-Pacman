@@ -20,6 +20,7 @@ type t = {
   points : int;
   lives : int;
   ghosts : Ghost.t array;
+  num_ghosts : int;
   map : Map.t;
   map_background : Graphics.image;
   follower_ghosts : Ghost.t list;
@@ -51,6 +52,7 @@ let initial_state player map ghosts_entry map_background map_name = {
   points = 0;
   lives = 3;
   ghosts = ghosts_entry;
+  num_ghosts = Array.length ghosts_entry;
   map = map;
   map_background = map_background;
   follower_ghosts = [];
@@ -217,7 +219,6 @@ let position_diff ghost user rev =
   else (x_u - x_g, y_u - y_g)
 
 let move_ghost_randomly ghost map = 
-  let rand_list = [0;1;2;3] in 
   let start = Random.self_init (); Random.int 4 in 
   let next = ref start in 
   let dir = ref (!next |> rand_char |> parse_dir) in 
@@ -233,10 +234,39 @@ let move_ghost_randomly ghost map =
    then Ghost.move ghost dir 
    else move_ghost_randomly ghost map   *)
 
+let move_selector (map: Map.t) (ghost_pos: int * int) (dir: int * int) 
+  : int * int = 
+  let select = Random.self_init(); Random.int 2 in 
+  let dir1 = 
+    match dir with 
+    | (x, 0) when x <> 0 -> 
+      if select = 0 then (0, x) else (0, -x)
+    | (0, y) when y <> 0 -> 
+      if select = 0 then (y, 0) else (-y, 0)
+    | _ -> dir 
+  in 
+  let dir2 = 
+    match dir1 with 
+    | (x, 0) -> (-x, 0)
+    | (0, y) -> (0, -y)
+    | _ -> dir 
+  in
+  if Map.check_move ghost_pos map dir1 then dir1
+  else if Map.check_move ghost_pos map dir2 then dir2 
+  else dir
+
+let select_move_new (map: Map.t) (ghost_pos: int * int) (dir: int * int) 
+  : int * int = 
+  let select = Random.self_init(); Random.int 2 in 
+  if select = 0 then dir 
+  else move_selector map ghost_pos dir
+
 let move_ghost_prev ghost map = 
   let dir = Ghost.prev_move ghost in 
-  if Map.check_move (Ghost.get_position ghost) map dir 
-  then Ghost.move ghost dir 
+  let ghost_pos = Ghost.get_position ghost in 
+  let new_move = select_move_new map ghost_pos dir in 
+  if Map.check_move (Ghost.get_position ghost) map new_move 
+  then Ghost.move ghost new_move
   else move_ghost_randomly ghost map 
 
 let helper_possible_moves ghost user rev = 
@@ -393,20 +423,20 @@ let map_init (map: Map.t): Graphics.image =
   draw_map map;
   Graphics.get_image 0 0 window_width window_height 
 
-let make_ghosts (map_name: string) =
+let make_ghosts (map_name: string) (num_ghosts: int) =
   match map_name with 
   | "OCaml" -> make_ghosts num_ghosts 675 375 
   | "standard" -> make_ghosts num_ghosts 675 375
   | "3110" -> make_ghosts num_ghosts 325 375
   | _ -> failwith "Invalid map!"
 
-let init_level (map_name: string) (fruit: fruit): t =
+let init_level (map_name: string) (fruit: fruit) (num_ghosts: int): t =
   let make_level map_name =
     let map = make_map (100, 100) map_name fruit in
     generate_special map; 
     let map_background = map_init map in
     let player = new_player () in 
-    let ghosts = make_ghosts map_name in
+    let ghosts = make_ghosts map_name num_ghosts in
     initial_state player map ghosts map_background map_name
   in make_level map_name
 
@@ -425,7 +455,7 @@ let update_dying (state: t) : t =
   then begin
     Unix.sleep(1);
     {state with game_state = Active; 
-                ghosts = make_ghosts state.map_name;
+                ghosts = make_ghosts state.map_name state.num_ghosts;
                 player = new_player();
                 lives = state.lives - 1}
   end
