@@ -331,12 +331,6 @@ let move_ghost_following ghost user map =
     helper_make_aimed_move ghost user map false
   end
 
-(** [move_ghost_reversed] is  [helper_make_aimed_move] when the ghost is near 
-    the player or [move_ghost_prev] otherwise. *)
-let move_ghost_reversed state ghost user map = 
-  if are_close ghost user 
-  then helper_make_aimed_move ghost user map true
-  else move_ghost_prev ghost map 
 
 (** [move_ghost_normal] is [move_ghost_following] when the ghost is near the 
     player or [move_ghost_prev] otherwise. *)
@@ -345,6 +339,21 @@ let move_ghost_normal ghost user map =
   then move_ghost_following ghost user map 
   else move_ghost_prev ghost map 
 
+
+(** [move_ghost_reversed] is  [helper_make_aimed_move] when the ghost is near 
+    the player or [move_ghost_prev] otherwise. *)
+let move_ghost_reversed state ghost user map = 
+  if state.reversal_timer <= int_of_float max_role_rev_time then begin 
+    state.reversal_timer <- state.reversal_timer + 1;
+    if are_close ghost user 
+    then helper_make_aimed_move ghost user map true
+    else move_ghost_prev ghost map 
+  end 
+  else begin 
+    state.reversal_timer <- 0;
+    state.role_reversed <- false;
+    move_ghost_normal ghost user map
+  end 
 (** [move_ghosts] uses helper functions to determine and move the ghost 
     according to the current situation in the game. *)
 let move_ghosts state ghosts map (user : Player.t) = 
