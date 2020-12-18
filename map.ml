@@ -398,24 +398,26 @@ let check_food (pos: point) (map: t) =
    in
    check_main map_list *)
 
-let check_valid (pos: point) (map: t) =
+let check_valid (pos: point) (map: t) (initialized: bool) =
   let coordinate = position_to_coordinate pos in 
   let x = fst coordinate in 
   let y = snd coordinate in 
   let tile = map.tiles.(x).(y) in
   match tile.tile_type with
   | Wall _ -> false 
+  | Ghost -> not initialized
   | _ -> true
 
-let check_move (pos: point) (map: t) (dir: point) = 
+let check_move (pos: point) (map: t) (dir: point) (initialized: bool)= 
   let half = player_width / 2 in 
   let pos' = (fst pos + fst dir, snd pos + snd dir) in
   let top_right = (fst pos' + half - 1, snd pos' + half - 1) in
   let top_left = (fst pos' - half, snd pos' + half - 1) in
   let bot_right = (fst pos' + half - 1, snd pos' - half) in
   let bot_left = (fst pos' - half, snd pos' - half) in
-  check_valid top_right map && check_valid top_left map && 
-  check_valid bot_right map && check_valid bot_left map
+  check_valid top_right map initialized && check_valid top_left map initialized 
+  && check_valid bot_right map initialized 
+  && check_valid bot_left map initialized
 
 (* let check_contains2 pos bottom_left = 
    ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&

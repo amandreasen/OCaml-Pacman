@@ -226,7 +226,7 @@ let move_ghost_randomly ghost map =
   let start = Random.self_init (); Random.int 4 in 
   let next = ref start in 
   let dir = ref (!next |> rand_char |> parse_dir) in 
-  while not (Map.check_move (Ghost.get_position ghost) map !dir) do 
+  while not (Map.check_move (Ghost.get_position ghost) map !dir true) do 
     next := (!next + 1) mod 4;
     dir := !next |> rand_char |> parse_dir;
   done;
@@ -255,8 +255,8 @@ let move_selector (map: Map.t) (ghost_pos: int * int) (dir: int * int)
     | (0, y) -> (0, -y)
     | _ -> dir 
   in
-  if Map.check_move ghost_pos map dir1 then dir1
-  else if Map.check_move ghost_pos map dir2 then dir2 
+  if Map.check_move ghost_pos map dir1 true then dir1
+  else if Map.check_move ghost_pos map dir2 true then dir2 
   else dir
 
 let select_move_new (map: Map.t) (ghost_pos: int * int) (dir: int * int) 
@@ -267,7 +267,7 @@ let select_move_new (map: Map.t) (ghost_pos: int * int) (dir: int * int)
 
 let helper_new_move map ghost prev ghost_pos = 
   let new_move = select_move_new map ghost_pos prev in 
-  if Map.check_move (Ghost.get_position ghost) map new_move 
+  if Map.check_move (Ghost.get_position ghost) map new_move true
   then Ghost.move ghost new_move
   else move_ghost_randomly ghost map 
 
@@ -278,7 +278,7 @@ let move_ghost_prev ghost map =
   then helper_new_move map ghost dir ghost_pos
   else 
     begin 
-      if Map.check_move (Ghost.get_position ghost) map dir 
+      if Map.check_move (Ghost.get_position ghost) map dir false
       then Ghost.move ghost dir 
       else begin finish_initializing ghost; 
         helper_new_move map ghost dir ghost_pos
@@ -304,7 +304,7 @@ let rec helper_stop_following_move ghost user map =
   let current_position = Ghost.get_position ghost in 
   let rec helper_find_dir prev_move current_position = 
     let dir =  Random.self_init (); Random.int 4 |> rand_char |> parse_dir in 
-    if prev_move <> dir && Map.check_move current_position map dir 
+    if prev_move <> dir && Map.check_move current_position map dir true
     then Ghost.move ghost dir 
     else helper_find_dir prev_move current_position
   in 
@@ -316,7 +316,7 @@ let helper_make_aimed_move ghost user map rev =
     while not (made_move ghost) do 
       match lst with  
       | [] -> Ghost.move ghost (0,0)
-      | h::t -> begin if Map.check_move (Ghost.get_position ghost) map h 
+      | h::t -> begin if Map.check_move (Ghost.get_position ghost) map h true
           then Ghost.move ghost h
           else move_lst_iter t 
         end 
@@ -369,6 +369,7 @@ let move_ghost_reversed state ghost user map =
       state.role_reversed <- false;
       move_ghost_normal ghost user map
     end 
+
 (** [move_ghosts] uses helper functions to determine and move the ghost 
     according to the current situation in the game. *)
 let move_ghosts state ghosts map (user : Player.t) = 
@@ -392,10 +393,10 @@ let flush () =
 let pick_move (user : Player.t) (map: Map.t) (next: point) (prev: point) 
     (prev_attempt: point) = 
   let user_pos = Player.get_position user in 
-  if Map.check_move user_pos map next && next <> (0, 0) then next 
-  else if Map.check_move user_pos map prev_attempt && prev_attempt <> (0,0) 
+  if Map.check_move user_pos map next true && next <> (0, 0) then next 
+  else if Map.check_move user_pos map prev_attempt true && prev_attempt <> (0,0) 
   then prev_attempt
-  else if Map.check_move user_pos map prev then prev 
+  else if Map.check_move user_pos map prev true then prev 
   else (0,0)
 
 let draw_ghosts ghosts = 

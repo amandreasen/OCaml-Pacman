@@ -35,7 +35,7 @@ val draw_map: t -> unit
    GUI window. *) 
 val draw_food: t -> unit
 
-val check_move: point -> t -> point -> bool
+val check_move: point -> t -> point -> bool -> bool
 
 (* val check_move_new: point -> t -> point -> bool *)
 
