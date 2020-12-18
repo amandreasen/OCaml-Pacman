@@ -171,11 +171,17 @@ let draw_fruits (game: game) : unit =
   ignore (Array.mapi (draw_helper 1275 60) game.fruit_basket);
   ()
 
+let draw_end_game (game: game) : unit = 
+  let image=Png.load_as_rgb24("./sprites/end_game_screen.png") [] in
+  let g = Graphic_image.of_image image in
+  Graphics.draw_image g 500 300
+
 let draw (game: game) : unit =
   let level = game.current in
   draw_game level (check_visibility level);
   draw_labels game;
-  draw_fruits game
+  draw_fruits game;
+  if game.state = Lose then draw_end_game game
 
 let rec update (game: game) : unit = 
   let key = 
