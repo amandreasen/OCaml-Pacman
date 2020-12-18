@@ -12,7 +12,7 @@ let fruit_timer = 300
 
 let png_wl = 50
 
-type game_state = Active | Waiting | Dying
+type game_state = Active | Waiting | Dying | Ended
 
 type t = {
   map_name: string;
@@ -470,17 +470,22 @@ let update_active (state: t) (key: char) : t =
   move_ghosts state ghosts map user; 
   let state' = update_state state in
   check_food (Player.get_position user) map;
-  state
+  state'
 
-let update_dying (state: t) : t =
-  if death_ended state.player 
-  then begin
+let reset_level (state: t) : t = 
+  if state.lives = 1 then 
+    {state with game_state = Ended; lives = 0}
+  else begin 
     Unix.sleep(1);
     {state with game_state = Active; 
                 ghosts = make_ghosts state.map_name state.num_ghosts;
                 player = new_player();
                 lives = state.lives - 1}
   end
+
+let update_dying (state: t) : t =
+  if death_ended state.player 
+  then reset_level state 
   else begin 
     animate_death state.player;
     state
@@ -492,17 +497,22 @@ let update_waiting (state: t) : t =
   if state.food_left = 0 then state
   else {state with game_state = Dying; player = user'}
 
+let update_ended (state: t) : t = 
+  state
+
 let update_level (state: t) (key: char) : t = 
   match state.game_state with 
   | Active -> update_active state key 
   | Dying -> update_dying state
   | Waiting -> update_waiting state
+  | Ended -> update_ended state
 
 let check_visibility (state: t) : bool =
   match state.game_state with 
   | Active | Waiting -> true
   | Dying -> 
     if Player.death_ended state.player then false else true
+  | Ended -> false
 
 let check_win (state: t) : int = 
   if state.food_left = 0 then 1 
