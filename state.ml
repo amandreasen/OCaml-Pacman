@@ -428,9 +428,9 @@ let move_player user map key =
 
 let draw_game (state: t) (display_player: bool)  = 
   draw_current_map state.map state.map_background;
-  draw_lives state;
-  if display_player then draw_player state.player else ();
-  draw_ghosts state.ghosts
+  draw_lives state
+(* if display_player then draw_player state.player else ();
+   draw_ghosts state.ghosts *)
 
 let map_init (map: Map.t): Graphics.image = 
   draw_map map;
@@ -461,7 +461,7 @@ let update_active (state: t) (key: char) : t =
   move_ghosts state ghosts map user; 
   let state' = update_state state in
   check_food (Player.get_position user) map;
-  state'
+  state
 
 let update_dying (state: t) : t =
   if death_ended state.player 
