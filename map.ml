@@ -65,7 +65,9 @@ type t =
     tiles: map_tile array array;
     player_tiles: coordinate array;
     bottom_left: point;
-    fruit: fruit
+    fruit: fruit;
+    init_ghost_moves: point array;
+    init_ghost_locations: point array;
   }
 
 (** The standard_maze is a 2D array of tile_types that represents the layout
@@ -258,6 +260,10 @@ let cs3110_maze =
       Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
       Wall Vert; Wall (Corner (Top, Right))|];
   |]
+
+
+let initial_ghost_moves map = 
+  map.init_ghost_moves
 
 (** [position_to_coordinate p] will convert a pixel position [p] in the GUI to 
     a coordinate in the map array.
@@ -496,15 +502,36 @@ let make_player_tiles (tile_list: map_tile array array) : coordinate array =
   done;
   !player_tiles
 
+
+let standard_g_moves = 
+  [|(0,move_amt); (0,move_amt); (0,0); (0,0)|]
+
+let standard_g_locs = [|(675, 375); (725,375);(775, 375); (875,375);|]
+
+let ocaml_g_moves = 
+  [|(0,-move_amt); (0,-move_amt); (move_amt,0); (0,-move_amt)|]
+
+let ocaml_g_locs = [|(675, 375); (725,375); (475,375); (875,375)|]
+
+let cs3110_g_moves = 
+  [|(0,-move_amt); (0,-move_amt); (move_amt,0); (0,-move_amt)|]
+
+
+let cs3110_g_locs = [|(325, 375); (375, 375); (425, 375); (475, 375)|]
+
+
 (** [make_map corner maze_name] will return a map with a bottom left corner at 
     [corner] and a tile layout represented by the maze label [maze_name]. Fails
-    if [maze_name] is not a valid maze name.*)
+    if [maze_name] is not a valid maze name. *)
 let make_map (corner: point) (maze_name: string) (fruit: fruit) : t =   
-  let tile_list = 
+  let (tile_list, ghost_box_moves, init_g_locs) = 
     match maze_name with 
-    | "standard" -> make_tiles 11 26 corner standard_maze
-    | "OCaml" -> make_tiles 11 26 corner ocaml_maze
-    | "3110" -> make_tiles 11 26 corner cs3110_maze
+    | "standard" -> (make_tiles 11 26 corner standard_maze, standard_g_moves,
+                     standard_g_locs)
+    | "OCaml" -> (make_tiles 11 26 corner ocaml_maze, ocaml_g_moves, 
+                  ocaml_g_locs)
+    | "3110" -> (make_tiles 11 26 corner cs3110_maze, cs3110_g_moves, 
+                 cs3110_g_locs)
     | _ -> failwith "map not found"
   in
   let player_tiles = make_player_tiles tile_list in
@@ -513,7 +540,13 @@ let make_map (corner: point) (maze_name: string) (fruit: fruit) : t =
     player_tiles = player_tiles;
     bottom_left = (0,0);
     fruit = fruit;
+    init_ghost_moves = ghost_box_moves;
+    init_ghost_locations = init_g_locs;
   }
+
+let ghost_init_positions map = 
+  map.init_ghost_locations
+
 
 (** [draw_corner_single first second] will draw a corner to the GUI window 
     with one endpoint of point [first] and the other endpoint at point [second]. 

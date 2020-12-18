@@ -150,21 +150,21 @@ let remove_follower state ghost =
   in 
   find_follower [] state.follower_ghosts
 
-let make_ghosts num min_x min_y = 
+let make_ghosts_helper num map = 
   let color_list = [|"cyan"; "pink"; "red"; "orange"|] in 
-  let rec set_ghosts_helper acc counter = function 
-    | n when n>0 -> begin 
-        let x = min_x + (50 * counter) in 
-        let y = min_y in 
-        let color = color_list.(counter) in 
-        let new_g = new_ghost x y (0,50) color in 
-        set_ghosts_helper (new_g::acc) (counter + 1) (n - 1)
-      end 
-    | _ -> acc 
-           |> List.rev 
-           |> Array.of_list 
-  in 
-  set_ghosts_helper [] 0 num
+  let positions = ghost_init_positions map in 
+  let directions = initial_ghost_moves map in 
+  let acc = ref [] in 
+  for i = 0 to num - 1 do 
+    let color = color_list.(i) in 
+    let x = fst positions.(i) in 
+    let y = snd positions.(i) in 
+    let move = directions.(i) in 
+    let new_g = new_ghost x y move color in 
+    acc := new_g :: !acc
+  done ;
+  let ghost_arr = Array.of_list !acc in 
+  ghost_arr
 
 let lives_img_lst state = 
   let rec make_lst acc = function 
@@ -265,13 +265,25 @@ let select_move_new (map: Map.t) (ghost_pos: int * int) (dir: int * int)
   if select = 0 then dir 
   else move_selector map ghost_pos dir
 
-let move_ghost_prev ghost map = 
-  let dir = Ghost.prev_move ghost in 
-  let ghost_pos = Ghost.get_position ghost in 
-  let new_move = select_move_new map ghost_pos dir in 
+let helper_new_move map ghost prev ghost_pos = 
+  let new_move = select_move_new map ghost_pos prev in 
   if Map.check_move (Ghost.get_position ghost) map new_move 
   then Ghost.move ghost new_move
   else move_ghost_randomly ghost map 
+
+let move_ghost_prev ghost map = 
+  let dir = Ghost.prev_move ghost in 
+  let ghost_pos = Ghost.get_position ghost in 
+  if is_done_initializing ghost
+  then helper_new_move map ghost dir ghost_pos
+  else 
+    begin 
+      if Map.check_move (Ghost.get_position ghost) map dir 
+      then Ghost.move ghost dir 
+      else begin finish_initializing ghost; 
+        helper_new_move map ghost dir ghost_pos
+      end 
+    end 
 
 let helper_possible_moves ghost user rev = 
   let pos_dif = position_diff ghost user rev in 
@@ -343,17 +355,20 @@ let move_ghost_normal ghost user map =
 (** [move_ghost_reversed] is  [helper_make_aimed_move] when the ghost is near 
     the player or [move_ghost_prev] otherwise. *)
 let move_ghost_reversed state ghost user map = 
-  if state.reversal_timer <= int_of_float max_role_rev_time then begin 
-    state.reversal_timer <- state.reversal_timer + 1;
-    if are_close ghost user 
-    then helper_make_aimed_move ghost user map true
-    else move_ghost_prev ghost map 
-  end 
-  else begin 
-    state.reversal_timer <- 0;
-    state.role_reversed <- false;
-    move_ghost_normal ghost user map
-  end 
+  if state.reversal_timer <= int_of_float max_role_rev_time 
+  then 
+    begin 
+      state.reversal_timer <- state.reversal_timer + 1;
+      if are_close ghost user 
+      then helper_make_aimed_move ghost user map true
+      else move_ghost_prev ghost map 
+    end 
+  else 
+    begin 
+      state.reversal_timer <- 0;
+      state.role_reversed <- false;
+      move_ghost_normal ghost user map
+    end 
 (** [move_ghosts] uses helper functions to determine and move the ghost 
     according to the current situation in the game. *)
 let move_ghosts state ghosts map (user : Player.t) = 
@@ -445,20 +460,13 @@ let map_init (map: Map.t): Graphics.image =
   draw_map map;
   Graphics.get_image 0 0 window_width window_height 
 
-let make_ghosts (map_name: string) (num_ghosts: int) =
-  match map_name with 
-  | "OCaml" -> make_ghosts num_ghosts 675 375 
-  | "standard" -> make_ghosts num_ghosts 675 375
-  | "3110" -> make_ghosts num_ghosts 325 375
-  | _ -> failwith "Invalid map!"
-
 let init_level (map_name: string) (fruit: fruit) (num_ghosts: int): t =
   let make_level map_name =
     let map = make_map (100, 100) map_name fruit in
     generate_special map; 
     let map_background = map_init map in
     let player = new_player () in 
-    let ghosts = make_ghosts map_name num_ghosts in
+    let ghosts = make_ghosts_helper num_ghosts map in
     initial_state player map ghosts map_background map_name
   in make_level map_name
 
@@ -478,7 +486,7 @@ let reset_level (state: t) : t =
   else begin 
     Unix.sleep(1);
     {state with game_state = Active; 
-                ghosts = make_ghosts state.map_name state.num_ghosts;
+                ghosts = make_ghosts_helper state.num_ghosts state.map;
                 player = new_player();
                 lives = state.lives - 1}
   end

@@ -49,3 +49,7 @@ val made_move: t -> bool
 (** [reset_move] resets the ghost's [made_move] field to be false at the 
     beginning of the turn. *)
 val reset_move: t -> unit
+
+val is_done_initializing: t -> bool
+
+val finish_initializing: t -> unit 

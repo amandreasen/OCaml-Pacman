@@ -21,6 +21,7 @@ type t = {
   sprites : ghost_sprites;
   mutable direction: direction;
   mutable made_move : bool;
+  mutable init_done : bool;
 }
 (* constants for ghosts *)
 let ghost_width = 50
@@ -75,7 +76,8 @@ let new_ghost x_pos y_pos init_move color = {
   move_counter = 0;
   sprites = make_sprites color;
   direction = Right;
-  made_move = true;
+  made_move = true;  
+  init_done = false;
 }
 
 let get_position g =
@@ -139,3 +141,8 @@ let made_move ghost =
 let reset_move ghost = 
   ghost.made_move <- false
 
+let is_done_initializing ghost = 
+  ghost.init_done
+
+let finish_initializing ghost = 
+  ghost.init_done <- true

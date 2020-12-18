@@ -64,3 +64,8 @@ val food_count: t -> int
 val clear_fruit: t -> unit
 
 val generate_special: t -> unit
+
+
+val initial_ghost_moves: t -> point array 
+
+val ghost_init_positions: t -> point array
