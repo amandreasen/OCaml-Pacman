@@ -28,7 +28,8 @@ let player_prev_move_test
     (input_dir : int * int): test = 
   name >:: (fun _ -> 
       assert_equal input_dir (Player.move player input_dir; 
-                              Player.player_prev_move player)) 
+                              Player.player_prev_move player)  
+        ~printer:pp_tuple) 
 
 let player_move_attempt_test 
     (name : string) 
@@ -36,7 +37,8 @@ let player_move_attempt_test
     (input_dir : int * int): test = 
   name >:: (fun _ -> 
       assert_equal input_dir (Player.move_attempt player input_dir; 
-                              Player.player_prev_attempt player)) 
+                              Player.player_prev_attempt player)
+        ~printer:pp_tuple) 
 
 let player_1 = new_player()
 
@@ -74,7 +76,7 @@ let ghost_prev_move_test
     (input_dir : int * int): test = 
   name >:: (fun _ -> 
       assert_equal input_dir (Ghost.move ghost input_dir; 
-                              Ghost.prev_move ghost)) 
+                              Ghost.prev_move ghost) ~printer:pp_tuple) 
 
 let start_following_test 
     (name : string) 
@@ -82,7 +84,8 @@ let start_following_test
     (expected_output : bool): test = 
   name >:: (fun _ -> 
       assert_equal expected_output (Ghost.start_following ghost; 
-                                    Ghost.is_following ghost)) 
+                                    Ghost.is_following ghost) 
+        ~printer: string_of_bool) 
 
 let stop_following_test 
     (name : string) 
@@ -90,7 +93,8 @@ let stop_following_test
     (expected_output : bool): test = 
   name >:: (fun _ -> 
       assert_equal expected_output (Ghost.reset_following ghost; 
-                                    Ghost.is_following ghost)) 
+                                    Ghost.is_following ghost) 
+        ~printer: string_of_bool) 
 
 let following_counter_test 
     (name : string) 
@@ -123,7 +127,6 @@ let move_init_counter_test
   name >:: (fun _ -> 
       assert_equal expected_output (Ghost.init_counter ghost)
         ~printer: string_of_int)
-
 
 let ghost_cyan = new_ghost 225 275 (50,0) "cyan" 
 let ghost_red = new_ghost 0 0 (0,0) "red"
@@ -166,7 +169,8 @@ let ghost_tests =
       (Ghost.reset_move ghost_cyan; Ghost.move ghost_cyan (0,0); ghost_cyan) 
       true;
 
-    done_initializing_test "new ghost is not done initializing" ghost_red false;
+    done_initializing_test "a new ghost is not done initializing" ghost_red 
+      false;
     done_initializing_test "after finishing initializing, ghost is done 
     initializing" (Ghost.finish_initializing ghost_pink; ghost_pink) true;
 
