@@ -1,3 +1,4 @@
+open Graphics
 (* game constants *)
 let window_width = 1500
 let window_height = 750
@@ -6,6 +7,10 @@ let map_height = 550
 
 let ghost_radius = 25
 let player_radius = 25 
+
+let player_width = 50
+let player_height = 50
+let init_pos = (175, 175)
 
 let move_amt = 10
 
@@ -48,3 +53,15 @@ let pacman_rad = 25
 
 let player_width = 50
 let player_height = 50
+
+let food_color = rgb 255 184 245
+let special_color = rgb 255 171 196
+let wall_color = Graphics.blue
+let png_wl = 46
+let check_tile_size = 51
+
+(*State constants*)
+let fruit_limit = 50
+let fruit_timer = 300
+
+let png_wl = 50

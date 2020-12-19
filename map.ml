@@ -3,12 +3,6 @@ open Sprite
 open Images
 open Constants
 
-let food_color = rgb 255 184 245
-let special_color = rgb 255 171 196
-let wall_color = Graphics.blue
-let png_wl = 46
-let check_tile_size = 51
-
 (** A [point] is of the form (x,y) and represents a pixel position in the GUI 
     window. In (x,y), x is the x-coordinate of the pixel position and y is the
     y-coordinate of the pixel position. *)

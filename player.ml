@@ -4,10 +4,7 @@ open Constants
 type direction = Up | Right | Down | Left
 
 (* constants for player *)
-let player_width = 50
-let player_height = 50
 let init_dir = Right 
-let init_pos = (175, 175)
 
 (* sprite sheet coordinates *)
 let player_right = [(2, 0); (1, 0); (0, 0)]
