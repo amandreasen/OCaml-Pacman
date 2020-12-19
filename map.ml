@@ -199,6 +199,82 @@ let cs3110_maze =
   [|
     [|Wall (Corner (Bot, Left)); Wall Vert; Wall Vert; Wall Vert;
       Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
+      Wall Vert; Wall(Corner (Top, Left))
+    |];
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Wall (End(Left)); Food; Wall (Corner (Bot, Left));
+      Wall Vert; Wall (Corner (Top, Left)); Food; Wall (End(Left)); Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Wall (End(Right)); Food; Wall (End(Right));
+      Food; Wall (End(Right)); Food; Wall (End(Right)); Food; Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Wall (End(Left)); Wall (Corner (Bot, Left));
+      Wall (Corner (Top,Left)); Food; Food; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (Corner (Bot, Right));
+      Wall (Corner (Top,Right)); Wall (End (Right)); Food; Wall Horz; Food; 
+      Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Food; Wall (End(Bot));
+      Wall (Corner (Top,Left));
+      Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Food; Food; Wall Horz;
+      Food; Food; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Wall Horz;
+      Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Wall Horz;
+      Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Wall Horz;
+      Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Food; Wall (End (Bot));
+      Wall (Corner (Top,Right));
+      Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (End(Left)); Wall (End(Left)); 
+      Wall (End(Left));
+      Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Wall (Corner (Bot,Right));
+      Wall (Corner (Bot,Right));
+      Wall (Corner (Top,Right));
+      Food; Food; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Wall (End(Bot)); Wall Vert; 
+      Wall (End(Top)); Food;
+      Wall Horz; Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Wall (End (Bot)); Wall Vert; Wall (End (Top));
+      Food;
+      Food; Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Wall (End(Left)); Food; Wall (Corner(Bot,Left)); 
+      Wall Vert;
+      Wall (Corner (Top,Left)); Food; Wall (End(Left)); Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Wall (End(Right)); Food; Wall (Corner(Bot,Right)); 
+      Wall Vert;
+      Wall (Corner (Top,Right)); Food; Wall (End(Right)); Food;
+      Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food;
+      Wall Horz|];
+    [|Wall (Corner (Bot, Right)); Wall Vert; Wall Vert; Wall Vert;
+      Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
+      Wall Vert; Wall(Corner (Top, Right))|];
+  |]
+
+
+
+(*let cs3110_maze =
+  [|
+    [|Wall (Corner (Bot, Left)); Wall Vert; Wall Vert; Wall Vert;
+      Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
       Wall Vert; Wall(Corner (Top, Left))|];
     [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
       Wall Horz|];
@@ -259,7 +335,7 @@ let cs3110_maze =
     [|Wall (Corner (Bot, Right)); Wall Vert; Wall Vert; Wall Vert;
       Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
       Wall Vert; Wall (Corner (Top, Right))|];
-  |]
+  |]*)
 
 
 let initial_ghost_moves map = 
