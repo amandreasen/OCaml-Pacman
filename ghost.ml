@@ -203,6 +203,3 @@ let set_state (ghost: t) (state: string) : unit =
   in
   if state = Eaten then ghost.move_counter <- 0;
   ghost.state <- state
-
-(* let reset_init_counter ghost = 
-   ghost.init_counter <- 0 *)
