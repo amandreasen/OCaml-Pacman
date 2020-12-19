@@ -262,18 +262,19 @@ let select_move_new (map: Map.t) (ghost_pos: int * int) (dir: int * int)
   if select = 0 then dir 
   else move_selector map ghost_pos dir
 
-let helper_new_move map ghost prev ghost_pos = 
-  let new_move = select_move_new map ghost_pos prev in 
-  if Map.check_move (Ghost.get_position ghost) map new_move true
-  then Ghost.move ghost new_move
-  else move_ghost_randomly ghost map 
+(* let helper_new_move map ghost prev ghost_pos = 
+   let new_move = select_move_new map ghost_pos prev in 
+   if Map.check_move (Ghost.get_position ghost) map new_move true
+   then Ghost.move ghost new_move
+   else move_ghost_randomly ghost map  *)
 
-let move_ghost_prev ghost map = 
+let move_ghost_new ghost map = 
   let dir = Ghost.prev_move ghost in 
   let ghost_pos = Ghost.get_position ghost in 
-  if Map.check_move (Ghost.get_position ghost) map dir true
-  then Ghost.move ghost dir 
-  else helper_new_move map ghost dir ghost_pos
+  let new_move = select_move_new map ghost_pos dir in 
+  if Map.check_move ghost_pos map new_move true
+  then Ghost.move ghost new_move
+  else move_ghost_randomly ghost map 
 
 (* if is_done_initializing ghost
    then helper_new_move map ghost dir ghost_pos
@@ -350,8 +351,7 @@ let move_ghost_following ghost user map =
 let move_ghost_normal ghost user map = 
   if are_close ghost user 
   then move_ghost_following ghost user map 
-  else move_ghost_prev ghost map 
-
+  else move_ghost_new ghost map 
 
 (** [move_ghost_reversed] is  [helper_make_aimed_move] when the ghost is near 
     the player or [move_ghost_prev] otherwise. *)
@@ -362,7 +362,7 @@ let move_ghost_reversed state ghost user map =
       state.reversal_timer <- state.reversal_timer + 1;
       if are_close ghost user 
       then helper_make_aimed_move ghost user map true
-      else move_ghost_prev ghost map 
+      else move_ghost_new ghost map 
     end 
   else 
     begin 
@@ -381,21 +381,19 @@ let helper_move_initial state ghost user map i =
   let all_moves = Map.initial_ghost_moves map in 
   let current_moves = all_moves.(i) in 
   let move_counter = Ghost.init_counter ghost in 
-  let move_index = move_counter/5 in 
+  let move_index = move_counter / 5 in 
   let current_position = Ghost.get_position ghost in 
   if move_index < (Array.length current_moves)
-  then 
-    begin 
-      let dir = current_moves.(move_index) in  
-      if Map.check_move current_position map dir false
-      then Ghost.move_init ghost dir 
-      else helper_move_regular state ghost map user
-    end 
-  else 
-    begin 
-      Ghost.finish_initializing ghost; 
-      helper_move_regular state ghost map user
-    end 
+  then begin 
+    let dir = current_moves.(move_index) in  
+    if Map.check_move current_position map dir false
+    then Ghost.move_init ghost dir 
+    else helper_move_regular state ghost map user
+  end 
+  else begin 
+    Ghost.finish_initializing ghost; 
+    helper_move_regular state ghost map user
+  end 
 
 (** [move_ghosts] uses helper functions to determine and move the ghost 
     according to the current situation in the game. *)

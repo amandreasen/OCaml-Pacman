@@ -17,7 +17,7 @@ let init_pos = (175, 175)
 
 let move_amt = 10
 
-let sleep_time = 0.035
+let sleep_time = 0.033
 
 (** [closeness_threshold] encompassess the nearest 8 tiles around the user.  *)
 let closeness_threshold = 50.0 *. sqrt 2.0  

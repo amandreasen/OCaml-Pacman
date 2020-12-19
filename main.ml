@@ -209,7 +209,7 @@ let rec update (game: game) : unit =
 let main (settings: string) : unit = 
   window_init settings;
   auto_synchronize false;
-  let game = init_game "OCaml" 0 0 [||] 0 3 in
+  let game = init_game "standard" 0 1 [||] 0 3 in
   ignore (update game);
   ()
 

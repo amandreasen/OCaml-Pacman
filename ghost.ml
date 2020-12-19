@@ -48,7 +48,6 @@ let cyan_coordinates = [[(0, 6); (1, 6)]; [(2, 6); (3, 6)]; [(4, 6); (5, 6)];
 let orange_coordinates = [[(0, 7); (1, 7)]; [(2, 7); (3, 7)]; [(4, 7); (5, 7)];
                           [(6, 7); (7, 7)]]
 
-(* right left up down *)
 let make_ghost_sprite coordinates : ghost_sprites = 
   let shift = 5 in
   let map_sprites (x, y) = 
