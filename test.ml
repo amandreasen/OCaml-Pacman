@@ -22,15 +22,6 @@ let player_move_pos_test
                                     Player.get_position player)
         ~printer:pp_tuple)
 
-(* let player_direction_test 
-    (name : string) 
-    (player : Player.t)
-    (input_dir : int * int)
-    (expected_output : Player.direction) : test = 
-   name >:: (fun _ -> 
-      assert_equal expected_output (Player.move player input_dir; 
-                                    Player.player_direction player)) *)
-
 let player_prev_move_test
     (name : string) 
     (player : Player.t)
@@ -38,6 +29,14 @@ let player_prev_move_test
   name >:: (fun _ -> 
       assert_equal input_dir (Player.move player input_dir; 
                               Player.player_prev_move player)) 
+
+let player_move_attempt_test 
+    (name : string) 
+    (player : Player.t)
+    (input_dir : int * int): test = 
+  name >:: (fun _ -> 
+      assert_equal input_dir (Player.move_attempt player input_dir; 
+                              Player.player_prev_attempt player)) 
 
 let player_1 = new_player()
 
@@ -50,29 +49,23 @@ let player_tests =
     player_move_pos_test "After moving up 50, move right 50" 
       player_1 (50,0) (225,225);
 
-    (* player_direction_test "direction after moving (50,0) is Right" 
-       player_1 (50,0) Right; 
-       player_direction_test "direction after moving (-50,0) is Left" 
-       player_1 (-50,0) Left; 
-       player_direction_test "direction after moving (0,50) is Up" 
-       player_1 (0,50) Up; 
-       player_direction_test "direction after moving (0,-50) is Down" 
-       player_1 (0,-50) Down;  *)
-
     player_prev_move_test "starting at (225,275), move up one tile (0,50)"
       player_1 (0,50);
     player_prev_move_test "starting at (225,275), move up and right (50,50)"
       player_1 (50,50);
+
+    player_move_attempt_test "starting at (225,275), attempt to move down one 
+    tile (0,-50)" player_1 (0,-50);
+    player_move_attempt_test "starting at (225,275), attempt to move left 
+    (-50,0)" player_1 (-50,0);
   ]
 
-let ghost_move_pos_test  
+let ghost_position_test  
     (name : string) 
     (ghost : Ghost.t)
-    (input_dir : int * int)
     (expected_output : int * int) : test = 
   name >:: (fun _ -> 
-      assert_equal expected_output (Ghost.move ghost input_dir; 
-                                    Ghost.get_position ghost) 
+      assert_equal expected_output (Ghost.get_position ghost) 
         ~printer:pp_tuple)
 
 let ghost_prev_move_test 
@@ -115,17 +108,36 @@ let move_made_test
       assert_equal expected_output (Ghost.made_move ghost)
         ~printer: string_of_bool)
 
+let done_initializing_test 
+    (name : string)
+    (ghost : Ghost.t)
+    (expected_output : bool): test = 
+  name >:: (fun _ -> 
+      assert_equal expected_output (Ghost.is_done_initializing ghost)
+        ~printer: string_of_bool)
+
+let move_init_counter_test  
+    (name : string)
+    (ghost : Ghost.t)
+    (expected_output : int): test = 
+  name >:: (fun _ -> 
+      assert_equal expected_output (Ghost.init_counter ghost)
+        ~printer: string_of_int)
+
+
 let ghost_cyan = new_ghost 225 275 (50,0) "cyan" 
 let ghost_red = new_ghost 0 0 (0,0) "red"
-let ghost_pink = new_ghost 50 50 (0,0) "pink"
+let ghost_pink = new_ghost 675 125 (0,0) "pink"
 let ghost_orange = new_ghost 175 175 (0,50) "orange" 
 
 let ghost_tests = 
   [
-    ghost_move_pos_test "start position at (225,275) and move (0,0)" 
-      ghost_cyan (0,0) (225,275);
-    ghost_move_pos_test "start position at (225,275) and move (100,-50)" 
-      ghost_cyan (100,-50) (325,225);
+    ghost_position_test "start position at (225,275) and move (0,0)" 
+      (Ghost.move ghost_cyan (0,0); ghost_cyan) (225,275);
+    ghost_position_test "start position at (675,125) and move (100,-50)" 
+      (Ghost.move ghost_pink (100,-50); ghost_pink) (775,75);
+    ghost_position_test "moving orange ghost doesn't move cyan ghost" 
+      (Ghost.move ghost_orange (50,0); ghost_cyan) (225,275);
 
     ghost_prev_move_test "starting at (225,275), move up one tile (0,50)"
       ghost_cyan (0,50);
@@ -153,6 +165,16 @@ let ghost_tests =
     move_made_test "once reset, then the ghost makes a move"  
       (Ghost.reset_move ghost_cyan; Ghost.move ghost_cyan (0,0); ghost_cyan) 
       true;
+
+    done_initializing_test "new ghost is not done initializing" ghost_red false;
+    done_initializing_test "after finishing initializing, ghost is done 
+    initializing" (Ghost.finish_initializing ghost_pink; ghost_pink) true;
+
+    move_init_counter_test "new ghost has 0 init counter" ghost_pink 0; 
+    move_init_counter_test "after one move, ghost has 1 init counter" 
+      (Ghost.move_init ghost_cyan (0,0); ghost_cyan) 1;
+    move_init_counter_test "after initial move made by orange, red still has 0 
+    init counter" (Ghost.move_init ghost_orange (0,0); ghost_red) 0;
   ]
 
 let food_count_test 
@@ -200,7 +222,7 @@ let map_tests = [
   get_tile_type_test "wall in ocaml map" (425, 375) ocaml_map "Wall";
   get_tile_type_test "ghost in ocaml map" (675, 325) ocaml_map "Ghost";
   get_tile_type_test "wall in standard map" (600, 300) standard_map "Wall";
-  get_tile_type_test "food in cs 3110 map" (600, 300) cs3110_map "Food";
+  get_tile_type_test "food in cs 3110 map" (600, 250) cs3110_map "Food";
 ]
 
 (* 
