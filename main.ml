@@ -113,7 +113,6 @@ let check_fruits (game: game) (level: State.t) : unit =
     end
   end
 
-
 let update_active (game: game) (key: key) : game = 
   let key_char = 
     match key with 

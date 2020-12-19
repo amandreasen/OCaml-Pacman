@@ -204,14 +204,10 @@ let make_ghosts_helper num map =
   let ghost_arr = !acc |> List.rev |> Array.of_list  in 
   ghost_arr
 
+let life_image = sprite_from_sheet sprite_sheet 8 1 50 50 2
+
 let lives_img_lst state = 
-  let rec make_lst acc = function 
-    | n when n > 0 -> 
-      let image = sprite_from_sheet sprite_sheet 8 1 50 50 2 in 
-      make_lst (image :: acc) (n - 1)
-    | _ -> acc
-  in 
-  make_lst [] state.lives
+  List.init state.lives (fun x -> life_image)
 
 (** [parse_dir] is the tuple representing the change in coordinates from the 
     user's character input. *)
@@ -489,18 +485,14 @@ let draw_current_map (map: Map.t) (map_image: Graphics.image) =
   set_color blue;
   draw_map map
 
-let draw_lives state = 
-  let rec draw_helper prev_pos = function 
-    | [] -> ()
-    | h::t -> begin 
-        let x = (fst prev_pos) + 50 in 
-        let y = snd prev_pos in 
-        let img = h |> sprite_image |> Graphic_image.of_image in 
-        Graphics.draw_image img x y;
-        draw_helper (x, y) t
-      end
+let draw_lives state : unit = 
+  let draw_helper x y index life = 
+    let x_pos = x + 50 * index in 
+    let img = life |> sprite_image |> Graphic_image.of_image in 
+    Graphics.draw_image img x_pos y
   in 
-  draw_helper (100, 60) (lives_img_lst state) 
+  ignore (List.mapi (draw_helper 150 60) (lives_img_lst state)); 
+  ()
 
 let move_player user map key = 
   let prev_move = player_prev_move user in 
