@@ -38,10 +38,10 @@ let apple =
   {sprite = img; points = 700}
 
 let grapes = 
-  let img = sprite_from_sheet sprite_sheet 5 4 fruit_width fruit_height 2 in 
+  let img = sprite_from_sheet sprite_sheet 6 3 fruit_width fruit_height 2 in 
   {sprite = img; points = 900}
 
-let fruits = [|cherry; strawberry; peach; apple; grapes|]
+let fruits = [|cherry; strawberry; peach; apple; grapes;|]
 
 let maps = [|"standard"; "OCaml"; "3110"|]
 
@@ -105,13 +105,14 @@ let update_active_game (game: game) (key: key) (key_char: char)
 
 let check_fruits (game: game) (level: State.t) : unit =
   if (fruit_eaten level) && not (fruit_eaten game.current) 
-  then
-    begin 
-      let next_fruit = Array.length game.fruit_basket in
+  then begin 
+    let next_fruit = Array.length game.fruit_basket in
+    if next_fruit < fruit_num then begin
       let fruit = fruits.(next_fruit) in
       game.fruit_basket <- Array.append game.fruit_basket [|fruit|] 
     end
-  else ()
+  end
+
 
 let update_active (game: game) (key: key) : game = 
   let key_char = 
@@ -207,7 +208,7 @@ let rec update (game: game) : unit =
 let main (settings: string) : unit = 
   window_init settings;
   auto_synchronize false;
-  let game = init_game "standard" 0 2 [||] 0 3 in
+  let game = init_game "standard" 0 0 [||] 0 3 in
   ignore (update game);
   ()
 
