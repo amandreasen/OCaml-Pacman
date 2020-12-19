@@ -26,11 +26,15 @@ type t = {
   mutable made_move : bool;
   mutable init_done : bool;
   mutable init_counter : int;
-  mutable state: state
+  mutable state: state;
+  mutable eaten_timer: int;
+  mutable eaten: bool;
 }
 (* constants for ghosts *)
 let ghost_width = 50
 let ghost_height = 50
+let eaten_time = 50
+let eaten_threshold = 15
 
 (* sprite sheet coordinates for the ghosts of the form [right, left, up 
    down] *)
@@ -60,7 +64,7 @@ let scared1_sprites : Sprite.t list =
   List.map (map_sprites shift) scared1_coordinates 
 
 let scared2_sprites : Sprite.t list = 
-  let shift = 4 in
+  let shift = 3 in
   List.map (map_sprites shift) scared2_coordinates 
 
 let eaten_sprites: ghost_sprites = 
@@ -100,6 +104,8 @@ let new_ghost x_pos y_pos init_move color = {
   init_done = false;
   init_counter = 0;
   state = Active;
+  eaten_timer = 0;
+  eaten = false
 }
 
 let get_position g =
@@ -108,24 +114,41 @@ let get_position g =
 let prev_move g = 
   g.prev_move
 
+let parse_dir (ghost: t) (dir: int * int) : direction = 
+  match dir with 
+  | (x, 0) when x > 0 -> Right 
+  | (x, 0) when x < 0 -> Left 
+  | (0, y) when y > 0 -> Up 
+  | (0, y) when y < 0 -> Down 
+  | _ -> ghost.direction 
+
+let update_counter (ghost: t) (direction: direction): int = 
+  if ghost.direction <> direction then 0 
+  else begin 
+    let modulo = if ghost.state = Eaten then 1 else 2 in
+    (ghost.move_counter + 1) mod modulo
+  end
+
+let update_timer (g: t) : unit = 
+  match g.state with 
+  | Eaten -> 
+    if g.eaten_timer = eaten_threshold then g.state <- Scared2;
+    g.eaten_timer <- g.eaten_timer - 1
+  | Scared2 -> 
+    if g.eaten_timer = 0 && g.eaten 
+    then begin 
+      g.state <- Active;
+      g.eaten <- false
+    end
+    else g.eaten_timer <- g.eaten_timer - 1
+  | _ -> ()
+
 let move (g : t) (dir : int * int) = 
   g.x <- g.x + fst dir; 
   g.y <- g.y + snd dir; 
-  let direction =
-    match dir with 
-    | (x, 0) when x > 0 -> Right 
-    | (x, 0) when x < 0 -> Left 
-    | (0, y) when y > 0 -> Up 
-    | (0, y) when y < 0 -> Down 
-    | _ -> g.direction 
-  in 
-  let counter = 
-    if g.direction <> direction then 0 
-    else begin 
-      let modulo = if g.state = Eaten then 1 else 2 in
-      (g.move_counter + 1) mod modulo
-    end
-  in 
+  let direction = parse_dir g dir in
+  let counter = update_counter g direction in
+  update_timer g;
   g.prev_move <- dir;
   g.direction <- direction;
   g.move_counter <- counter;
@@ -201,5 +224,9 @@ let set_state (ghost: t) (state: string) : unit =
     | "eaten" -> Eaten 
     | _ -> failwith "Error: not a valid ghost state!"
   in
-  if state = Eaten then ghost.move_counter <- 0;
+  if state = Eaten then begin 
+    ghost.move_counter <- 0;
+    ghost.eaten_timer <- eaten_time;
+    ghost.eaten <- true;
+  end;
   ghost.state <- state

@@ -142,14 +142,17 @@ let update_game_state state map =
 let update_ghosts (state: t) : unit = 
   let threshold_time = max_role_rev_time - 25 in 
   let update_scared ghost = 
-    if (get_state ghost) <> "eaten" then set_state ghost "scared2"
+    let ghost_state = get_state ghost in
+    match ghost_state with 
+    | "eaten" | "active" -> ()
+    | _ -> set_state ghost "scared2"
   in
   if state.reversal_timer = threshold_time
   then ignore (Array.map update_scared state.ghosts); 
   ()
 
 let update_timer (state: t) : unit = 
-  if state.reversal_timer <= max_role_rev_time 
+  if state.reversal_timer <= max_role_rev_time && state.reversal_timer > 0 
   then state.reversal_timer <- state.reversal_timer + 1
   else begin 
     state.reversal_timer <- 0;
