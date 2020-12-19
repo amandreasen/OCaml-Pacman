@@ -160,7 +160,7 @@ let make_ghosts_helper num map =
     let new_g = new_ghost x y move color in 
     acc := new_g :: !acc
   done ;
-  let ghost_arr = Array.of_list !acc in 
+  let ghost_arr = !acc |> List.rev |> Array.of_list  in 
   ghost_arr
 
 let lives_img_lst state = 
@@ -400,18 +400,13 @@ let helper_move_initial state ghost user map i =
 (** [move_ghosts] uses helper functions to determine and move the ghost 
     according to the current situation in the game. *)
 let move_ghosts state ghosts map (user : Player.t) = 
-  let g_counter = ref 0 in 
-  Array.iter (fun g ->
-      if is_done_initializing g
-      then helper_move_regular state g map user
-      else 
-        begin 
-          let num_g = state.num_ghosts - 1 in 
-          helper_move_initial state g user map !g_counter; 
-          g_counter := (!g_counter + 1) mod num_g
-        end 
-    )
-    ghosts 
+  for i = 0 to state.num_ghosts - 1 do 
+    let g = ghosts.(i) in 
+    if is_done_initializing g
+    then helper_move_regular state g map user
+    else helper_move_initial state g user map i 
+  done 
+
 
 (** [flush] clears the user's inputs. *)
 let flush () = 
