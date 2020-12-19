@@ -206,7 +206,7 @@ let rec update (game: game) : unit =
 let main (settings: string) : unit = 
   window_init settings;
   auto_synchronize false;
-  let game = init_game "OCaml" 0 0 [||] 0 in
+  let game = init_game "3110" 0 0 [||] 0 in
   ignore (update game);
   ()
 
