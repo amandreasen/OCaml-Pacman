@@ -34,7 +34,7 @@ val move_amt:int
 
 (** [sleep_time] is the sleep time while the game resets after a death or a new
     level. *)
-val sleep_time:int
+val sleep_time:float
 
 (** [closeness_threshold] encompassess the nearest 8 tiles around the user.  *)
 val closeness_threshold:float
