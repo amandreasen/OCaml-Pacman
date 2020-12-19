@@ -47,7 +47,7 @@ let initial_state player map ghosts_entry map_background map_name = {
   map_name = map_name;
   player = player;
   points = 0;
-  lives = 3;
+  lives = 15;
   ghosts = ghosts_entry;
   num_ghosts = Array.length ghosts_entry;
   map = map;
@@ -156,7 +156,7 @@ let make_ghosts_helper num map =
     let color = color_list.(i) in 
     let x = fst positions.(i) in 
     let y = snd positions.(i) in 
-    let move = directions.(i) in 
+    let move = directions.(i).(0) in 
     let new_g = new_ghost x y move color in 
     acc := new_g :: !acc
   done ;
@@ -271,16 +271,20 @@ let helper_new_move map ghost prev ghost_pos =
 let move_ghost_prev ghost map = 
   let dir = Ghost.prev_move ghost in 
   let ghost_pos = Ghost.get_position ghost in 
-  if is_done_initializing ghost
-  then helper_new_move map ghost dir ghost_pos
-  else 
-    begin 
-      if Map.check_move (Ghost.get_position ghost) map dir false
-      then Ghost.move ghost dir 
-      else begin finish_initializing ghost; 
-        helper_new_move map ghost dir ghost_pos
-      end 
+  if Map.check_move (Ghost.get_position ghost) map dir true
+  then Ghost.move ghost dir 
+  else helper_new_move map ghost dir ghost_pos
+
+(* if is_done_initializing ghost
+   then helper_new_move map ghost dir ghost_pos
+   else 
+   begin 
+    if Map.check_move (Ghost.get_position ghost) map dir false
+    then Ghost.move ghost dir 
+    else begin finish_initializing ghost; 
+      helper_new_move map ghost dir ghost_pos
     end 
+   end  *)
 
 let helper_possible_moves ghost user rev = 
   let pos_dif = position_diff ghost user rev in 
@@ -367,14 +371,45 @@ let move_ghost_reversed state ghost user map =
       move_ghost_normal ghost user map
     end 
 
+let helper_move_regular state ghost map user = 
+  reset_move ghost; 
+  if state.role_reversed 
+  then move_ghost_reversed state ghost user map 
+  else move_ghost_normal ghost user map 
+
+let helper_move_initial state ghost user map i = 
+  let all_moves = Map.initial_ghost_moves map in 
+  let current_moves = all_moves.(i) in 
+  let move_counter = Ghost.init_counter ghost in 
+  let move_index = move_counter/5 in 
+  let current_position = Ghost.get_position ghost in 
+  if move_index < (Array.length current_moves)
+  then 
+    begin 
+      let dir = current_moves.(move_index) in  
+      if Map.check_move current_position map dir false
+      then Ghost.move_init ghost dir 
+      else helper_move_regular state ghost map user
+    end 
+  else 
+    begin 
+      Ghost.finish_initializing ghost; 
+      helper_move_regular state ghost map user
+    end 
+
 (** [move_ghosts] uses helper functions to determine and move the ghost 
     according to the current situation in the game. *)
 let move_ghosts state ghosts map (user : Player.t) = 
+  let g_counter = ref 0 in 
   Array.iter (fun g ->
-      reset_move g; 
-      if state.role_reversed 
-      then move_ghost_reversed state g user map 
-      else move_ghost_normal g user map 
+      if is_done_initializing g
+      then helper_move_regular state g map user
+      else 
+        begin 
+          let num_g = state.num_ghosts - 1 in 
+          helper_move_initial state g user map !g_counter; 
+          g_counter := (!g_counter + 1) mod num_g
+        end 
     )
     ghosts 
 

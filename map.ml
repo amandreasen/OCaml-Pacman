@@ -60,7 +60,7 @@ type t =
     player_tiles: coordinate array;
     bottom_left: point;
     fruit: fruit;
-    init_ghost_moves: point array;
+    init_ghost_moves: point array array;
     init_ghost_locations: point array;
   }
 
@@ -576,21 +576,31 @@ let make_player_tiles (tile_list: map_tile array array) : coordinate array =
 
 
 let standard_g_moves = 
-  [|(0,move_amt); (0,move_amt); (0,0); (0,0)|]
+  let g1_moves = [|(0,0); (move_amt, 0); (0, move_amt)|] in
+  let g2_moves = [|(0,move_amt); (0,move_amt)|] in 
+  let g3_moves = [|(0,move_amt); (0,move_amt)|] in 
+  let g4_moves = [|(0,0); (-move_amt, 0); (0, move_amt)|] in 
+  [|g1_moves; g2_moves; g3_moves; g4_moves|]
 
-let standard_g_locs = [|(675, 375); (725,375);(775, 375); (875,375);|]
+let standard_g_locs = [|(675, 375); (725,375); (775, 375); (825,375);|]
 
 let ocaml_g_moves = 
-  [|(0,-move_amt); (0,-move_amt); (move_amt,0); (0,-move_amt)|]
+  let g1_moves = [|(0,-move_amt); (0,-move_amt)|] in 
+  let g2_moves = [|(0,-move_amt); (0,-move_amt)|] in 
+  let g3_moves = [|(move_amt,0); (move_amt,0)|] in 
+  let g4_moves = [|(0,-move_amt); (0,-move_amt)|] in 
+  [|g1_moves; g2_moves; g3_moves; g4_moves|]
 
 let ocaml_g_locs = [|(675, 375); (725,375); (475,375); (875,375)|]
 
 let cs3110_g_moves = 
-  [|(0,-move_amt); (0,-move_amt); (move_amt,0); (0,-move_amt)|]
+  let g1_moves = [|(0,-move_amt)|] in 
+  let g2_moves = [|(0,-move_amt)|] in 
+  let g3_moves = [|(0, -move_amt)|] in 
+  let g4_moves = [|(0,-move_amt)|] in 
+  [|g1_moves; g2_moves; g3_moves; g4_moves|]
 
-
-let cs3110_g_locs = [|(325, 375); (375, 375); (425, 375); (475, 375)|]
-
+let cs3110_g_locs = [|(575, 375); (625, 375); (675, 375); (725, 375)|]
 
 (** [make_map corner maze_name] will return a map with a bottom left corner at 
     [corner] and a tile layout represented by the maze label [maze_name]. Fails

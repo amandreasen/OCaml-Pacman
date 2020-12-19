@@ -22,6 +22,7 @@ type t = {
   mutable direction: direction;
   mutable made_move : bool;
   mutable init_done : bool;
+  mutable init_counter : int;
 }
 (* constants for ghosts *)
 let ghost_width = 50
@@ -78,6 +79,7 @@ let new_ghost x_pos y_pos init_move color = {
   direction = Right;
   made_move = true;  
   init_done = false;
+  init_counter = 0;
 }
 
 let get_position g =
@@ -146,3 +148,13 @@ let is_done_initializing ghost =
 
 let finish_initializing ghost = 
   ghost.init_done <- true
+
+let move_init ghost dir = 
+  ghost.init_counter <- ghost.init_counter + 1;
+  move ghost dir 
+
+let init_counter ghost = 
+  ghost.init_counter
+
+let reset_init_counter ghost = 
+  ghost.init_counter <- 0

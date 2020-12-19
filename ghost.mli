@@ -53,3 +53,13 @@ val reset_move: t -> unit
 val is_done_initializing: t -> bool
 
 val finish_initializing: t -> unit 
+
+val move_init: t -> int * int -> unit 
+
+val init_counter: t -> int 
+
+val reset_init_counter: t -> unit
+
+(* val next_position: t -> int * int  *)
+
+(* val set_next_pos: t -> int * int -> unit  *)

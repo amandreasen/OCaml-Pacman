@@ -66,6 +66,6 @@ val clear_fruit: t -> unit
 val generate_special: t -> unit
 
 
-val initial_ghost_moves: t -> Constants.point array 
+val initial_ghost_moves: t -> Constants.point array array 
 
 val ghost_init_positions: t -> Constants.point array
