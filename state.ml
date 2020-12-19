@@ -47,11 +47,7 @@ let initial_state player map ghosts_entry map_background map_name lives = {
   map_name = map_name;
   player = player;
   points = 0;
-<<<<<<< HEAD
-  lives = 15;
-=======
   lives = lives;
->>>>>>> c8a99e9f1d8efeba655dca80eec5b550cc7e91db
   ghosts = ghosts_entry;
   num_ghosts = Array.length ghosts_entry;
   map = map;
