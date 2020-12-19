@@ -579,7 +579,7 @@ let standard_g_moves =
   let g1_moves = [|(0,0); (move_amt, 0); (0, move_amt); (0,move_amt)|] in
   let g2_moves = [|(0,move_amt); (0,move_amt); (-move_amt, 0)|] in 
   let g3_moves = [|(0,move_amt); (0,move_amt); (move_amt, 0)|] in 
-  let g4_moves = [|(0,0); (-move_amt, 0); (0, move_amt)|] in 
+  let g4_moves = [|(0,0); (-move_amt, 0); (0, move_amt); (0,move_amt)|] in 
   [|g1_moves; g2_moves; g3_moves; g4_moves|]
 
 let standard_g_locs = [|(675, 375); (725,375); (775, 375); (825,375);|]
