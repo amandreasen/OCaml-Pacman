@@ -50,20 +50,21 @@ val made_move: t -> bool
     beginning of the turn. *)
 val reset_move: t -> unit
 
+(** [is_done_initializing] is true if the ghost has left the ghost box or 
+    starting location and false otherwise.  *)
 val is_done_initializing: t -> bool
 
+(** [finish_initializing] updates the ghost's fields so that it is no longer in 
+    its initialization stage where it is leaving the ghost box. *)
 val finish_initializing: t -> unit 
 
+(** [move_init] moves the ghost by the specified tuple when it is in its 
+    initialization stage. *)
 val move_init: t -> int * int -> unit 
 
+(** [init_counter] is the number of initial moves the ghost has made. *)
 val init_counter: t -> int 
 
 val get_state: t -> string 
 
 val set_state: t -> string -> unit
-
-(* val reset_init_counter: t -> unit *)
-
-(* val next_position: t -> int * int  *)
-
-(* val set_next_pos: t -> int * int -> unit  *)
