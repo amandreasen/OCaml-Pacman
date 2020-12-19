@@ -58,7 +58,7 @@ val move_init: t -> int * int -> unit
 
 val init_counter: t -> int 
 
-val reset_init_counter: t -> unit
+(* val reset_init_counter: t -> unit *)
 
 (* val next_position: t -> int * int  *)
 
