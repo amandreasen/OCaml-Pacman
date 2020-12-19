@@ -1,5 +1,6 @@
 (*This file contains a list of constants used in the game *)
 
+type point = int * int
 (*Game Constants*)
 
 (** [window_width] is the width of the window in the game. *)
@@ -26,8 +27,8 @@ val player_width:int
 (** [player_height] is the height of the player in the game. *)
 val player_height :int
 
-(** [init_pos] is the starting position of the player in the game. *)
-val init_pos:Map.point
+(** [init_pos] is the initial position of the player in the game. *)
+val init_pos:point
 
 (** [move_amt] is the amount the player moves during each step in the game. *)
 val move_amt:int
@@ -83,9 +84,6 @@ val tile_size:int
 
 (** [wall_width] is the width of the tile in the map. *)
 val wall_width:int
-
-(** [pacman_rad] is the radius of the pacman. *)
-val pacman_rad:int
 
 (** [wall_color] is color of the wall. *)
 val wall_color:Graphics.color

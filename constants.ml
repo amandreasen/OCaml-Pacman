@@ -1,5 +1,7 @@
 open Graphics
 (* game constants *)
+type point = int * int
+
 let window_width = 1500
 let window_height = 750
 let map_width = 1300
@@ -10,6 +12,7 @@ let player_radius = 25
 
 let player_width = 50
 let player_height = 50
+
 let init_pos = (175, 175)
 
 let move_amt = 10

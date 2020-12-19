@@ -7,10 +7,7 @@ open Graphics
 open Graphic_image
 
 (* constants *)
-let fruit_limit = 50
-let fruit_timer = 300
-
-let png_wl = 50
+let init_pos = (175, 175)
 
 type game_state = Active | Waiting | Dying | Ended
 
