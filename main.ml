@@ -72,8 +72,8 @@ let init_game (map_name: string) (points: int) (level: int)
     then fruits.(fruit_num - 1) 
     else fruits.(next_fruit)
   in
-  (* let level' = level + 1 in *)
-  let level' = 2 in  
+  let level' = level + 1 in
+  (* let level' = 2 in   *)
   (* let map_name = "standard" in *)
   let ghost_num = select_ghosts level' in
   {level = level';
