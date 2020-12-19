@@ -49,15 +49,10 @@ let special_radius = 8
 let fruit_width = 50
 let fruit_height = 50
 
-let pacman_rad = 25
-
-let player_width = 50
-let player_height = 50
 
 let food_color = rgb 255 184 245
 let special_color = rgb 255 171 196
 let wall_color = Graphics.blue
-let png_wl = 46
 let check_tile_size = 51
 
 (*State constants*)
