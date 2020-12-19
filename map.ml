@@ -591,13 +591,13 @@ let ocaml_g_moves =
   let g4_moves = [|(0,-move_amt); (0,-move_amt)|] in 
   [|g1_moves; g2_moves; g3_moves; g4_moves|]
 
-let ocaml_g_locs = [|(675, 375); (725,375); (475,375); (875,375)|]
+let ocaml_g_locs = [|(675, 375); (725,375); (475,375); (925,375)|]
 
 let cs3110_g_moves = 
-  let g1_moves = [|(0,-move_amt)|] in 
-  let g2_moves = [|(0,-move_amt)|] in 
-  let g3_moves = [|(0, -move_amt)|] in 
-  let g4_moves = [|(0,-move_amt)|] in 
+  let g1_moves = [|(0,-move_amt); (0,-move_amt); (-move_amt, 0)|] in 
+  let g2_moves = [|(0,-move_amt); (0,-move_amt)|] in 
+  let g3_moves = [|(0, -move_amt); (0,-move_amt)|] in 
+  let g4_moves = [|(0,-move_amt); (0,-move_amt); (move_amt,0)|] in 
   [|g1_moves; g2_moves; g3_moves; g4_moves|]
 
 let cs3110_g_locs = [|(575, 375); (625, 375); (675, 375); (725, 375)|]
