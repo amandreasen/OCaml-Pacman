@@ -7,7 +7,7 @@ open Graphics
 open Graphic_image
 
 (* constants *)
-let init_pos = (175, 175)
+
 
 type game_state = Active | Waiting | Dying | Ended
 
