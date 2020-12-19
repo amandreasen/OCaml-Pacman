@@ -155,5 +155,5 @@ let move_init ghost dir =
 let init_counter ghost = 
   ghost.init_counter
 
-let reset_init_counter ghost = 
-  ghost.init_counter <- 0
+(* let reset_init_counter ghost = 
+   ghost.init_counter <- 0 *)
