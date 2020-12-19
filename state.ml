@@ -43,11 +43,15 @@ let fruit_eaten state =
 let reset_player state = 
   {state with player = new_player ()}
 
-let initial_state player map ghosts_entry map_background map_name = {
+let initial_state player map ghosts_entry map_background map_name lives = {
   map_name = map_name;
   player = player;
   points = 0;
+<<<<<<< HEAD
   lives = 15;
+=======
+  lives = lives;
+>>>>>>> c8a99e9f1d8efeba655dca80eec5b550cc7e91db
   ghosts = ghosts_entry;
   num_ghosts = Array.length ghosts_entry;
   map = map;
@@ -493,14 +497,15 @@ let map_init (map: Map.t): Graphics.image =
   draw_map map;
   Graphics.get_image 0 0 window_width window_height 
 
-let init_level (map_name: string) (fruit: fruit) (num_ghosts: int): t =
+let init_level (map_name: string) (fruit: fruit) (num_ghosts: int) 
+    (lives: int): t =
   let make_level map_name =
     let map = make_map (100, 100) map_name fruit in
     generate_special map; 
     let map_background = map_init map in
     let player = new_player () in 
     let ghosts = make_ghosts_helper num_ghosts map in
-    initial_state player map ghosts map_background map_name
+    initial_state player map ghosts map_background map_name lives
   in make_level map_name
 
 let update_active (state: t) (key: char) : t = 

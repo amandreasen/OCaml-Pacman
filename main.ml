@@ -66,7 +66,7 @@ let select_ghosts (level: int) =
   if level < 4 then level + 1 else 4
 
 let init_game (map_name: string) (points: int) (level: int) 
-    (fruit_basket: fruit array) (next_fruit: int): game = 
+    (fruit_basket: fruit array) (next_fruit: int) (lives: int): game = 
   let fruit = 
     if next_fruit = fruit_num 
     then fruits.(fruit_num - 1) 
@@ -77,7 +77,7 @@ let init_game (map_name: string) (points: int) (level: int)
   (* let map_name = "standard" in *)
   let ghost_num = select_ghosts level' in
   {level = level';
-   current = init_level map_name fruit ghost_num; 
+   current = init_level map_name fruit ghost_num lives; 
    state = Active; 
    prev_key = None; 
    points = points;
@@ -149,7 +149,8 @@ let update_loading (game: game) : game =
   let fruits = game.fruit_basket in
   let next_fruit = Array.length fruits in
   let map = Random.self_init (); Random.int (Array.length maps) in
-  let game' = init_game maps.(map) points game.level fruits next_fruit in 
+  let lives = lives game.current + 1 in
+  let game' = init_game maps.(map) points game.level fruits next_fruit lives in 
   {game' with state = Waiting}
 
 let update_waiting (game: game) : game = 
@@ -208,7 +209,7 @@ let rec update (game: game) : unit =
 let main (settings: string) : unit = 
   window_init settings;
   auto_synchronize false;
-  let game = init_game "OCaml" 0 0 [||] 0 in
+  let game = init_game "OCaml" 0 0 [||] 0 3 in
   ignore (update game);
   ()
 
