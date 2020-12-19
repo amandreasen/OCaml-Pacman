@@ -171,6 +171,14 @@ let tile_value_test
       assert_equal expected_output (Map.get_tile_value point map) 
         ~printer: string_of_int)
 
+let get_tile_type_test
+    (name : string)
+    (pos : point)
+    (map : Map.t)
+    (expected_output : string): test =
+  name >:: (fun _ ->
+      assert_equal expected_output (Map.get_tile_type pos map))
+
 let cherry = 
   let img = sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2 in 
   {sprite = img; points = 100}
@@ -187,6 +195,11 @@ let map_tests = [
   tile_value_test "tile value of empty tile - OCaml map" (425, 375) ocaml_map 0;
   tile_value_test "tile value of ghost tile - OCaml map" (675, 325) ocaml_map 0;
   tile_value_test "tile value of wall tile - OCaml map" (125, 125) ocaml_map 0;
+  get_tile_type_test "food in ocaml map" (175, 175) ocaml_map "Food";
+  get_tile_type_test "wall in ocaml map" (425, 375) ocaml_map "Wall";
+  get_tile_type_test "ghost in ocaml map" (675, 325) ocaml_map "Ghost";
+  get_tile_type_test "wall in standard map" (600, 300) standard_map "Wall";
+  get_tile_type_test "food in cs 3110 map" (600, 300) cs3110_map "Food";
 ]
 
 (* 
