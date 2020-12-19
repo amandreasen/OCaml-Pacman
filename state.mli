@@ -7,7 +7,7 @@ type t
 
 (**[init_level map] will initialize a level using the map with name [map]
    by returning a State.t with the appropriate initial values.*) 
-val init_level: string -> fruit -> int -> t
+val init_level: string -> fruit -> int -> int -> t
 
 (**[update_level state key display_player display_ghosts] 
    will return a State.t representing the state [state] after it has been 
