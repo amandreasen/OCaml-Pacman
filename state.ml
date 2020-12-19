@@ -352,7 +352,6 @@ let move_ghost_normal ghost user map =
   then move_ghost_following ghost user map 
   else move_ghost_prev ghost map 
 
-
 (** [move_ghost_reversed] is  [helper_make_aimed_move] when the ghost is near 
     the player or [move_ghost_prev] otherwise. *)
 let move_ghost_reversed state ghost user map = 
@@ -381,35 +380,40 @@ let helper_move_initial state ghost user map i =
   let all_moves = Map.initial_ghost_moves map in 
   let current_moves = all_moves.(i) in 
   let move_counter = Ghost.init_counter ghost in 
-  let move_index = move_counter/5 in 
+  let move_index = move_counter / 5 in 
   let current_position = Ghost.get_position ghost in 
   if move_index < (Array.length current_moves)
-  then 
-    begin 
-      let dir = current_moves.(move_index) in  
-      if Map.check_move current_position map dir false
-      then Ghost.move_init ghost dir 
-      else helper_move_regular state ghost map user
-    end 
-  else 
-    begin 
-      Ghost.finish_initializing ghost; 
-      helper_move_regular state ghost map user
-    end 
+  then begin 
+    let dir = current_moves.(move_index) in  
+    Ghost.move_init ghost dir
+    (* if Map.check_move current_position map dir false
+       then Ghost.move_init ghost dir 
+       else helper_move_regular state ghost map user *)
+  end 
+  else begin 
+    Ghost.finish_initializing ghost; 
+    helper_move_regular state ghost map user
+  end 
 
 (** [move_ghosts] uses helper functions to determine and move the ghost 
     according to the current situation in the game. *)
 let move_ghosts state ghosts map (user : Player.t) = 
   let g_counter = ref 0 in 
   Array.iter (fun g ->
-      if is_done_initializing g
+      if is_done_initializing g 
       then helper_move_regular state g map user
-      else 
-        begin 
+      else begin 
+        helper_move_initial state g user map !g_counter; 
+        g_counter := (!g_counter + 1)
+      end
+      (* if is_done_initializing g
+         then helper_move_regular state g map user
+         else 
+         begin 
           let num_g = state.num_ghosts - 1 in 
           helper_move_initial state g user map !g_counter; 
           g_counter := (!g_counter + 1) mod num_g
-        end 
+         end  *)
     )
     ghosts 
 

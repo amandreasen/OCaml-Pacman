@@ -177,7 +177,8 @@ let get_tile_type_test
     (map : Map.t)
     (expected_output : string): test =
   name >:: (fun _ ->
-      assert_equal expected_output (Map.get_tile_type pos map))
+      assert_equal expected_output (Map.get_tile_type pos map) 
+        ~printer: (fun x -> x))
 
 let cherry = 
   let img = sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2 in 
@@ -190,12 +191,12 @@ let cs3110_map = make_map (0, 0) "3110" cherry
 let map_tests = [
   food_count_test "count initial food in standard map" standard_map 134;
   food_count_test "count initial food in OCaml map" ocaml_map 130;
-  food_count_test "count initial food in CS3110 map" cs3110_map 128;
+  food_count_test "count initial food in CS3110 map" cs3110_map 133;
   tile_value_test "tile value of food tile - OCaml map" (175, 175) ocaml_map 1;
   tile_value_test "tile value of empty tile - OCaml map" (425, 375) ocaml_map 0;
   tile_value_test "tile value of ghost tile - OCaml map" (675, 325) ocaml_map 0;
   tile_value_test "tile value of wall tile - OCaml map" (125, 125) ocaml_map 0;
-  get_tile_type_test "food in ocaml map" (175, 175) ocaml_map "Food";
+  get_tile_type_test "food in ocaml map" (225, 175) ocaml_map "Food";
   get_tile_type_test "wall in ocaml map" (425, 375) ocaml_map "Wall";
   get_tile_type_test "ghost in ocaml map" (675, 325) ocaml_map "Ghost";
   get_tile_type_test "wall in standard map" (600, 300) standard_map "Wall";
