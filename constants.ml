@@ -26,7 +26,7 @@ let closeness_threshold = 50.0 *. sqrt 2.0
     the user. *)
 let max_follow_time = 100. *. sleep_time
 
-let max_role_rev_time = 75. *. sleep_time
+let max_role_rev_time = 200.
 
 let sprite_sheet = 
   let sheet = Png.load_as_rgb24 ("./sprites/sprite_sheet.png") [] in 

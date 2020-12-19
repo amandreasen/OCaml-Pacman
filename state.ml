@@ -83,37 +83,62 @@ let update_state_food (value: int) (state: t) =
     end 
   else state'
 
-let check_overlap user_pos acc ghost =
+let check_overlap user_pos ghost =
   let ghost_pos = Ghost.get_position ghost in
   let ghost_x = fst ghost_pos in 
   let ghost_y = snd ghost_pos in 
   let user_x = fst user_pos in 
   let user_y = snd user_pos in 
   let threshold = png_wl / 2 in
-  let overlap = 
-    (Int.abs (ghost_x - user_x) <= threshold && user_y = ghost_y) || 
-    (Int.abs (ghost_y - user_y) <= threshold && user_x = ghost_x)
-  in
-  acc || overlap
+  (Int.abs (ghost_x - user_x) <= threshold && user_y = ghost_y) || 
+  (Int.abs (ghost_y - user_y) <= threshold && user_x = ghost_x)
+
+type overlap = None | Ghost of Ghost.t
+
+let get_overlap (user_pos: int * int) (ghosts: Ghost.t array) : overlap = 
+  let overlap = ref None in 
+  let get_overlap acc g = 
+    if !acc <> None then acc 
+    else if check_overlap user_pos g then ref (Ghost g)
+    else ref None
+  in 
+  !(Array.fold_left get_overlap overlap ghosts)
+
+let reset_roles (state: t) : t = 
+  ignore (Array.map (fun g -> set_state g "active") state.ghosts);
+  {state with role_reversed = false; reversal_timer = 0}
+
+(* let scare_ghost (ghost: Ghost.t): unit =
+   let ghost_state = get_state ghost in 
+   match ghost_state with 
+   | "eaten" -> ()
+   |  *)
+
 
 let update_special_food state pts = 
   if pts = special_val 
-  then 
+  then begin 
+    ignore (Array.map (fun g -> set_state g "scared1") state.ghosts);
     {state with role_reversed = true; reversal_timer = 1} 
+  end
   else begin 
-    (* moveto 500 75; 
-       print_string "not special  "; *)
     if state.reversal_timer >= int_of_float max_role_rev_time 
-    then {state with role_reversed = false; reversal_timer = 0}
+    then reset_roles state
     else state
   end 
-
 
 let update_game_state state map = 
   let player_pos = Player.get_position state.player in
   let ghosts = state.ghosts in
-  let overlap = Array.fold_left (check_overlap player_pos) false ghosts in 
-  if overlap then {state with game_state = Waiting; ghosts = [||]} else state
+  let overlapped_ghost = get_overlap player_pos ghosts in 
+  match overlapped_ghost with 
+  | None -> state
+  | Ghost g -> 
+    if state.role_reversed then begin 
+      set_state g "eaten"; 
+      state
+    end
+    else {state with game_state = Waiting; ghosts = [||]} 
 
 let update_state (state: t) : t = 
   let player_pos = Player.get_position state.player in 
@@ -357,19 +382,17 @@ let move_ghost_normal ghost user map =
     the player or [move_ghost_prev] otherwise. *)
 let move_ghost_reversed state ghost user map = 
   if state.reversal_timer <= int_of_float max_role_rev_time 
-  then 
-    begin 
-      state.reversal_timer <- state.reversal_timer + 1;
-      if are_close ghost user 
-      then helper_make_aimed_move ghost user map true
-      else move_ghost_new ghost map 
-    end 
-  else 
-    begin 
-      state.reversal_timer <- 0;
-      state.role_reversed <- false;
-      move_ghost_normal ghost user map
-    end 
+  then begin 
+    state.reversal_timer <- state.reversal_timer + 1;
+    if are_close ghost user 
+    then helper_make_aimed_move ghost user map true
+    else move_ghost_new ghost map 
+  end 
+  else begin 
+    state.reversal_timer <- 0;
+    state.role_reversed <- false;
+    move_ghost_normal ghost user map
+  end 
 
 let helper_move_regular state ghost map user = 
   reset_move ghost; 

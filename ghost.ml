@@ -1,8 +1,11 @@
 open Sprite 
+open Constants
 
 exception UnknownDirection 
 
 type direction = Right | Left | Up | Down
+
+type state = Active | Scared1 | Scared2 | Eaten
 
 type ghost_sprites = {
   right: Sprite.t list;
@@ -23,16 +26,11 @@ type t = {
   mutable made_move : bool;
   mutable init_done : bool;
   mutable init_counter : int;
+  mutable state: state
 }
 (* constants for ghosts *)
 let ghost_width = 50
 let ghost_height = 50
-
-let sprite_sheet = 
-  let sheet = Png.load_as_rgb24 ("./sprites/sprite_sheet.png") [] in 
-  let black_box = Png.load_as_rgb24 ("./sprites/black.png") [] in 
-  Images.blit black_box 0 0 sheet 100 45 350 100;
-  sheet
 
 (* sprite sheet coordinates for the ghosts of the form [right, left, up 
    down] *)
@@ -48,15 +46,31 @@ let cyan_coordinates = [[(0, 6); (1, 6)]; [(2, 6); (3, 6)]; [(4, 6); (5, 6)];
 let orange_coordinates = [[(0, 7); (1, 7)]; [(2, 7); (3, 7)]; [(4, 7); (5, 7)];
                           [(6, 7); (7, 7)]]
 
+let scared1_coordinates = [(8, 4); (9, 4)]
+
+let eaten_coordinates = [(8, 5); (9, 5); (10, 5); (11, 5)]
+
+let map_sprites (shift: int) ((x, y): int * int) : Sprite.t = 
+  sprite_from_sheet sprite_sheet x y ghost_width ghost_height shift
+
+let scared1_sprites : Sprite.t list =  
+  let shift = 4 in
+  List.map (map_sprites shift) scared1_coordinates 
+
+let eaten_sprites: ghost_sprites = 
+  let shift = 4 in 
+  let right = [map_sprites shift (List.nth eaten_coordinates 0)] in 
+  let left = [map_sprites shift (List.nth eaten_coordinates 1)] in 
+  let up = [map_sprites shift (List.nth eaten_coordinates 2)] in 
+  let down = [map_sprites shift (List.nth eaten_coordinates 3)] in 
+  {right = right; left = left; up = up; down = down} 
+
 let make_ghost_sprite coordinates : ghost_sprites = 
   let shift = 5 in
-  let map_sprites (x, y) = 
-    sprite_from_sheet sprite_sheet x y ghost_width ghost_height shift
-  in
-  let right = List.map map_sprites (List.nth coordinates 0) in 
-  let left = List.map map_sprites (List.nth coordinates 1) in 
-  let up = List.map map_sprites (List.nth coordinates 2) in 
-  let down = List.map map_sprites (List.nth coordinates 3) in
+  let right = List.map (map_sprites shift) (List.nth coordinates 0) in 
+  let left = List.map (map_sprites shift) (List.nth coordinates 1) in 
+  let up = List.map (map_sprites shift) (List.nth coordinates 2) in 
+  let down = List.map (map_sprites shift) (List.nth coordinates 3) in
   {right = right; left = left; up = up; down = down} 
 
 let make_sprites (color: string) : ghost_sprites =
@@ -79,6 +93,7 @@ let new_ghost x_pos y_pos init_move color = {
   made_move = true;  
   init_done = false;
   init_counter = 0;
+  state = Active;
 }
 
 let get_position g =
@@ -100,7 +115,10 @@ let move (g : t) (dir : int * int) =
   in 
   let counter = 
     if g.direction <> direction then 0 
-    else (g.move_counter + 1) mod 2 
+    else begin 
+      let modulo = if g.state = Eaten then 1 else 2 in
+      (g.move_counter + 1) mod modulo
+    end
   in 
   g.prev_move <- dir;
   g.direction <- direction;
@@ -124,8 +142,7 @@ let start_following g =
   g.is_following <- true;
   g.following_counter <- 1
 
-let get_sprite g = 
-  let sprites = g.sprites in 
+let get_sprite_dir (g: t) (sprites: ghost_sprites) = 
   let sprite_list = 
     match g.direction with
     | Right -> sprites.right 
@@ -134,6 +151,19 @@ let get_sprite g =
     | Down -> sprites.right 
   in 
   List.nth sprite_list g.move_counter
+
+let get_scared1 (g: t) =
+  List.nth scared1_sprites g.move_counter 
+
+let get_eaten (g: t) = 
+  failwith "unimplemented"
+
+let get_sprite g = 
+  match g.state with 
+  | Active -> get_sprite_dir g g.sprites
+  | Scared1 -> get_scared1 g
+  | Scared2 -> failwith "unimplemented"
+  | Eaten -> get_sprite_dir g eaten_sprites
 [@@coverage off]
 
 let made_move ghost = 
@@ -154,6 +184,25 @@ let move_init ghost dir =
 
 let init_counter ghost = 
   ghost.init_counter
+
+let get_state (ghost: t) : string = 
+  match ghost.state with 
+  | Active -> "active"
+  | Scared1 -> "scared1"
+  | Scared2 -> "scared2"
+  | Eaten -> "eaten"
+
+let set_state (ghost: t) (state: string) : unit = 
+  let state = 
+    match state with 
+    | "active" -> Active
+    | "scared1" -> Scared1
+    | "scared2" -> Scared2 
+    | "eaten" -> Eaten 
+    | _ -> failwith "Error: not a valid ghost state!"
+  in
+  if state = Eaten then ghost.move_counter <- 0;
+  ghost.state <- state
 
 (* let reset_init_counter ghost = 
    ghost.init_counter <- 0 *)

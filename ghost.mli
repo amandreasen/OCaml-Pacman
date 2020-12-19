@@ -58,6 +58,10 @@ val move_init: t -> int * int -> unit
 
 val init_counter: t -> int 
 
+val get_state: t -> string 
+
+val set_state: t -> string -> unit
+
 (* val reset_init_counter: t -> unit *)
 
 (* val next_position: t -> int * int  *)
