@@ -114,7 +114,6 @@ let reset_roles (state: t) : t =
    | "eaten" -> ()
    |  *)
 
-
 let update_special_food state pts = 
   if pts = special_val 
   then begin 
@@ -122,7 +121,7 @@ let update_special_food state pts =
     {state with role_reversed = true; reversal_timer = 1} 
   end
   else begin 
-    if state.reversal_timer >= int_of_float max_role_rev_time 
+    if state.reversal_timer >= max_role_rev_time 
     then reset_roles state
     else state
   end 
@@ -139,6 +138,23 @@ let update_game_state state map =
       state
     end
     else {state with game_state = Waiting; ghosts = [||]} 
+
+let update_ghosts (state: t) : unit = 
+  let threshold_time = max_role_rev_time - 25 in 
+  let update_scared ghost = 
+    if (get_state ghost) <> "eaten" then set_state ghost "scared2"
+  in
+  if state.reversal_timer = threshold_time
+  then ignore (Array.map update_scared state.ghosts); 
+  ()
+
+let update_timer (state: t) : unit = 
+  if state.reversal_timer <= max_role_rev_time 
+  then state.reversal_timer <- state.reversal_timer + 1
+  else begin 
+    state.reversal_timer <- 0;
+    state.role_reversed <- false
+  end 
 
 let update_state (state: t) : t = 
   let player_pos = Player.get_position state.player in 
@@ -381,18 +397,13 @@ let move_ghost_normal ghost user map =
 (** [move_ghost_reversed] is  [helper_make_aimed_move] when the ghost is near 
     the player or [move_ghost_prev] otherwise. *)
 let move_ghost_reversed state ghost user map = 
-  if state.reversal_timer <= int_of_float max_role_rev_time 
+  if state.reversal_timer > 0
   then begin 
-    state.reversal_timer <- state.reversal_timer + 1;
     if are_close ghost user 
     then helper_make_aimed_move ghost user map true
     else move_ghost_new ghost map 
   end 
-  else begin 
-    state.reversal_timer <- 0;
-    state.role_reversed <- false;
-    move_ghost_normal ghost user map
-  end 
+  else move_ghost_normal ghost user map
 
 let helper_move_regular state ghost map user = 
   reset_move ghost; 
@@ -524,8 +535,10 @@ let update_active (state: t) (key: char) : t =
   let user = state.player in 
   let map = state.map in 
   let ghosts = state.ghosts in
+  update_timer state;
   move_player user map key;  
   move_ghosts state ghosts map user; 
+  update_ghosts state;
   let state' = update_state state in
   check_food (Player.get_position user) map;
   state'

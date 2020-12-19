@@ -17,7 +17,7 @@ let init_pos = (175, 175)
 
 let move_amt = 10
 
-let sleep_time = 0.03
+let sleep_time = 0.035
 
 (** [closeness_threshold] encompassess the nearest 8 tiles around the user.  *)
 let closeness_threshold = 50.0 *. sqrt 2.0  
@@ -26,7 +26,7 @@ let closeness_threshold = 50.0 *. sqrt 2.0
     the user. *)
 let max_follow_time = 100. *. sleep_time
 
-let max_role_rev_time = 200.
+let max_role_rev_time = 100
 
 let sprite_sheet = 
   let sheet = Png.load_as_rgb24 ("./sprites/sprite_sheet.png") [] in 

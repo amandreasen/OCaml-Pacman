@@ -4,52 +4,52 @@ type point = int * int
 (*Game Constants*)
 
 (** [window_width] is the width of the window in the game. *)
-val window_width:int
+val window_width: int
 
 (** [window_height] is the height of the window in the game. *)
-val window_height:int
+val window_height: int
 
 (** [map_width] is the width of the map in the game. *)
-val map_width:int
+val map_width: int
 
 (** [map_height] is the height of the map in the game. *)
-val map_height:int
+val map_height: int
 
 (** [ghost_radius] is the radius of the ghost in the game. *)
-val ghost_radius:int
+val ghost_radius: int
 
 (** [player_radius] is the radius of the player in the game. *)
-val player_radius:int
+val player_radius: int
 
 (** [player_width] is the width of the player in the game. *)
-val player_width:int
+val player_width: int
 
 (** [player_height] is the height of the player in the game. *)
-val player_height :int
+val player_height: int
 
 (** [init_pos] is the initial position of the player in the game. *)
-val init_pos:point
+val init_pos: point
 
 (** [move_amt] is the amount the player moves during each step in the game. *)
-val move_amt:int
+val move_amt: int
 
 (** [sleep_time] is the sleep time while the game resets after a death or a new
     level. *)
-val sleep_time:float
+val sleep_time: float
 
 (** [closeness_threshold] encompassess the nearest 8 tiles around the user.  *)
-val closeness_threshold:float
+val closeness_threshold: float
 
 (** [max_follow_time] is the maximum number of seconds that a ghost will follow
     the user. *)
-val max_follow_time:float
+val max_follow_time: float
 
 (** [max_role_rev_time] is the maximum number of seconds that a player will 
     follow the ghost. *)
-val max_role_rev_time:float
+val max_role_rev_time: int
 
 (** [sprite_sheet] is the list of images used throughout the game. *)
-val sprite_sheet:Images.t
+val sprite_sheet: Images.t
 
 (* Food Constants *)
 

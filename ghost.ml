@@ -48,6 +48,8 @@ let orange_coordinates = [[(0, 7); (1, 7)]; [(2, 7); (3, 7)]; [(4, 7); (5, 7)];
 
 let scared1_coordinates = [(8, 4); (9, 4)]
 
+let scared2_coordinates = [(10, 4); (11, 4)]
+
 let eaten_coordinates = [(8, 5); (9, 5); (10, 5); (11, 5)]
 
 let map_sprites (shift: int) ((x, y): int * int) : Sprite.t = 
@@ -56,6 +58,10 @@ let map_sprites (shift: int) ((x, y): int * int) : Sprite.t =
 let scared1_sprites : Sprite.t list =  
   let shift = 4 in
   List.map (map_sprites shift) scared1_coordinates 
+
+let scared2_sprites : Sprite.t list = 
+  let shift = 4 in
+  List.map (map_sprites shift) scared2_coordinates 
 
 let eaten_sprites: ghost_sprites = 
   let shift = 4 in 
@@ -152,17 +158,11 @@ let get_sprite_dir (g: t) (sprites: ghost_sprites) =
   in 
   List.nth sprite_list g.move_counter
 
-let get_scared1 (g: t) =
-  List.nth scared1_sprites g.move_counter 
-
-let get_eaten (g: t) = 
-  failwith "unimplemented"
-
 let get_sprite g = 
   match g.state with 
   | Active -> get_sprite_dir g g.sprites
-  | Scared1 -> get_scared1 g
-  | Scared2 -> failwith "unimplemented"
+  | Scared1 -> List.nth scared1_sprites g.move_counter 
+  | Scared2 -> List.nth scared2_sprites g.move_counter 
   | Eaten -> get_sprite_dir g eaten_sprites
 [@@coverage off]
 
