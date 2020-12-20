@@ -137,7 +137,7 @@ let update_eaten (state: t) (ghost: Ghost.t) : t =
   | "eaten" -> state
   | _ -> 
     set_state ghost "eaten"; 
-    let eaten = max (state.ghosts_eaten + 1) 4 in 
+    let eaten = min (state.ghosts_eaten + 1) 4 in 
     let points = get_ghost_value eaten in
     {state with ghosts_eaten = eaten; points = state.points + points}
 

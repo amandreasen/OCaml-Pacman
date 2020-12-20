@@ -67,7 +67,7 @@ let select_ghosts (level: int) =
 
 let init_game (map_name: string) (points: int) (level: int) 
     (fruit_basket: fruit array) (next_fruit: int) (lives: int): game = 
-  let fruit_index = max next_fruit (fruit_num - 1) in
+  let fruit_index = min next_fruit (fruit_num - 1) in
   let fruit = fruits.(fruit_index) in
   let level' = level + 1 in
   let ghost_num = select_ghosts level' in
