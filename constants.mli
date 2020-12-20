@@ -98,3 +98,17 @@ val fruit_timer: int
 
 (** [png_wl] is the width of the png image. *)
 val png_wl: int
+
+(** [ghost_width] is the pixel width of a ghost image. *) 
+val ghost_width: int
+
+(** [ghost_height] is the pixel height of a ghost image. *) 
+val ghost_height: int 
+
+(** [eaten_time] is the amount of time a ghost will stay in the eaten state 
+    after being eaten by a player while role reversal is active. *) 
+val eaten_time: int
+
+(** [eaten_threshold] is the amount of time a ghost will wait before turning 
+    white after being eaten by a player. *) 
+val eaten_threshold: int

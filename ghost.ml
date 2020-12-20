@@ -1,8 +1,6 @@
 open Sprite 
 open Constants
 
-exception UnknownDirection 
-
 (**[direction] represents a direction of movement. *)  
 type direction = Right | Left | Up | Down
 
@@ -43,37 +41,52 @@ type t = {
   mutable eaten: bool;
 }
 
-(* sprite sheet coordinates for the ghosts of the form [right, left, up 
-   down] *)
+(* Sprite sheet coordinates for the ghosts of the form [right, left, up 
+   down], grouped by ghost color.*)
+
+(* Sprite sheet coordinates for the red ghost. *)
 let red_coordinates = [[(0, 4); (1, 4)]; [(2, 4); (3, 4)]; [(4, 4); (5, 4)];
                        [(6, 4); (7, 4)]]
 
+(* Sprite sheet coordinates for the pink ghost. *)
 let pink_coordinates = [[(0, 5); (1, 5)]; [(2, 5); (3, 5)]; [(4, 5); (5, 5)];
                         [(6, 5); (7, 5)]]
 
+(* Sprite sheet coordinates for the cyan ghost. *)
 let cyan_coordinates = [[(0, 6); (1, 6)]; [(2, 6); (3, 6)]; [(4, 6); (5, 6)];
                         [(6, 6); (7, 6)]]
 
+(* Sprite sheet coordinates for the orange ghost. *)
 let orange_coordinates = [[(0, 7); (1, 7)]; [(2, 7); (3, 7)]; [(4, 7); (5, 7)];
                           [(6, 7); (7, 7)]]
 
+(* Sprite sheet coordinates for scared blue ghost sprites. *)
 let scared1_coordinates = [(8, 4); (9, 4)]
 
+(* Sprite sheet coordinates for scared white ghost sprites. *)
 let scared2_coordinates = [(10, 4); (11, 4)]
 
+(* Sprite sheet coordinates for eaten ghost sprites. *)
 let eaten_coordinates = [(8, 5); (9, 5); (10, 5); (11, 5)]
 
+(**[map_sprites shift (x, y)] will return a sprite loaded from the standard
+   sprite sheet with sprite sheet coordinate (x, y). The coordinate will be 
+   calculated after shifting over [shift] pixels. *)  
 let map_sprites (shift: int) ((x, y): int * int) : Sprite.t = 
   sprite_from_sheet sprite_sheet x y ghost_width ghost_height shift
 
+(**[scared1_sprites] is a list of sprites for blue scared ghosts. *)  
 let scared1_sprites : Sprite.t list =  
   let shift = 4 in
   List.map (map_sprites shift) scared1_coordinates 
 
+(**[scared2_sprites] is a list of sprites for white scared ghosts. *)  
 let scared2_sprites : Sprite.t list = 
   let shift = 3 in
   List.map (map_sprites shift) scared2_coordinates 
 
+(**[eaten sprites] is a list of sprites for eaten ghosts, grouped by 
+   movement direction.*)  
 let eaten_sprites: ghost_sprites = 
   let shift = 4 in 
   let right = [map_sprites shift (List.nth eaten_coordinates 0)] in 
@@ -82,6 +95,9 @@ let eaten_sprites: ghost_sprites =
   let down = [map_sprites shift (List.nth eaten_coordinates 3)] in 
   {right = right; left = left; up = up; down = down} 
 
+(**[make_ghost_sprite coordinates] will return a list of ghost sprites 
+   grouped by direction, made from the list of sprite sheet coordinates 
+   [coordinates]. *)  
 let make_ghost_sprite coordinates : ghost_sprites = 
   let shift = 5 in
   let right = List.map (map_sprites shift) (List.nth coordinates 0) in 
@@ -90,6 +106,10 @@ let make_ghost_sprite coordinates : ghost_sprites =
   let down = List.map (map_sprites shift) (List.nth coordinates 3) in
   {right = right; left = left; up = up; down = down} 
 
+(**[make_sprites color] will return a list of ghost_sprites grouped by 
+   direction for the ghost with color [color]. 
+   Requires: [color] is one of "red", "pink", "cyan", or "orange". Fails 
+   otherwise. *) 
 let make_sprites (color: string) : ghost_sprites =
   match color with 
   | "red" -> make_ghost_sprite red_coordinates 
@@ -121,6 +141,9 @@ let get_position g =
 let prev_move g = 
   g.prev_move
 
+(**[parse_dir ghost dir] will parse the tuple direction [dir] to be one of 
+   Right, Left, Up, or Down. If [dir] cannot be parsed to one of these four
+   values, the current direction of [ghost] is returned instead. *) 
 let parse_dir (ghost: t) (dir: int * int) : direction = 
   match dir with 
   | (x, 0) when x > 0 -> Right 
@@ -129,6 +152,10 @@ let parse_dir (ghost: t) (dir: int * int) : direction =
   | (0, y) when y < 0 -> Down 
   | _ -> ghost.direction 
 
+(**[update_counter ghost direction] will update the move_counter for [ghost]
+   appropriately depending on the direction [direction]. If the [ghost] is
+   moving in the same direction as its previous direction, then the move
+   counter will be incremented. Otherwise, it will be reset to 0. *) 
 let update_counter (ghost: t) (direction: direction): int = 
   if ghost.direction <> direction then 0 
   else begin 
@@ -136,18 +163,19 @@ let update_counter (ghost: t) (direction: direction): int =
     (ghost.move_counter + 1) mod modulo
   end
 
-let update_timer (g: t) : unit = 
-  match g.state with 
+(**[update_timer ghost] will update the eaten_timer of ghost [ghost]. *) 
+let update_timer (ghost: t) : unit = 
+  match ghost.state with 
   | Eaten -> 
-    if g.eaten_timer = eaten_threshold then g.state <- Scared2;
-    g.eaten_timer <- g.eaten_timer - 1
+    if ghost.eaten_timer = eaten_threshold then ghost.state <- Scared2;
+    ghost.eaten_timer <- ghost.eaten_timer - 1
   | Scared2 -> 
-    if g.eaten_timer = 0 && g.eaten 
+    if ghost.eaten_timer = 0 && ghost.eaten 
     then begin 
-      g.state <- Active;
-      g.eaten <- false
+      ghost.state <- Active;
+      ghost.eaten <- false
     end
-    else g.eaten_timer <- g.eaten_timer - 1
+    else ghost.eaten_timer <- ghost.eaten_timer - 1
   | _ -> ()
 
 let move (g : t) (dir : int * int) = 
@@ -178,17 +206,18 @@ let start_following g =
   g.is_following <- true;
   g.following_counter <- 1
 
-(** [get_sprite_dir] is the sprite that is looking in the direction that the 
-    ghost is moving in. *)
-let get_sprite_dir (g: t) (sprites: ghost_sprites) = 
+(** [get_sprite_dir ghost sprites] is the sprite for ghost [ghost] that is 
+    from [ghost_sprites] that matches the current movement direction of the 
+    ghost. *)
+let get_sprite_dir (ghost: t) (sprites: ghost_sprites) = 
   let sprite_list = 
-    match g.direction with
+    match ghost.direction with
     | Right -> sprites.right 
     | Left -> sprites.left 
     | Up -> sprites.up
     | Down -> sprites.right 
   in 
-  List.nth sprite_list g.move_counter
+  List.nth sprite_list ghost.move_counter
 
 let get_sprite g = 
   match g.state with 

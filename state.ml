@@ -192,9 +192,12 @@ let update_state (state: t) : t =
     end 
   else {state'' with fruit_timer = timer} 
 
+(** [new_follower state ghost] is [state] with a new following ghost [ghost]. *)
 let new_follower state ghost = 
   {state with follower_ghosts = ghost :: state.follower_ghosts}
 
+(** [remove_follower state ghost] is [state] the following ghost [ghost] 
+    removed. *)
 let remove_follower state ghost = 
   let rec find_follower acc = function 
     |[] -> {state with follower_ghosts = acc}
@@ -206,6 +209,9 @@ let remove_follower state ghost =
   in 
   find_follower [] state.follower_ghosts
 
+(** [make_ghosts_helper num map] is the ghost array of [num] ghosts. Initial 
+    positions of the ghosts are determined based on [map]'s initial ghost 
+    position array. *)
 let make_ghosts_helper num map = 
   let color_list = [|"cyan"; "pink"; "red"; "orange"|] in 
   let positions = ghost_init_positions map in 
@@ -224,10 +230,12 @@ let make_ghosts_helper num map =
 
 let life_image = sprite_from_sheet sprite_sheet 8 1 50 50 2
 
+(** [lives_img_lst state] is the Sprite.t list of the number of lives the user
+    has left. *)
 let lives_img_lst state = 
   List.init state.lives (fun x -> life_image)
 
-(** [parse_dir] is the tuple representing the change in coordinates from the 
+(** [parse_dir dir] is the tuple representing the change in coordinates from the 
     user's character input. *)
 let parse_dir (dir: char) =
   match dir with 
@@ -237,8 +245,8 @@ let parse_dir (dir: char) =
   |'d' -> (move_amt, 0)
   | _ -> (0,0)
 
-(** [rand_char] is the char for a movement as determined by [num]. For ghost 
-    movement, [num] is a random int in the range [0,3]. *)
+(** [rand_char num] is the char for a movement as determined by [num]. For  
+    ghost movement, [num] is a random int in the range [0,3]. *)
 let rand_char num = 
   match num with 
   | 0 -> 'w'
@@ -247,14 +255,14 @@ let rand_char num =
   | 3 -> 'd'
   | _ -> ' '
 
-(** [number_sign] is 1 if n is nonnegative and -1 if n is negative. *)
+(** [number_sign n] is 1 if n is nonnegative and -1 if n is negative. *)
 let number_sign n = 
   match n with 
   | n when n >= 0 -> 1
   | _ -> -1
 
-(** [are_close] is true if the distance between the [ghost] and [user] are 
-    less than or equal to the [closeness_threshold]. *)
+(** [are_close ghost user] is true if the distance between the [ghost] and 
+    [user] are less than or equal to the [closeness_threshold]. *)
 let are_close ghost user  = 
   let x_g = fst (Ghost.get_position ghost) in 
   let x_u = fst (Player.get_position user) in 
@@ -265,7 +273,9 @@ let are_close ghost user  =
   let distance = sqrt (float_of_int (x_squared - y_squared)) in 
   distance <= closeness_threshold
 
-(** [position_diff] is the user's position minus the ghost's position. *)
+(** [position_diff ghost user rev] is the [user] position minus the [ghost] 
+    position if rev is true, or the [ghost] position minus the [user] position 
+    otherwise. *)
 let position_diff ghost user rev = 
   let x_g = fst (Ghost.get_position ghost) in 
   let x_u = fst (Player.get_position user) in 
@@ -274,21 +284,18 @@ let position_diff ghost user rev =
   if rev then (x_g - x_u, y_g - y_u)
   else (x_u - x_g, y_u - y_g)
 
+(** [move_ghost_randomly ghost map] selects a random direction and if [ghost] 
+    can move in that direction in [map] then the [ghost] makes this move; 
+    otherwise, a new random direction is tried until a move can be made. *)
 let move_ghost_randomly ghost map = 
   let start = Random.self_init (); Random.int 4 in 
   let next = ref start in 
-  let dir = ref (!next |> rand_char |> parse_dir) in 
+  let dir = !next |> rand_char |> parse_dir |> ref in 
   while not (Map.check_move (Ghost.get_position ghost) map !dir true) do 
     next := (!next + 1) mod 4;
     dir := !next |> rand_char |> parse_dir;
   done;
   Ghost.move ghost !dir 
-
-(* let rec move_ghost_randomly ghost map = 
-   let dir = Random.self_init (); Random.int 4 |> rand_char |> parse_dir in 
-   if Map.check_move (Ghost.get_position ghost) map dir 
-   then Ghost.move ghost dir 
-   else move_ghost_randomly ghost map   *)
 
 let move_selector (map: Map.t) (ghost_pos: int * int) (dir: int * int) 
   : int * int = 
@@ -317,12 +324,6 @@ let select_move_new (map: Map.t) (ghost_pos: int * int) (dir: int * int)
   if select = 0 then dir 
   else move_selector map ghost_pos dir
 
-(* let helper_new_move map ghost prev ghost_pos = 
-   let new_move = select_move_new map ghost_pos prev in 
-   if Map.check_move (Ghost.get_position ghost) map new_move true
-   then Ghost.move ghost new_move
-   else move_ghost_randomly ghost map  *)
-
 let move_ghost_new ghost map = 
   let dir = Ghost.prev_move ghost in 
   let ghost_pos = Ghost.get_position ghost in 
@@ -331,17 +332,9 @@ let move_ghost_new ghost map =
   then Ghost.move ghost new_move
   else move_ghost_randomly ghost map 
 
-(* if is_done_initializing ghost
-   then helper_new_move map ghost dir ghost_pos
-   else 
-   begin 
-    if Map.check_move (Ghost.get_position ghost) map dir false
-    then Ghost.move ghost dir 
-    else begin finish_initializing ghost; 
-      helper_new_move map ghost dir ghost_pos
-    end 
-   end  *)
-
+(** [helper_possible_moves ghost user rev] is the list of possible moves that 
+    [ghost] could make depending on the [ghost] and [user] positions, and 
+    whether the game is in a reversed state, as determined by [rev]. *)
 let helper_possible_moves ghost user rev = 
   let pos_dif = position_diff ghost user rev in 
   let x_sign = pos_dif |> fst |> number_sign in 
@@ -356,6 +349,8 @@ let helper_possible_moves ghost user rev =
   in 
   helper_lst_maker pos_dif 
 
+(** [helper_stop_following_move ghost user map] moves [ghost] in [map] in a way 
+    such that it is no longer following [user]. *)
 let rec helper_stop_following_move ghost user map = 
   let prev_move = Ghost.prev_move ghost in 
   let current_position = Ghost.get_position ghost in 
@@ -367,6 +362,10 @@ let rec helper_stop_following_move ghost user map =
   in 
   helper_find_dir prev_move current_position
 
+(** [helper_make_aimed_move ghost user map rev] moves [ghost] in [map] in a way 
+    such that if rev is true then the ghost would be moving away from [user], if 
+    possible, and if rev is false then the ghost would be moving towards [user], 
+    if possible in [map]. *)
 let helper_make_aimed_move ghost user map rev =
   let move_lst = helper_possible_moves ghost user rev in 
   let rec move_lst_iter lst = 
@@ -381,10 +380,8 @@ let helper_make_aimed_move ghost user map rev =
   in 
   move_lst_iter move_lst
 
-
-(** [move_ghost_following] moves the ghost to follow the player if the timer 
-    isn't up and the move is possible. The move is determined by 
-    [helper_make_aimed_move] *)
+(** [move_ghost_following ghost user map] moves [ghost] to follow [player] 
+    if the following timer isn't up and the move is possible in [map]. *)
 let move_ghost_following ghost user map =
   if Ghost.is_following ghost 
   then begin 
@@ -401,15 +398,15 @@ let move_ghost_following ghost user map =
   end
 
 
-(** [move_ghost_normal] is [move_ghost_following] when the ghost is near the 
-    player or [move_ghost_prev] otherwise. *)
+(** [move_ghost_normal ghost user map] is [move_ghost_following ghost user map] 
+    when [ghost] is near [player] or [move_ghost_prev ghost map] otherwise. *)
 let move_ghost_normal ghost user map = 
   if are_close ghost user 
   then move_ghost_following ghost user map 
   else move_ghost_new ghost map 
 
-(** [move_ghost_reversed] is  [helper_make_aimed_move] when the ghost is near 
-    the player or [move_ghost_prev] otherwise. *)
+(** [move_ghost_reversed state ghost user map] moves [ghost] away from [user]
+    if the game is in reversed state or moves [ghost] normally otherwise. *)
 let move_ghost_reversed state ghost user map = 
   if state.reversal_timer > 0
   then begin 
@@ -419,12 +416,19 @@ let move_ghost_reversed state ghost user map =
   end 
   else move_ghost_normal ghost user map
 
+(** [helper_move_regular state ghost map user] moves [ghost] after it has been
+    initialized. If the game is in reversed state then [ghost] tries to move
+    away from [user] or [ghost] tries a normal move otherwise. *)
 let helper_move_regular state ghost map user = 
   Ghost.reset_move ghost; 
   if state.role_reversed 
   then move_ghost_reversed state ghost user map 
   else move_ghost_normal ghost user map 
 
+(** [helper_move_initial state ghost user map i] moves [ghost] in [map] 
+    according to the initial moves determined in [map]. If [ghost] has completed
+    it's initial moves, meaning it has left the ghost box or original position, 
+    then [ghost] moves normally in [map]. *)
 let helper_move_initial state ghost user map i = 
   let all_moves = Map.initial_ghost_moves map in 
   let current_moves = all_moves.(i) in 
@@ -466,11 +470,20 @@ let flush () =
 let pick_move (user : Player.t) (map: Map.t) (next: point) (prev: point) 
     (prev_attempt: point) = 
   let user_pos = Player.get_position user in 
-  if Map.check_move user_pos map next true && next <> (0, 0) then next 
-  else if Map.check_move user_pos map prev_attempt true && prev_attempt <> (0,0) 
-  then prev_attempt
-  else if Map.check_move user_pos map prev true then prev 
-  else (0,0)
+  let try_prev = 
+    if Map.check_move user_pos map prev true then prev 
+    else (0,0)
+  in 
+  let try_prev_attempt = 
+    if Map.check_move user_pos map prev_attempt true && prev_attempt <> (0,0) 
+    then prev_attempt
+    else try_prev
+  in 
+  let try_next = 
+    if Map.check_move user_pos map next true && next <> (0, 0) then next 
+    else try_prev_attempt
+  in 
+  try_next 
 
 let draw_ghosts ghosts = 
   for i = 0 to Array.length ghosts - 1 do 
@@ -510,6 +523,10 @@ let draw_lives state : unit =
   ignore (List.mapi (draw_helper 150 60) (lives_img_lst state)); 
   ()
 
+(** [move_player user map key] moves [user]. The direction is determined by 
+    trying to move [user] in the direction specified by the  keyboard input 
+    [key], the previous keyboard input, the previous move made by [user], and if 
+    all those fail, [user] does not make a move. *)
 let move_player user map key = 
   let prev_move = player_prev_move user in 
   let next_move = parse_dir key in 

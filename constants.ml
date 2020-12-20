@@ -57,3 +57,9 @@ let fruit_limit = 50
 let fruit_timer = 300
 
 let png_wl = 50
+
+(* constants for ghosts *)
+let ghost_width = 50
+let ghost_height = 50
+let eaten_time = 50
+let eaten_threshold = 15

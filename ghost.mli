@@ -6,7 +6,8 @@ type direction
 
 (** [new_ghost x y dir color] returns a new ghost with the initial pixel 
     x-coordinate [x], the initial pixel y-coordinate [y], the initial direction 
-    [dir], and the color [color]. *)
+    [dir], and the color [color]. Other values for the ghost fields will be 
+    initialized appropriately.*)
 val new_ghost: int -> int -> int * int -> string -> t
 
 (** [get_position ghost] is the position of the [ghost] as a tuple (x,y). *)
