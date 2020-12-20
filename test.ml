@@ -228,7 +228,7 @@ let check_move_test
     (expected_output : bool): test =
   name >:: (fun _ ->
       assert_equal expected_output (Map.check_move pos map dir initialized)
-        ~printer: (string_of_bool))
+        ~printer: string_of_bool)
 
 let cherry =
   let img = sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2 in
@@ -258,31 +258,19 @@ let map_tests = [
   get_tile_type_test "wall in standard map" (600, 300) standard_map "Wall";
   get_tile_type_test "food in cs 3110 map" (600, 250) cs3110_map "Food";
 
-  check_move_test "move in wall in ocaml map test 1" (225,175) ocaml_map (0,10) true
-    false;
-  check_move_test "move in wall in ocaml map test 2" (225,175) ocaml_map (0,0) true
-    true;
-  check_move_test "move in wall in cs3110 map test 1" (125,180) cs3110_map (10,0) true
-    false;
-  check_move_test "move in wall in cs3110 map test 2" (600,255) cs3110_map (0,10) true
-    false;
-  check_move_test "move in wall in standard map" (225,175) standard_map (0,0) true
-    true;
-  check_move_test "move in wall in standard map" (235,190) standard_map (10,0) true
-    false;
+  check_move_test "move in wall in ocaml map test 1" (225,175) ocaml_map (0,10) 
+    true false;
+  check_move_test "move in wall in ocaml map test 2" (225,175) ocaml_map (0,0) 
+    true true;
+  check_move_test "move in wall in cs3110 map test 1" (125,180) cs3110_map 
+    (10,0) true false;
+  check_move_test "move in wall in cs3110 map test 2" (600,255) cs3110_map 
+    (0,10) true false;
+  check_move_test "move in wall in standard map" (225,175) standard_map (0,0) 
+    true  true;
+  check_move_test "move in wall in standard map" (235,190) standard_map (10,0)
+    true false;
 ]
-
-(*
-let check_win_test
-   (name: string)
-   (state: State.t)
-   (expected_output: int) : test =
- name >:: (fun _ ->
-     assert_equal expected_output (State.check_win state))
-let init_state = State.init_level "OCaml" cherry
-let state_tests = [
- check_win_test "neither win nor lose in initial level state" init_state 0;
-] *)
 
 let suite =
   "test suite"  >::: List.flatten [

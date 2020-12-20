@@ -153,10 +153,12 @@ let update_state_food (value: int) (state: t) =
     if value = food_val || value = special_val then state.food_left - 1 
     else state.food_left
   in
-  let state' = if value > 10 then update_fruit value food state 
+  let state' = 
+    if value > 10 then update_fruit value food state 
     else {state with points = state.points + value; food_left = food} 
   in
-  if food = fruit_limit && not state.fruit_generated then begin 
+  if food = fruit_limit && not state.fruit_generated 
+  then begin 
     generate_fruit state.map;
     {state' with fruit_generated = true;
                  fruit_active = true;
@@ -311,19 +313,12 @@ let update_state (state: t) : t =
 let new_follower state ghost = 
   {state with follower_ghosts = ghost :: state.follower_ghosts}
 
-(** [remove_follower state ghost] is [state] the following ghost [ghost] 
+(** [remove_follower state ghost] is [state] with the following ghost [ghost] 
     removed. *)
 let remove_follower state ghost = 
-  List.filter (fun g -> g <> ghost) state.follower_ghosts 
-(* let rec find_follower acc = function 
-   |[] -> {state with follower_ghosts = acc}
-   |h::t -> begin 
-      if h = ghost 
-      then find_follower acc t 
-      else find_follower (h::acc) t
-    end 
-   in 
-   find_follower [] state.follower_ghosts *)
+  let followers = state.follower_ghosts in 
+  let followers' = List.filter (fun g -> g <> ghost) followers in 
+  {state with follower_ghosts = followers'} 
 
 (** [make_ghosts_helper num map] is the ghost array of [num] ghosts. Initial 
     positions of the ghosts are determined based on [map]'s initial ghost 
@@ -422,10 +417,8 @@ let move_selector (map: Map.t) (ghost_pos: int * int) (dir: int * int)
   let select = Random.self_init(); Random.int 2 in 
   let dir1 = 
     match dir with 
-    | (x, 0) when x <> 0 -> 
-      if select = 0 then (0, x) else (0, -x)
-    | (0, y) when y <> 0 -> 
-      if select = 0 then (y, 0) else (-y, 0)
+    | (x, 0) when x <> 0 -> if select = 0 then (0, x) else (0, -x)
+    | (0, y) when y <> 0 -> if select = 0 then (y, 0) else (-y, 0)
     | _ -> dir 
   in 
   let dir2 = 
@@ -435,8 +428,10 @@ let move_selector (map: Map.t) (ghost_pos: int * int) (dir: int * int)
     | _ -> dir 
   in
   if Map.check_move ghost_pos map dir1 true then dir1
-  else if Map.check_move ghost_pos map dir2 true then dir2 
-  else dir
+  else begin 
+    if Map.check_move ghost_pos map dir2 true then dir2 
+    else dir
+  end 
 
 (**[select_move_new map ghost_pos dir] will randomly attempt to select
    either a move in the current direction [dir] or a new valid move that can 
@@ -454,8 +449,7 @@ let move_ghost_new ghost map =
   let dir = Ghost.prev_move ghost in 
   let ghost_pos = Ghost.get_position ghost in 
   let new_move = select_move_new map ghost_pos dir in 
-  if Map.check_move ghost_pos map new_move true
-  then Ghost.move ghost new_move
+  if Map.check_move ghost_pos map new_move true then Ghost.move ghost new_move
   else move_ghost_randomly ghost map 
 
 (** [helper_possible_moves ghost user rev] is the list of possible moves that 
@@ -625,8 +619,7 @@ let draw_ghosts ghosts =
     in 
     Graphics.draw_image image (x - ghost_radius) (y - ghost_radius)
   in 
-  ignore (Array.iter draw_helper ghosts);
-  ()
+  ignore (Array.iter draw_helper ghosts)
 
 (** [draw_player user] will draw the player [user] to the current open GUI
     window. *) 
@@ -656,8 +649,7 @@ let draw_lives state : unit =
     let img = life |> sprite_image |> Graphic_image.of_image in 
     Graphics.draw_image img x_pos y
   in 
-  ignore (List.mapi (draw_helper 150 60) (lives_img_lst state)); 
-  ()
+  ignore (List.mapi (draw_helper 150 60) (lives_img_lst state))
 
 (** [draw_labels state] will draw all map labels in level [state] to the 
     current open GUI window. *) 
@@ -668,8 +660,7 @@ let draw_labels state : unit =
     let img = label.label |> sprite_image |> Graphic_image.of_image in 
     Graphics.draw_image img x y 
   in 
-  ignore (List.map draw_helper state.labels);
-  ()
+  ignore (List.map draw_helper state.labels)
 
 (** [move_player user map key] moves [user]. The direction is determined by 
     trying to move [user] in the direction specified by the  keyboard input 
@@ -700,16 +691,14 @@ let map_init (map: Map.t) (color: Graphics.color): Graphics.image =
 
 let init_level (map_name: string) (fruit: fruit) (num_ghosts: int) 
     (lives: int): t =
-  let make_level map_name =
-    let map = make_map (100, 100) map_name fruit in
-    generate_special map; 
-    let map_bg_white = map_init map Graphics.white in
-    let map_bg_blue = map_init map wall_color in
-    let bgs = {white = map_bg_white; blue = map_bg_blue} in
-    let player = new_player () in 
-    let ghosts = make_ghosts_helper num_ghosts map in
-    initial_state player map ghosts bgs map_name lives
-  in make_level map_name
+  let map = make_map (100, 100) map_name fruit in
+  generate_special map; 
+  let map_bg_white = map_init map Graphics.white in
+  let map_bg_blue = map_init map wall_color in
+  let bgs = {white = map_bg_white; blue = map_bg_blue} in
+  let player = new_player () in 
+  let ghosts = make_ghosts_helper num_ghosts map in
+  initial_state player map ghosts bgs map_name lives
 
 (** [update_labels state] updates the countdown timers on all active 
     labels and removes those with a timer of 0. *) 
@@ -788,14 +777,14 @@ let update_level (state: t) (key: char) : t =
 let check_visibility (state: t) : bool =
   match state.game_state with 
   | Active | Waiting -> true
-  | Dying -> 
-    if Player.death_ended state.player then false else true
+  | Dying -> if Player.death_ended state.player then false else true
   | Ended -> false
 
 let check_win (state: t) : int = 
   if state.food_left = 0 then 1 
-  else if state.lives = 0 then -1 
-  else 0
+  else begin 
+    if state.lives = 0 then -1 else 0
+  end 
 
 let animate_win (state: t) : unit =
   let counter = ref 0 in 

@@ -45,20 +45,20 @@ type t = {
    down], grouped by ghost color.*)
 
 (* Sprite sheet coordinates for the red ghost. *)
-let red_coordinates = [[(0, 4); (1, 4)]; [(2, 4); (3, 4)]; [(4, 4); (5, 4)];
-                       [(6, 4); (7, 4)]]
+let red_coordinates = 
+  [[(0, 4); (1, 4)]; [(2, 4); (3, 4)]; [(4, 4); (5, 4)]; [(6, 4); (7, 4)]]
 
 (* Sprite sheet coordinates for the pink ghost. *)
-let pink_coordinates = [[(0, 5); (1, 5)]; [(2, 5); (3, 5)]; [(4, 5); (5, 5)];
-                        [(6, 5); (7, 5)]]
+let pink_coordinates = 
+  [[(0, 5); (1, 5)]; [(2, 5); (3, 5)]; [(4, 5); (5, 5)]; [(6, 5); (7, 5)]]
 
 (* Sprite sheet coordinates for the cyan ghost. *)
-let cyan_coordinates = [[(0, 6); (1, 6)]; [(2, 6); (3, 6)]; [(4, 6); (5, 6)];
-                        [(6, 6); (7, 6)]]
+let cyan_coordinates = 
+  [[(0, 6); (1, 6)]; [(2, 6); (3, 6)]; [(4, 6); (5, 6)]; [(6, 6); (7, 6)]]
 
 (* Sprite sheet coordinates for the orange ghost. *)
-let orange_coordinates = [[(0, 7); (1, 7)]; [(2, 7); (3, 7)]; [(4, 7); (5, 7)];
-                          [(6, 7); (7, 7)]]
+let orange_coordinates = 
+  [[(0, 7); (1, 7)]; [(2, 7); (3, 7)]; [(4, 7); (5, 7)]; [(6, 7); (7, 7)]]
 
 (* Sprite sheet coordinates for scared blue ghost sprites. *)
 let scared1_coordinates = [(8, 4); (9, 4)]
@@ -111,12 +111,15 @@ let make_ghost_sprite coordinates : ghost_sprites =
    Requires: [color] is one of "red", "pink", "cyan", or "orange". Fails 
    otherwise. *) 
 let make_sprites (color: string) : ghost_sprites =
-  match color with 
-  | "red" -> make_ghost_sprite red_coordinates 
-  | "pink" -> make_ghost_sprite pink_coordinates
-  | "cyan" -> make_ghost_sprite cyan_coordinates
-  | "orange" -> make_ghost_sprite orange_coordinates
-  | _ -> failwith "invalid ghost color"
+  let coordinates  = 
+    match color with 
+    | "red" -> red_coordinates 
+    | "pink" -> pink_coordinates
+    | "cyan" -> cyan_coordinates
+    | "orange" -> orange_coordinates
+    | _ -> failwith "invalid ghost color"
+  in 
+  make_ghost_sprite coordinates
 
 let new_ghost x_pos y_pos init_move color = {
   x = x_pos; 
