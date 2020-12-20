@@ -84,9 +84,6 @@ let move (player : t) (dir : int * int) =
   player.y <- player.y + snd dir;
   player.prev_move <- dir
 
-(* let player_direction (player : t) = 
-   player.direction *)
-
 let player_image (user : t) = 
   let images = user.images in 
   let sprite_list = 
