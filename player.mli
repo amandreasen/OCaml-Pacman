@@ -1,3 +1,6 @@
+(** Player is the Pacman character in the game. The user has control over 
+    the Pacman's movements. *)
+
 (**The [Player.t] type contains information about the player's position, 
    movement history, and animation sprites. *) 
 type t
