@@ -83,7 +83,7 @@ let check_key (key_char: char) : bool =
   | 'a' | 'w' | 's' | 'd' -> true 
   | _ -> false
 
-(** [check_space game key key_char] checks if the [key] entered is empty. 
+(** [check_space game key key_char] checks if the [key] entered is a space. 
     If it is, the [game] is set to paused. If not, the next key [key_char] is 
     checked, and if it is valid, then the old [key] is set to be the previous
     key. Otherwise, the current game is returned. *)
