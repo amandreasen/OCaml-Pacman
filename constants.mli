@@ -54,47 +54,47 @@ val sprite_sheet: Images.t
 (* Food Constants *)
 
 (** [food_val] is the points for each food. *) 
-val food_val:int
+val food_val: int
 
 (** [special_val] is the points for each special food. *)
-val special_val:int
+val special_val: int
 
 (** [food_radius] is the radius of the food. *)
-val food_radius:int
+val food_radius: int
 
 (** [special_radius] is the radius of the special food. *)
-val special_radius:int
+val special_radius: int
 
 (** [fruit_width] is the width of each food. *)
-val fruit_width:int
+val fruit_width: int
 
 (** [fruit_height] is the height of each food. *)
-val fruit_height:int
+val fruit_height: int
 
 (** [fruit_color] is color of food. *)
-val food_color:Graphics.color
+val food_color: Graphics.color
 
 (** [special_color] is color of special food. *)
-val special_color:Graphics.color
+val special_color: Graphics.color
 
 (* Map Constants *)
 
 (** [tile_size] is the size of each tile in the map. *)
-val tile_size:int
+val tile_size: int
 
 (** [wall_width] is the width of the tile in the map. *)
-val wall_width:int
+val wall_width: int
 
 (** [wall_color] is color of the wall. *)
-val wall_color:Graphics.color
+val wall_color: Graphics.color
 
 (*State constants*)
 
 (** [fruit_limit] is maximum number of fruit in a game. *)
-val fruit_limit:int
+val fruit_limit: int
 
 (** [fruit_timer] is amount of time a fruit is available in a game. *)
-val fruit_timer:int
+val fruit_timer: int
 
-(** [png_wl] is the width of the png image *)
-val png_wl:int
+(** [png_wl] is the width of the png image. *)
+val png_wl: int

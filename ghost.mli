@@ -4,46 +4,49 @@ type t
 
 type direction
 
-(** [new_ghost] is a new ghost with the given initial position and initial
-    move. *)
+(** [new_ghost x y dir color] returns a new ghost with the initial pixel 
+    x-coordinate [x], the initial pixel y-coordinate [y], the initial direction 
+    [dir], and the color [color]. *)
 val new_ghost: int -> int -> int * int -> string -> t
 
-(** [get_position] is the position of a ghost as a tuple. *)
+(** [get_position ghost] is the position of the [ghost] as a tuple (x,y). *)
 val get_position: t -> int * int
 
-(** [move] changes a ghost's position by the tuple given. For example, 
-    move ghost_test (50,0) will update the position of ghost_test to be to the 
-    right by 50. *)
+(** [move ghost dir] changes the position of ghost [ghost] by the tuple [dir]
+    given. For example, move ghost_test (50,0) will update the position of
+     ghost_test to be to the right by 50. *)
 val move: t -> int * int -> unit
 
-(** [prev_move] is the previous move that the ghost made. *)
+(** [prev_move ghost] is the previous move that the ghost [ghost] made as a 
+    tuple (x, y), where [x] is the number of pixels moved in the x-direction and 
+    [y] is the number of pixels moved in the y-direction. *)
 val prev_move: t -> int *int 
 
-(** [is_following] is true if the ghost is currently following the user and 
-    false otherwise. *)
+(** [is_following ghost] returns true if the ghost [ghost] is currently 
+    following the user and false otherwise. *)
 val is_following: t -> bool
 
-(** [following_counter] is the number of moves that have passed since the 
-    ghost started following the user. *)
+(** [following_counter ghost] is the number of moves that have passed since the 
+    ghost [ghost] started following the user. *)
 val following_counter: t -> int
 
-(** [incr_following_count] increments the [following_counter] of a ghost. *)
+(** [incr_following_count ghost] increments the following_counter of a ghost.*)
 val incr_following_count: t -> unit
 
-(** [reset_following] resets the following counter to 0 and marks the ghost as 
-    no longer following the player. *)
+(** [reset_following ghost] resets the following counter of the ghost [ghost] 
+    0 and marks the ghost as no longer following the player. *)
 val reset_following: t -> unit
 
 (** [start_following] sets the following counter to 1 and marks the ghost as 
     following the player. *)
 val start_following: t -> unit
 
-(** [get_sprite] is the sprite representing the ghost in the direction specified
-    by the input. *)
+(** [get_sprite ghost] returns the sprite representing the ghost [ghost] in the 
+    direction specified by the input. *)
 val get_sprite: t -> Sprite.t
 
-(** [made_move] is true if the ghost has made a successful move this turn and 
-    false otherwise. *)
+(** [made_move ghost] returns true if the ghost [ghost] has made a successful 
+    move this turn and false otherwise. *)
 val made_move: t -> bool
 
 (** [reset_move] resets the ghost's [made_move] field to be false at the 
@@ -65,6 +68,11 @@ val move_init: t -> int * int -> unit
 (** [init_counter] is the number of initial moves the ghost has made. *)
 val init_counter: t -> int 
 
+(** [get_state ghost] returns the state of the Ghost.t [ghost]. The state 
+    may be one of "active", "scared1", "scared2", or "eaten". *) 
 val get_state: t -> string 
 
+(** [get_state ghost state] sets the state of the Ghost.t [ghost] to the state 
+    [state]. [state] may be one of "active", "scared1", "scared2", or "eaten".
+    Fails if [state] is not a valid state option. *) 
 val set_state: t -> string -> unit

@@ -30,7 +30,8 @@ type t = {
   mutable fruit_timer: int;
   game_state: game_state;
   mutable role_reversed: bool;
-  mutable reversal_timer : int
+  mutable reversal_timer : int;
+  ghosts_eaten: int
 }
 
 let points state =
@@ -63,6 +64,7 @@ let initial_state player map ghosts_entry backgrounds map_name lives = {
   game_state = Active;
   role_reversed = false;
   reversal_timer = 0;
+  ghosts_eaten = 0
 } 
 
 let update_state_food (value: int) (state: t) = 
@@ -108,7 +110,7 @@ let get_overlap (user_pos: int * int) (ghosts: Ghost.t array) : overlap =
 
 let reset_roles (state: t) : t = 
   ignore (Array.map (fun g -> set_state g "active") state.ghosts);
-  {state with role_reversed = false; reversal_timer = 0}
+  {state with role_reversed = false; reversal_timer = 0; ghosts_eaten = 0}
 
 let update_special_food state pts = 
   if pts = special_val 
@@ -122,6 +124,23 @@ let update_special_food state pts =
     else state
   end 
 
+let get_ghost_value (ghosts_eaten: int) : int = 
+  match ghosts_eaten with 
+  | 1 -> 200 
+  | 2 -> 400 
+  | 3 -> 800 
+  | 4 -> 1600
+  | _ -> 1600
+
+let update_eaten (state: t) (ghost: Ghost.t) : t = 
+  match get_state ghost with 
+  | "eaten" -> state
+  | _ -> 
+    set_state ghost "eaten"; 
+    let eaten = max (state.ghosts_eaten + 1) 4 in 
+    let points = get_ghost_value eaten in
+    {state with ghosts_eaten = eaten; points = state.points + points}
+
 let update_game_state state map = 
   let player_pos = Player.get_position state.player in
   let ghosts = state.ghosts in
@@ -129,10 +148,7 @@ let update_game_state state map =
   match overlapped_ghost with 
   | None -> state
   | Ghost g -> 
-    if state.role_reversed then begin 
-      set_state g "eaten"; 
-      state
-    end
+    if state.role_reversed then update_eaten state g
     else begin 
       Player.reset_move state.player;
       {state with game_state = Waiting; ghosts = [||]} 
@@ -175,7 +191,6 @@ let update_state (state: t) : t =
       {state'' with fruit_timer = timer; fruit_active = false}
     end 
   else {state'' with fruit_timer = timer} 
-
 
 let new_follower state ghost = 
   {state with follower_ghosts = ghost :: state.follower_ghosts}

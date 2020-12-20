@@ -3,10 +3,19 @@ open Constants
 
 exception UnknownDirection 
 
+(**[direction] represents a direction of movement. *)  
 type direction = Right | Left | Up | Down
 
+(**[state] represents a ghost state. [Active] ghosts are their normal color 
+   and are able to eat the player. [Scared1] ghosts are blue and are able to be 
+   eaten by the player. [Scared2] ghosts are white and are able to be eaten by 
+   the player. [Eaten] ghosts are only visible as a pair of eyes and have 
+   already been eaten by the player (and cannot be eaten again while in this
+   state).*) 
 type state = Active | Scared1 | Scared2 | Eaten
 
+(**[ghost_sprites] contains a list of ghost sprites for the right, left, up, 
+   and down movement directions. *) 
 type ghost_sprites = {
   right: Sprite.t list;
   left: Sprite.t list;
@@ -14,6 +23,9 @@ type ghost_sprites = {
   down: Sprite.t list;
 }
 
+(**Type [t] represents a ghost in the map. The type contains information about 
+   the ghost's pixel position, movement and player following history, animation
+   sprites, and state in the game. *) 
 type t = {
   mutable x : int;
   mutable y : int;
@@ -30,11 +42,6 @@ type t = {
   mutable eaten_timer: int;
   mutable eaten: bool;
 }
-(* constants for ghosts *)
-let ghost_width = 50
-let ghost_height = 50
-let eaten_time = 50
-let eaten_threshold = 15
 
 (* sprite sheet coordinates for the ghosts of the form [right, left, up 
    down] *)
