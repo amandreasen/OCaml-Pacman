@@ -32,10 +32,6 @@ val lives: t -> int
    in the current level has been eaten and false otherwise. *)
 val fruit_eaten: t -> bool
 
-(* (**[reset player state] will return a new state record with the player's 
-   position and move history reset. *) 
-   val reset_player: t -> t *)
-
 (**[check_visibility state] will return a boolean of whether the player 
    should be visible or not in the current frame of the level [state].*) 
 val check_visibility: t -> bool 
