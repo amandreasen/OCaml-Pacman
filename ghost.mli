@@ -1,7 +1,7 @@
-open Sprite
-
 (** Ghost is an autonomously moving character in the game that can eat the 
     Pacman. *)
+
+open Sprite
 
 type t
 

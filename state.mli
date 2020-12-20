@@ -1,10 +1,10 @@
+(** State is a collection of information about the game level. State makes 
+    automated movements for the ghosts in the game. *)
+
 open Ghost
 open Player
 open Map 
 open Sprite
-
-(** State is a collection of information about the game level. State makes 
-    automated movements for the ghosts in the game. *)
 
 (**[State.t] represents a game level. It contains information about the current
    map, the player, and the ghosts in the level.*) 
