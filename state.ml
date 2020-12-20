@@ -6,8 +6,16 @@ open Constants
 open Graphics 
 open Graphic_image
 
+(**[game_state] represents a state that a game level can be in. An [Active] 
+   level is played normally, with ghost and player movement enabled. A [Waiting]
+   will pause for a short amount of time, during which no movement can occur. 
+   A [Dying] level will not display the ghost and will animate a player death, 
+   during which the player cannot be moved. An [Ended] level does not display 
+   the player or ghosts, and no further action can be taken. *) 
 type game_state = Active | Waiting | Dying | Ended
 
+(**A [background] contains images of a map drawn in both a blue and white 
+   outline. *) 
 type background = {
   white: Graphics.image;
   blue: Graphics.image
@@ -43,9 +51,10 @@ let lives state =
 let fruit_eaten state =   
   state.fruit_eaten
 
-let reset_player state = 
-  {state with player = new_player ()}
-
+(**[initial_state player map ghosts_entry backgrounds map_name lives] 
+   will initialize a state record with the player [player], map [map], 
+   ghost list [ghosts_entry], the map images [backgrounds], the map name 
+   [map_name], and the number of lives [lives]. *) 
 let initial_state player map ghosts_entry backgrounds map_name lives = {
   map_name = map_name;
   player = player;
@@ -67,6 +76,9 @@ let initial_state player map ghosts_entry backgrounds map_name lives = {
   ghosts_eaten = 0
 } 
 
+(**[update_state_food value state] will update the points and available 
+   fruit in [state] using the point value [value] to determine which tile the
+   player interacted with in the current frame. *) 
 let update_state_food (value: int) (state: t) = 
   let points = state.points in
   let food_left = 
@@ -78,15 +90,17 @@ let update_state_food (value: int) (state: t) =
                            food_left = food_left; 
                            fruit_eaten = fruit_eaten;} 
   in
-  if food_left = fruit_limit && not state.fruit_generated then 
-    begin 
-      generate_fruit state.map;
-      {state' with fruit_generated = true;
-                   fruit_active = true;
-                   fruit_timer = fruit_timer;}
-    end 
+  if food_left = fruit_limit && not state.fruit_generated then begin 
+    generate_fruit state.map;
+    {state' with fruit_generated = true;
+                 fruit_active = true;
+                 fruit_timer = fruit_timer;}
+  end 
   else state'
 
+(**[check_overlap user_pos ghost] will return true if the distance between the 
+   player position [user_pos] and the center of the ghost [ghost] are less 
+   than a predetermined threshold amount, and false otherwise. *) 
 let check_overlap user_pos ghost =
   let ghost_pos = Ghost.get_position ghost in
   let ghost_x = fst ghost_pos in 
@@ -97,8 +111,14 @@ let check_overlap user_pos ghost =
   (Int.abs (ghost_x - user_x) <= threshold && user_y = ghost_y) || 
   (Int.abs (ghost_y - user_y) <= threshold && user_x = ghost_x)
 
+(** The type [overlap] will be [None] if there is no overlap between a ghost 
+    and a player and [Ghost g] if the player overlaps with ghost [g]. *) 
 type overlap = None | Ghost of Ghost.t
 
+(** [get_overlap user_pos ghosts] will return an [overlap] type. It will 
+    return [Ghost g] if user_pos overlaps with a ghost in [ghosts], where [g]
+    is the first ghost in [ghosts] with a player overlap. Otherwise, it will
+    return None. *) 
 let get_overlap (user_pos: int * int) (ghosts: Ghost.t array) : overlap = 
   let overlap = ref None in 
   let get_overlap acc g = 
@@ -108,10 +128,18 @@ let get_overlap (user_pos: int * int) (ghosts: Ghost.t array) : overlap =
   in 
   !(Array.fold_left get_overlap overlap ghosts)
 
+(**[reset_roles] will reset a level [state] with role reversal enabled 
+   to not have role reversal enabled. *) 
 let reset_roles (state: t) : t = 
   ignore (Array.map (fun g -> set_state g "active") state.ghosts);
   {state with role_reversed = false; reversal_timer = 0; ghosts_eaten = 0}
 
+(**[update_special_food state pts] will update [state] to have role reversal 
+   enabled if [pts] is equal to the amount of points a special food pellet is 
+   worth. Otherwise, if role reversal is currently enabled, the function 
+   will reset [state] to not have role reversal enabled if the timer for role
+   reversal is exceeded. If role reversal is not currently enabled and a 
+   special food has not been consumed, the function will not update state. *) 
 let update_special_food state pts = 
   if pts = special_val 
   then begin 
@@ -124,6 +152,9 @@ let update_special_food state pts =
     else state
   end 
 
+(**[get_ghost_value ghosts_eaten] will return the appropriate number of points
+   for a eaten ghost depending on the number of ghosts already eaten while 
+   this role reversal was active [ghosts_eaten]. *) 
 let get_ghost_value (ghosts_eaten: int) : int = 
   match ghosts_eaten with 
   | 1 -> 200 
@@ -132,6 +163,8 @@ let get_ghost_value (ghosts_eaten: int) : int =
   | 4 -> 1600
   | _ -> 1600
 
+(**[update_eaten state ghost] will update the level [state] after a ghost has 
+   been eaten. It will also update the eaten ghost [ghost]. *) 
 let update_eaten (state: t) (ghost: Ghost.t) : t = 
   match get_state ghost with 
   | "eaten" -> state
@@ -141,6 +174,9 @@ let update_eaten (state: t) (ghost: Ghost.t) : t =
     let points = get_ghost_value eaten in
     {state with ghosts_eaten = eaten; points = state.points + points}
 
+(** [update_game_state state map] will return an updated level that represents
+    the level [state] with the map [map] after ghost-player overlaps have been 
+    checked.*) 
 let update_game_state state map = 
   let player_pos = Player.get_position state.player in
   let ghosts = state.ghosts in
@@ -154,6 +190,8 @@ let update_game_state state map =
       {state with game_state = Waiting; ghosts = [||]} 
     end
 
+(** [update_ghosts state] will update scared blue ghosts to be scared 
+    white ghosts at the threshold time in the level [state]. *)
 let update_ghosts (state: t) : unit = 
   let threshold_time = max_role_rev_time - 25 in 
   let update_scared ghost = 
@@ -166,6 +204,8 @@ let update_ghosts (state: t) : unit =
   then ignore (Array.map update_scared state.ghosts); 
   ()
 
+(** [update_timer state] will update the role reversal timer in level [state]
+    and disable role reversal if the time limit has been reached. *) 
 let update_timer (state: t) : unit = 
   if state.reversal_timer <= max_role_rev_time && state.reversal_timer > 0 
   then state.reversal_timer <- state.reversal_timer + 1
@@ -174,6 +214,8 @@ let update_timer (state: t) : unit =
     state.role_reversed <- false
   end 
 
+(**[update_state] will return an updated level representing the updated level 
+   [state].*) 
 let update_state (state: t) : t = 
   let player_pos = Player.get_position state.player in 
   let point_val = Map.get_tile_value player_pos state.map in
@@ -297,6 +339,10 @@ let move_ghost_randomly ghost map =
   done;
   Ghost.move ghost !dir 
 
+(**[move_selector map ghost_pos dir] will try to select a new valid move 
+   that can be made from position [ghost_pos] in the map [map] with 
+   an opposite orientation to the current direction [dir]. If not valid 
+   move can be selected, the function returns [dir]. *) 
 let move_selector (map: Map.t) (ghost_pos: int * int) (dir: int * int) 
   : int * int = 
   let select = Random.self_init(); Random.int 2 in 
@@ -318,12 +364,18 @@ let move_selector (map: Map.t) (ghost_pos: int * int) (dir: int * int)
   else if Map.check_move ghost_pos map dir2 true then dir2 
   else dir
 
+(**[select_move_new map ghost_pos dir] will randomly attempt to select
+   either a move in the current direction [dir] or a new valid move that can 
+   be made from [ghost_pos] in the map [map]. *) 
 let select_move_new (map: Map.t) (ghost_pos: int * int) (dir: int * int) 
   : int * int = 
   let select = Random.self_init(); Random.int 2 in 
   if select = 0 then dir 
   else move_selector map ghost_pos dir
 
+(**[move_ghost_new ghost map] will make either an algorithmically selected 
+   move for [ghost] or a randomly selected move if the previous selected move 
+   would not be a valid move in [map]. *) 
 let move_ghost_new ghost map = 
   let dir = Ghost.prev_move ghost in 
   let ghost_pos = Ghost.get_position ghost in 
@@ -485,20 +537,25 @@ let pick_move (user : Player.t) (map: Map.t) (next: point) (prev: point)
   in 
   try_next 
 
+(**[draw_ghosts ghosts] will draw the list of ghosts [ghosts] to the 
+   current open GUI window. *) 
 let draw_ghosts ghosts = 
-  for i = 0 to Array.length ghosts - 1 do 
-    let g = ghosts.(i) in 
-    let pos = Ghost.get_position g in 
+  let draw_helper ghost =
+    let pos = Ghost.get_position ghost in 
     let x = fst pos in 
     let y = snd pos in 
-    let image = g
+    let image = ghost
                 |> get_sprite 
                 |> sprite_image 
                 |> Graphic_image.of_image 
     in 
     Graphics.draw_image image (x - ghost_radius) (y - ghost_radius)
-  done
+  in 
+  ignore (Array.iter draw_helper ghosts);
+  ()
 
+(** [draw_player user] will draw the player [user] to the current open GUI
+    window. *) 
 let draw_player user = 
   let pos = Player.get_position user in 
   let x = fst pos in 
@@ -510,10 +567,15 @@ let draw_player user =
   in 
   Graphics.draw_image image (x - player_radius) (y - player_radius)
 
+(** [draw_current_map map map_image] will draw the map background [map_image]
+    and the food in the map [map] to the current open GUI window.  *) 
 let draw_current_map (map: Map.t) (map_image: Graphics.image) = 
   Graphics.draw_image map_image 0 0;
   Map.draw_food map
 
+(** [draw_lives state] will draw the current number of lives in [state] 
+    as images to the current open GUI window in the bottom left corner of the
+     map. *) 
 let draw_lives state : unit = 
   let draw_helper x y index life = 
     let x_pos = x + 50 * index in 
@@ -535,12 +597,16 @@ let move_player user map key =
   Player.move user current_move;
   move_attempt user next_move
 
+(** [draw_game state display_player] will draw the level [state] to the GUI
+    window. The player is drawn only if [display_player] is true. *) 
 let draw_game (state: t) (display_player: bool)  = 
   draw_current_map state.map state.map_backgrounds.blue;
   draw_lives state;
   if display_player then draw_player state.player else ();
   draw_ghosts state.ghosts
 
+(** [map_init map color] will create a map image of the map [map] with the 
+    wall color [color]. *) 
 let map_init (map: Map.t) (color: Graphics.color): Graphics.image = 
   draw_map map color;
   Graphics.get_image 0 0 window_width window_height 
@@ -558,6 +624,8 @@ let init_level (map_name: string) (fruit: fruit) (num_ghosts: int)
     initial_state player map ghosts bgs map_name lives
   in make_level map_name
 
+(**[update_active state key] will update an active level [state] with the
+   user keypress [key]. *) 
 let update_active (state: t) (key: char) : t = 
   let user = state.player in 
   let map = state.map in 
@@ -570,6 +638,9 @@ let update_active (state: t) (key: char) : t =
   check_food (Player.get_position user) map;
   state'
 
+(**[reset_level state] will reset the current level by ending the game if
+   the user has no lives remaining, or by resetting the user and ghost 
+   positions and decrementing the number of lives. *) 
 let reset_level (state: t) : t = 
   if state.lives = 1 then 
     {state with game_state = Ended; lives = 0}
@@ -581,6 +652,9 @@ let reset_level (state: t) : t =
                 lives = state.lives - 1}
   end
 
+(**[update_dying state] will continue a user death animation in the level 
+   [state] if the animation is not finished, or it will reset the level and 
+   player if the animation has finished. *) 
 let update_dying (state: t) : t =
   if death_ended state.player 
   then begin 
@@ -592,12 +666,17 @@ let update_dying (state: t) : t =
     state
   end
 
+(** [update_waiting state] will pause the level [state] briefly before 
+    transitioning to either a win animation or death animation, depending on the 
+    current parameters of [state]. *) 
 let update_waiting (state: t) : t = 
-  Unix.sleep(1);
+  Unix.sleep(1); 
   let user' = start_death state.player in 
   if state.food_left = 0 then state
   else {state with game_state = Dying; player = user'}
 
+(** [update_ended state] will update a level [state] that has been ended. No
+    movement is allowed. *) 
 let update_ended (state: t) : t = 
   Player.reset_move state.player;
   state
