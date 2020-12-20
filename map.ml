@@ -265,9 +265,8 @@ let cs3110_maze =
       Wall Vert; Wall(Corner (Top, Right))|];
   |]
 
-(** [initial_ghost_moves map] will generate the initial movement of the ghosts based
-    on the [map]. 
-    Requires: [map] is a valid map. *)
+(** [initial_ghost_moves map] is the array of initial moves the ghosts can make 
+    in [map]. *)
 let initial_ghost_moves map = 
   map.init_ghost_moves
 
@@ -457,11 +456,11 @@ let standard_g_locs = [|(675, 375); (725,375); (775, 375); (825,375);|]
 let ocaml_g_moves = 
   let g1_moves = [|(0,-move_amt); (0,-move_amt)|] in 
   let g2_moves = [|(0,-move_amt); (0,-move_amt)|] in 
-  let g3_moves = [|(move_amt,0); (move_amt,0)|] in 
-  let g4_moves = [|(0,-move_amt); (0,-move_amt)|] in 
+  let g3_moves = [|(0,0); (0,0); (0,-move_amt); (0,-move_amt)|] in 
+  let g4_moves = [|(0,0); (0,0); (0,-move_amt); (0,-move_amt)|] in 
   [|g1_moves; g2_moves; g3_moves; g4_moves|]
 
-let ocaml_g_locs = [|(675, 375); (725,375); (475,375); (925,375)|]
+let ocaml_g_locs = [|(675, 325); (725,325); (675, 375); (725,375)|]
 
 let cs3110_g_moves = 
   let g1_moves = [|(0,-move_amt); (0,-move_amt); (-move_amt, 0)|] in 
@@ -496,10 +495,10 @@ let make_map (corner: point) (maze_name: string) (fruit: fruit) : t =
     init_ghost_locations = init_g_locs;
   }
 
-
+(** [ghost_init_positions map] is the array of initial positions of the ghosts 
+    in [map]. *)
 let ghost_init_positions map = 
   map.init_ghost_locations
-
 
 (** [draw_corner_single first second] will draw a corner to the GUI window 
     with one endpoint of point [first] and the other endpoint at point [second]. 
