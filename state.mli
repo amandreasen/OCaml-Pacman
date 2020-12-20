@@ -39,3 +39,5 @@ val fruit_eaten: t -> bool
 (**[check_visibility state] will return a boolean of whether the player 
    should be visible or not in the current frame of the level [state].*) 
 val check_visibility: t -> bool 
+
+val animate_win: t -> unit

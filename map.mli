@@ -25,11 +25,11 @@ type fruit = {
 (** [make_map point name] returns a Map.t with a bottom left corner at 
     [point] and a tile layout according to the map name [name]. Fails if 
     [name] is not a valid map name (current valid map names are "standard"
-    and "OCaml")*)
+    "OCaml", and "3110")*)
 val make_map: Constants.point -> string -> fruit -> t
 
 (**[draw_map map] will draw the map [map] to the active GUI window. *) 
-val draw_map: t -> unit
+val draw_map: t -> Graphics.color -> unit
 
 (**[draw_food map] will draw all of the current food in [map] to the active
    GUI window. *) 
@@ -64,7 +64,6 @@ val food_count: t -> int
 val clear_fruit: t -> unit
 
 val generate_special: t -> unit
-
 
 val initial_ghost_moves: t -> Constants.point array array 
 

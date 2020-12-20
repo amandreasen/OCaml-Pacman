@@ -52,7 +52,6 @@ let special_radius = 8
 let fruit_width = 50
 let fruit_height = 50
 
-
 let food_color = rgb 255 184 245
 let special_color = rgb 255 171 196
 let wall_color = Graphics.blue

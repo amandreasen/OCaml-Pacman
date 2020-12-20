@@ -6,10 +6,12 @@ open Constants
 open Graphics 
 open Graphic_image
 
-(* constants *)
-
-
 type game_state = Active | Waiting | Dying | Ended
+
+type background = {
+  white: Graphics.image;
+  blue: Graphics.image
+}
 
 type t = {
   map_name: string;
@@ -19,7 +21,7 @@ type t = {
   ghosts : Ghost.t array;
   num_ghosts : int;
   map : Map.t;
-  map_background : Graphics.image;
+  map_backgrounds: background;
   follower_ghosts : Ghost.t list;
   food_left: int;
   fruit_generated: bool;
@@ -43,7 +45,7 @@ let fruit_eaten state =
 let reset_player state = 
   {state with player = new_player ()}
 
-let initial_state player map ghosts_entry map_background map_name lives = {
+let initial_state player map ghosts_entry backgrounds map_name lives = {
   map_name = map_name;
   player = player;
   points = 0;
@@ -51,7 +53,7 @@ let initial_state player map ghosts_entry map_background map_name lives = {
   ghosts = ghosts_entry;
   num_ghosts = Array.length ghosts_entry;
   map = map;
-  map_background = map_background;
+  map_backgrounds = backgrounds;
   follower_ghosts = [];
   food_left = food_count map;
   fruit_generated = false;
@@ -108,12 +110,6 @@ let reset_roles (state: t) : t =
   ignore (Array.map (fun g -> set_state g "active") state.ghosts);
   {state with role_reversed = false; reversal_timer = 0}
 
-(* let scare_ghost (ghost: Ghost.t): unit =
-   let ghost_state = get_state ghost in 
-   match ghost_state with 
-   | "eaten" -> ()
-   |  *)
-
 let update_special_food state pts = 
   if pts = special_val 
   then begin 
@@ -137,7 +133,10 @@ let update_game_state state map =
       set_state g "eaten"; 
       state
     end
-    else {state with game_state = Waiting; ghosts = [||]} 
+    else begin 
+      Player.reset_move state.player;
+      {state with game_state = Waiting; ghosts = [||]} 
+    end
 
 let update_ghosts (state: t) : unit = 
   let threshold_time = max_role_rev_time - 25 in 
@@ -165,6 +164,7 @@ let update_state (state: t) : t =
   let state' = update_game_state state state.map 
                |> update_state_food point_val 
   in 
+  if state'.food_left = 0 then Player.reset_move state.player;
   let timer = 
     if state'.fruit_timer > 0 then state'.fruit_timer - 1 else 0 
   in 
@@ -405,7 +405,7 @@ let move_ghost_reversed state ghost user map =
   else move_ghost_normal ghost user map
 
 let helper_move_regular state ghost map user = 
-  reset_move ghost; 
+  Ghost.reset_move ghost; 
   if state.role_reversed 
   then move_ghost_reversed state ghost user map 
   else move_ghost_normal ghost user map 
@@ -484,9 +484,7 @@ let draw_player user =
 
 let draw_current_map (map: Map.t) (map_image: Graphics.image) = 
   Graphics.draw_image map_image 0 0;
-  Map.draw_food map;
-  set_color blue;
-  draw_map map
+  Map.draw_food map
 
 let draw_lives state : unit = 
   let draw_helper x y index life = 
@@ -506,13 +504,13 @@ let move_player user map key =
   move_attempt user next_move
 
 let draw_game (state: t) (display_player: bool)  = 
-  draw_current_map state.map state.map_background;
+  draw_current_map state.map state.map_backgrounds.blue;
   draw_lives state;
   if display_player then draw_player state.player else ();
   draw_ghosts state.ghosts
 
-let map_init (map: Map.t): Graphics.image = 
-  draw_map map;
+let map_init (map: Map.t) (color: Graphics.color): Graphics.image = 
+  draw_map map color;
   Graphics.get_image 0 0 window_width window_height 
 
 let init_level (map_name: string) (fruit: fruit) (num_ghosts: int) 
@@ -520,10 +518,12 @@ let init_level (map_name: string) (fruit: fruit) (num_ghosts: int)
   let make_level map_name =
     let map = make_map (100, 100) map_name fruit in
     generate_special map; 
-    let map_background = map_init map in
+    let map_bg_white = map_init map Graphics.white in
+    let map_bg_blue = map_init map wall_color in
+    let bgs = {white = map_bg_white; blue = map_bg_blue} in
     let player = new_player () in 
     let ghosts = make_ghosts_helper num_ghosts map in
-    initial_state player map ghosts map_background map_name lives
+    initial_state player map ghosts bgs map_name lives
   in make_level map_name
 
 let update_active (state: t) (key: char) : t = 
@@ -551,7 +551,10 @@ let reset_level (state: t) : t =
 
 let update_dying (state: t) : t =
   if death_ended state.player 
-  then reset_level state 
+  then begin 
+    Player.reset_move state.player;
+    reset_level state 
+  end
   else begin 
     animate_death state.player;
     state
@@ -564,6 +567,7 @@ let update_waiting (state: t) : t =
   else {state with game_state = Dying; player = user'}
 
 let update_ended (state: t) : t = 
+  Player.reset_move state.player;
   state
 
 let update_level (state: t) (key: char) : t = 
@@ -584,3 +588,17 @@ let check_win (state: t) : int =
   if state.food_left = 0 then 1 
   else if state.lives = 0 then -1 
   else 0
+
+let animate_win (state: t) : unit =
+  let counter = ref 0 in 
+  let white_map = state.map_backgrounds.white in 
+  let blue_map = state.map_backgrounds.blue in 
+  while !counter < 8 do 
+    let value = !counter in 
+    if value mod 2 = 0 then Graphics.draw_image white_map 0 0
+    else Graphics.draw_image blue_map 0 0;
+    draw_player state.player;
+    counter := !counter + 1;
+    synchronize();
+    Unix.sleepf(0.2)
+  done

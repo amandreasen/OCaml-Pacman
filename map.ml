@@ -408,6 +408,11 @@ let coordinate_to_position (coordinate: coordinate) (map_corner: point) :
    in
    check_main map_list *)
 
+let is_center (pos: point) : bool = 
+  let x_mod = (fst pos) mod 100 in 
+  let y_mod = (snd pos) mod 100 in 
+  (x_mod = 25 || x_mod = 75) && (y_mod = 25 || y_mod = 75)
+
 let get_tile_type (pos: point) (map: t) = 
   let coordinate = position_to_coordinate pos in 
   let x = fst coordinate in 
@@ -429,10 +434,11 @@ let check_food (pos: point) (map: t) =
   let x = fst coordinate in 
   let y = snd coordinate in 
   let tile = map.tiles.(x).(y) in 
-  match tile.tile_type with 
-  | Food | Special -> 
-    map.tiles.(x).(y) <- {tile with tile_type = Empty} 
-  | _ -> ()
+  if is_center pos 
+  then match tile.tile_type with 
+    | Food | Special -> 
+      map.tiles.(x).(y) <- {tile with tile_type = Empty} 
+    | _ -> ()
 
 (* let check_move2 pos dir (tile_array: map_tile array) = 
    let h_list = Array.to_list tile_array in
@@ -793,7 +799,6 @@ let draw_wall_normal (tile: map_tile) (orientation: wall) : unit =
 (**[draw_wall tile wall_type] draws a wall of type [wall_type] in the map 
    tile [tile] in the GUI window. *) 
 let draw_wall (tile: map_tile) (wall_type: wall) : unit = 
-  set_color wall_color;
   match wall_type with 
   | Vert -> draw_wall_normal tile wall_type
   | Horz -> draw_wall_normal tile wall_type
@@ -852,7 +857,8 @@ let draw_map_row (map_row : map_tile array) : unit =
 
 (**[draw_map map] will draw the correct display of all tiles in the map [map]
    according to the function [draw_tile].*) 
-let draw_map (map: t) : unit = 
+let draw_map (map: t) (color: Graphics.color): unit = 
+  Graphics.set_color color;
   ignore (Array.map draw_map_row map.tiles);
   ()
 

@@ -36,3 +36,5 @@ val start_death: t -> t
 val animate_death: t -> unit 
 
 val death_ended: t -> bool
+
+val reset_move: t -> unit

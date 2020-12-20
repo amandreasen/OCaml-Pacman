@@ -134,6 +134,7 @@ let update_paused (game: game) (key: key) : game =
 
 let update_win (game: game) (key: key) : game = 
   Unix.sleep(1);
+  animate_win game.current;
   {game with state = Loading}
 
 let update_lose (game: game) : game =

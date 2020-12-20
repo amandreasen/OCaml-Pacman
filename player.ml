@@ -112,6 +112,9 @@ let move_attempt user move =
 let start_death user = 
   {user with move_counter = 0; dying = true;}
 
+let reset_move user = 
+  user.move_counter <- 0
+
 let animate_death user : unit =  
   Unix.sleepf(0.02);
   let move = user.move_counter in 
