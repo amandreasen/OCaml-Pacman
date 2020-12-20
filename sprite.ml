@@ -14,3 +14,4 @@ let sprite_from_sheet (sheet: Images.t) (x: int) (y: int) (width: int)
 
 let sprite_image sprite = 
   sprite
+[@@coverage off]

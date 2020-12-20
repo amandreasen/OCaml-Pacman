@@ -1,3 +1,10 @@
+(** Testing Plan: Because the majority of the game can be tested visually, the 
+    majority of our testing was done by play testing. By setting our initial 
+    number of lives to a higher value than normal, we were able to get to higher
+    levels and ensure our functionality works as expected. However, we were able 
+    to test functions that are not involved in drawing. We used bisect coverage 
+    to ensure that our tests cover as much functionality as possible. *)
+
 open OUnit2
 open Ghost
 open Map
@@ -60,6 +67,8 @@ let player_tests =
     player_position_test "New position after moving 50" player_1 (175,225);
     player_move_pos_test "After moving up 50, move right 50"
       player_1 (50,0) (225,225);
+    player_move_pos_test "moving (0,0) doesn't move the player" player_1 
+      (0,0) (225,225);
 
     player_prev_move_test "starting at (225,275), move up one tile (0,50)"
       player_1 (0,50);
@@ -138,6 +147,14 @@ let move_init_counter_test
       assert_equal expected_output (Ghost.init_counter ghost)
         ~printer: string_of_int)
 
+let ghost_state_test 
+    (name : string)
+    (ghost : Ghost.t)
+    (state : string): test =
+  name >:: (fun _ ->
+      assert_equal state (Ghost.set_state ghost state; Ghost.get_state ghost)
+        ~printer: (fun x -> x))
+
 let ghost_cyan = new_ghost 225 275 (50,0) "cyan"
 let ghost_red = new_ghost 0 0 (0,0) "red"
 let ghost_pink = new_ghost 675 125 (0,0) "pink"
@@ -172,8 +189,9 @@ let ghost_tests =
 
     following_counter_test "new ghost has following count of 0 "
       ghost_pink 0;
-    following_counter_test "incremented following of a new ghost is a following
-   count of 1" (Ghost.incr_following_count ghost_orange; ghost_orange) 1;
+    following_counter_test 
+      "incremented following of a new ghost is a following count of 1" 
+      (Ghost.incr_following_count ghost_orange; ghost_orange) 1;
 
     move_made_test "new ghost has made a move" ghost_orange true;
     move_made_test "when reset, the ghost has not made a move"
@@ -184,14 +202,21 @@ let ghost_tests =
 
     done_initializing_test "a new ghost is not done initializing" ghost_red
       false;
-    done_initializing_test "after finishing initializing, ghost is done
-   initializing" (Ghost.finish_initializing ghost_pink; ghost_pink) true;
+    done_initializing_test 
+      "after finishing initializing, ghost is done initializing" 
+      (Ghost.finish_initializing ghost_pink; ghost_pink) true;
 
     move_init_counter_test "new ghost has 0 init counter" ghost_pink 0;
     move_init_counter_test "after one move, ghost has 1 init counter"
       (Ghost.move_init ghost_cyan (0,0); ghost_cyan) 1;
-    move_init_counter_test "after initial move made by orange, red still has 0
-   init counter" (Ghost.move_init ghost_orange (0,0); ghost_red) 0;
+    move_init_counter_test 
+      "after initial move made by orange, red still has 0 init counter" 
+      (Ghost.move_init ghost_orange (0,0); ghost_red) 0;
+
+    ghost_state_test "active state" ghost_cyan "active";
+    ghost_state_test "scared1 state" ghost_orange "scared1";
+    ghost_state_test "scared2 state" ghost_pink "scared2";
+    ghost_state_test "eaten state" ghost_red "eaten";
   ]
 
 let food_count_test
@@ -230,13 +255,54 @@ let check_move_test
       assert_equal expected_output (Map.check_move pos map dir initialized)
         ~printer: string_of_bool)
 
+let map_init_moves 
+    (name : string)
+    (map : Map.t)
+    (expected_output : Constants.point array array): test = 
+  name >:: (fun _ ->
+      assert_equal expected_output (Map.initial_ghost_moves map))
+
+let map_init_positions 
+    (name : string)
+    (map : Map.t)
+    (expected_output : Constants.point array): test = 
+  name >:: (fun _ ->
+      assert_equal expected_output (Map.ghost_init_positions map))
+
 let cherry =
   let img = sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2 in
   {sprite = img; points = 100}
 
 let standard_map = make_map (0, 0) "standard" cherry
+
+let standard_ghost_moves = 
+  [|[|(0,0); (move_amt, 0); (0, move_amt); (0,move_amt)|]; 
+    [|(0,move_amt); (0,move_amt); (-move_amt, 0)|];
+    [|(0,move_amt); (0,move_amt); (move_amt, 0)|];
+    [|(0,0); (-move_amt, 0); (0, move_amt); (0,move_amt)|];|]
+
+let standard_ghost_positions = 
+  [|(675, 375); (725,375); (775, 375); (825,375);|]
+
 let ocaml_map = make_map (0, 0) "OCaml" cherry
+
+let ocaml_ghost_moves = 
+  [|[|(0,-move_amt); (0,-move_amt)|]; [|(0,-move_amt); (0,-move_amt)|];
+    [|(0,0); (0,0); (0,-move_amt); (0,-move_amt)|];
+    [|(0,0); (0,0); (0,-move_amt); (0,-move_amt)|]|]
+
+let ocaml_ghost_positions = 
+  [|(675, 325); (725,325); (675, 375); (725,375)|]
+
 let cs3110_map = make_map (0, 0) "3110" cherry
+
+let cs31110_ghost_moves = 
+  [|[|(0,-move_amt); (0,-move_amt); (-move_amt, 0)|]; 
+    [|(0,-move_amt); (0,-move_amt)|]; [|(0,-move_amt); (0,-move_amt)|];
+    [|(0,-move_amt); (0,-move_amt); (move_amt, 0)|]|]
+
+let cs3110_ghost_positions = 
+  [|(575, 375); (625, 375); (675, 375); (725, 375)|]
 
 let map_tests = [
   food_count_test "count initial food in standard map" standard_map 134;
@@ -270,6 +336,19 @@ let map_tests = [
     true  true;
   check_move_test "move in wall in standard map" (235,190) standard_map (10,0)
     true false;
+
+  map_init_moves "initial moves for standard map" standard_map 
+    standard_ghost_moves;
+  map_init_moves "initial moves for ocaml map" ocaml_map ocaml_ghost_moves;
+  map_init_moves "initial moves for cs3110 map" cs3110_map cs31110_ghost_moves;
+
+
+  map_init_positions "initial positions for standard map" standard_map 
+    standard_ghost_positions;
+  map_init_positions "initial positions for ocaml map" ocaml_map 
+    ocaml_ghost_positions;
+  map_init_positions "initial positions for cs3110 map" cs3110_map 
+    cs3110_ghost_positions;
 ]
 
 let suite =

@@ -221,6 +221,7 @@ let get_sprite_dir (ghost: t) (sprites: ghost_sprites) =
     | Down -> sprites.right 
   in 
   List.nth sprite_list ghost.move_counter
+[@@coverage off]
 
 let get_sprite g = 
   match g.state with 
