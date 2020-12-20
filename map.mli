@@ -35,12 +35,13 @@ val draw_map: t -> Graphics.color -> unit
    GUI window. *) 
 val draw_food: t -> unit
 
+(**[check_move pos map dir initialized] checks if the object with current
+   position [pos] can move in a particular [map] in a certain direction [dir]. 
+   It cannot move into the ghost tiles if it is [initialized].  *)
 val check_move: Constants.point -> t -> Constants.point -> bool -> bool
 
-(* val check_move_new: point -> t -> point -> bool *)
-
-(* val check_move_new: point -> t -> point -> bool *)
-
+(**[get_tile_type pos map] checks the type of the tile given the [pos] and 
+    the [map]. *)
 val get_tile_type: Constants.point -> t -> string
 
 (**[check_food point map] will check if the tile in [map] at pixel position
@@ -63,8 +64,13 @@ val food_count: t -> int
 (**[clear_fruit map] will clear any remaining fruit tiles from the map [map]. *) 
 val clear_fruit: t -> unit
 
+(**[generate_special map] will generate the special food given the [map]. *)
 val generate_special: t -> unit
 
+(**[initial_ghost_moves map] will generate the initial movement of the ghosts based
+   on the [map]. *)
 val initial_ghost_moves: t -> Constants.point array array 
 
+(**[ghost_init_positions map] will generate the initial position of each ghost
+   based on the [map]. *)
 val ghost_init_positions: t -> Constants.point array

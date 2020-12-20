@@ -189,6 +189,8 @@ let ocaml_maze =
       Wall(Corner (Top, Right))|];
   |]
 
+(** The cs3110_maze is a 2D array of tile types that represents the layout of
+    an CS 3110 game map.*)
 let cs3110_maze =
   [|
     [|Wall (Corner (Bot, Left)); Wall Vert; Wall Vert; Wall Vert;
@@ -263,75 +265,9 @@ let cs3110_maze =
       Wall Vert; Wall(Corner (Top, Right))|];
   |]
 
-
-
-(*let cs3110_maze =
-  [|
-    [|Wall (Corner (Bot, Left)); Wall Vert; Wall Vert; Wall Vert;
-      Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
-      Wall Vert; Wall(Corner (Top, Left))|];
-    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
-      Wall Horz|];
-    [|Wall Horz; Food; Wall (End Left); Food; Wall (Corner (Bot, Left)); 
-      Wall Vert; Wall Vert; Wall Vert; Wall (Corner (Top, Left)); Food; 
-      Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Ghost; Ghost; Ghost; 
-      Wall Horz; Food; Wall Horz|];
-    [|Wall Horz; Food; Wall (End Right); Food; Wall (End Right); Ghost; Ghost; 
-      Ghost; Wall (End Right); Food; Wall Horz|];
-    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
-      Wall Horz|];
-    [|Wall Horz; Food; Wall (End Left); Food; Wall (End Left); Food; 
-      Wall (Corner (Bot, Left)); Wall Vert; Wall (Corner (Top, Left)); Food; 
-      Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Food; Wall Horz; 
-      Food; Wall Horz; Food; Wall Horz|];
-    [|Wall Horz; Food; Wall (End Right); Food; Wall (Corner (Bot, Right)); 
-      Wall Vert; Wall (Corner (Top, Right)); Food; Wall (End Right); Food; 
-      Wall Horz|];
-    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
-      Wall Horz|];
-    [|Wall Horz; Food; Wall (End Left); Food; Wall (Corner (Bot, Left)); 
-      Wall (Corner (Top, Left)); Food; Wall (Corner (Bot, Left)); 
-      Wall (Corner (Top, Left)); Food; Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall (Corner (Bot, Right)); 
-      Wall (Corner (Top, Right)); Food; Wall (Corner (Bot, Right)); 
-      Wall (Corner (Top, Right)); Food; Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Food; Food; 
-      Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall (End Left); Food; Wall (End Left);
-      Food; Wall (End Left); Food; Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Food; Wall Horz; Food; 
-      Wall Horz; Food; Wall Horz|];
-    [|Wall Horz; Food; Wall (End Right); Food; Wall (Corner (Bot, Right)); 
-      Wall Vert; Wall Vert; Wall Vert; Wall (Corner (Top, Right)); Food;
-      Wall Horz|];
-    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
-      Wall Horz|];
-    [|Wall Horz; Food; Wall (End Left); Food; Wall (End Bot); Wall Vert; 
-      Wall Vert; Wall Vert; Wall (End Top); Food; Wall Horz|]; 
-    [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Food; Food; 
-      Wall Horz|];
-    [|Wall Horz; Food; Wall (End Right); Food; Wall (End Bot); Wall Vert; 
-      Wall Vert; Wall Vert; Wall (End Top); Food; Wall Horz|];
-    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
-      Wall Horz|];
-    [|Wall Horz; Food; Wall (End Left); Food; Wall (Corner (Bot, Left)); 
-      Wall Vert; Wall Vert; Wall Vert; Wall (Corner (Top, Left)); Food; 
-      Wall Horz|];
-    [|Wall Horz; Food; Wall Horz; Food; Wall Horz; Ghost; Ghost; Ghost; 
-      Wall Horz; Food; Wall Horz|];
-    [|Wall Horz; Food; Wall (End Right); Food; Wall (Corner (Bot, Right)); 
-      Wall Vert; Wall Vert; Wall Vert; Wall (Corner (Top, Right)); Food; 
-      Wall Horz|];
-    [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food; 
-      Wall Horz|];
-    [|Wall (Corner (Bot, Right)); Wall Vert; Wall Vert; Wall Vert;
-      Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
-      Wall Vert; Wall (Corner (Top, Right))|];
-  |]*)
-
-
+(** [initial_ghost_moves map] will generate the initial movement of the ghosts based
+    on the [map]. 
+    Requires: [map] is a valid map. *)
 let initial_ghost_moves map = 
   map.init_ghost_moves
 
@@ -359,60 +295,13 @@ let coordinate_to_position (coordinate: coordinate) (map_corner: point) :
   let y_position = y_coordinate * tile_size + map_y in 
   (x_position, y_position)
 
-(* let check_move_new (pos: point) (map: t) (dir: point) =
-   let new_point = (fst pos + fst dir + 3, snd pos + snd dir + 3) in
-   let coordinate = position_to_coordinate new_point in 
-   let x = fst coordinate in 
-   let y = snd coordinate in 
-   let tile = map.tiles.(x).(y) in 
-   match tile.tile_type with 
-   | Wall _ -> 
-    false
-   | _ -> true *)
-
-(* let check_contains pos dir bottom_left = 
-   ((fst) pos + check_tile_size/2 + (fst dir)<= (fst) bottom_left + tile_size) &&
-   ((fst) pos - check_tile_size/2 +(fst dir) <= (fst) bottom_left) &&
-   ((snd) pos + check_tile_size/2 + (snd dir)<= (snd) bottom_left + tile_size) &&
-   ((snd) pos - check_tile_size/2 + (snd dir)<= (snd) bottom_left) 
-
-   let get_tile_type2 pos (tile_array:map_tile array) = 
-   let h_list = Array.to_list tile_array in
-   let rec check_tile (list:map_tile list) =
-    match list with
-    | []-> ""
-    | h::t ->
-      if check_contains (pos) (0,0) (h.bottom_left) then
-        match h.tile_type with
-        | Wall _ -> "Wall"
-        | Empty -> "Empty"
-        | Food -> "Food"
-        | Special -> "Special"
-        | Ghost -> "Ghost"
-        | Fruit _ -> "Fruit"
-
-      else check_tile t in
-   check_tile h_list
-
-   let get_tile_type pos map =   
-   (* The position of the pacman is the center of the circle, each time it moves 
-     1/5 of a tile*)
-   let map_list = Array.to_list map.tiles in
-   let rec check_main map_l=
-    match map_l with
-    | []-> ""
-    | h::t -> 
-      match (get_tile_type2 pos h) with
-      | "" -> check_main t
-      | str-> str
-   in
-   check_main map_list *)
-
 let is_center (pos: point) : bool = 
   let x_mod = (fst pos) mod 100 in 
   let y_mod = (snd pos) mod 100 in 
   (x_mod = 25 || x_mod = 75) && (y_mod = 25 || y_mod = 75)
 
+(**[get_tile_type pos map] checks the type of the tile given the [pos] and 
+    the [map]. *)
 let get_tile_type (pos: point) (map: t) = 
   let coordinate = position_to_coordinate pos in 
   let x = fst coordinate in 
@@ -440,40 +329,12 @@ let check_food (pos: point) (map: t) =
       map.tiles.(x).(y) <- {tile with tile_type = Empty} 
     | _ -> ()
 
-(* let check_move2 pos dir (tile_array: map_tile array) = 
-   let h_list = Array.to_list tile_array in
-   let rec check_tile (list: map_tile list) =
-    match list with
-    | []-> ""
-    | h::t ->
-      if check_contains ( pos) dir ( h.bottom_left) then
-        match h.tile_type with
-        | Wall _ -> "Wall"
-        | Empty -> "Empty"
-        | Food -> "Food"
-        | Special ->"Special"
-        | Ghost -> "Ghost"
-        | Fruit _ -> "Fruit"
-
-      else check_tile t in
-   check_tile h_list
-
-   let check_move pos map dir =   
-   (* The position of the pacman is the center of the circle, each time it moves 
-     1/5 of a tile*)
-   let new_pos = (fst pos + fst dir, snd pos + snd dir) in
-   let map_list = Array.to_list map.tiles in
-   let rec check_main map_l =
-    match map_l with
-    | []-> false
-    | h::t -> 
-      match (check_move2 new_pos dir h) with
-      | "Wall"-> false
-      | ("Empty" | "Food" | "Special"| "Ghost"| "Fruit") -> true
-      | _ -> check_main t
-   in
-   check_main map_list *)
-
+(** [check_valid p m i] is a helper function that will check if the new point
+    [pos] is valid in the given [map] based on if the point is on the wall. If 
+    it is, the function returns true, if it is not, and the point is in a ghost 
+    tile, the function returns true if the ghost tiles are not initialized and 
+    false if the ghost tiles are initialized. Otherwise, the function returns 
+    true. *) 
 let check_valid (pos: point) (map: t) (initialized: bool) =
   let coordinate = position_to_coordinate pos in 
   let x = fst coordinate in 
@@ -484,6 +345,10 @@ let check_valid (pos: point) (map: t) (initialized: bool) =
   | Ghost -> not initialized
   | _ -> true
 
+(** [check_move p m d i] is a function that will check if the movement [dir] 
+    from the current point [pos] is valid in the given [map] based on if all 
+    four corners of the new point are valid for the object. [i] represents
+    if the ghost tiles are initialized or not. *)
 let check_move (pos: point) (map: t) (dir: point) (initialized: bool)= 
   let half = player_width / 2 in 
   let pos' = (fst pos + fst dir, snd pos + snd dir) in
@@ -494,12 +359,6 @@ let check_move (pos: point) (map: t) (dir: point) (initialized: bool)=
   check_valid top_right map initialized && check_valid top_left map initialized 
   && check_valid bot_right map initialized 
   && check_valid bot_left map initialized
-
-(* let check_contains2 pos bottom_left = 
-   ((fst) pos + pacman_rad <= (fst) bottom_left + tile_size) &&
-   ((fst) pos - pacman_rad <= (fst) bottom_left) &&
-   ((snd) pos + pacman_rad <= (snd) bottom_left + tile_size) &&
-   ((snd) pos - pacman_rad <= (snd) bottom_left)  *)
 
 (** [position_to_coordinate p] will convert a pixel position [p] in the GUI to 
     a coordinate in the map array.
@@ -567,6 +426,9 @@ let make_tiles (x_dim: int) (y_dim: int) (map_corner: point)
   done;
   tile_array
 
+(** [make_player_tiles tl] gives the possible positions of the player based on
+    the current tiles in the map [tl]. These are tiles which are either food or 
+    special food. *)
 let make_player_tiles (tile_list: map_tile array array) : coordinate array = 
   let player_tiles = ref [||] in
   for x = 0 to Array.length tile_list - 1 do 
@@ -580,7 +442,9 @@ let make_player_tiles (tile_list: map_tile array array) : coordinate array =
   done;
   !player_tiles
 
-
+(** [standard_g_moves, standard_g_locs, ocaml_g_moves, ocaml_g_locs, 
+    cs3110_g_moves, cs3110_g_locs] represents the ghost moves and starting 
+    locations for each map, ocaml, standard, and cs3110, respectively. *)
 let standard_g_moves = 
   let g1_moves = [|(0,0); (move_amt, 0); (0, move_amt); (0,move_amt)|] in
   let g2_moves = [|(0,move_amt); (0,move_amt); (-move_amt, 0)|] in 
@@ -631,6 +495,7 @@ let make_map (corner: point) (maze_name: string) (fruit: fruit) : t =
     init_ghost_moves = ghost_box_moves;
     init_ghost_locations = init_g_locs;
   }
+
 
 let ghost_init_positions map = 
   map.init_ghost_locations
@@ -862,6 +727,7 @@ let draw_map (map: t) (color: Graphics.color): unit =
   ignore (Array.map draw_map_row map.tiles);
   ()
 
+(**[select_tile mp t tt] selects a tile*)
 let select_tile (map_tiles: map_tile array array) 
     (tiles: coordinate array) (tile_type: tile) : map_tile = 
   let tile_size = Array.length tiles in 
@@ -881,6 +747,7 @@ let select_tile (map_tiles: map_tile array array)
   done;
   !tile
 
+(** [generate_fruit m] generates the fruit in the map given a particular [m]. *)
 let generate_fruit (map: t) : unit = 
   let tiles = map.tiles in 
   let tile = select_tile tiles map.player_tiles Empty in 
@@ -892,6 +759,7 @@ let generate_fruit (map: t) : unit =
     tiles.(x).(y) <- {tile with tile_type = Fruit map.fruit}
   | _ -> ()
 
+(** [clear_fruit m] clears all the fruit in the map [m]. *)
 let clear_fruit (map: t) : unit = 
   let tiles = map.tiles in 
   let cols = Array.length tiles in 
@@ -917,6 +785,7 @@ let get_tile_value (point: point) (map: t) : int =
   | Fruit fruit -> fruit.points 
   | _ -> 0
 
+(** [food_count m] counts the amount of food in the map [m] *)
 let food_count (map: t) : int = 
   let tiles = map.tiles in 
   let check_food acc tile =
@@ -927,12 +796,16 @@ let food_count (map: t) : int =
   let fold_col acc col = Array.fold_left check_food acc col in 
   Array.fold_left fold_col 0 tiles
 
+(** [filter_bounds lx ux ly uy c] returns if a particular tile given by [c]
+    is contained within the given bounds [lx ux ly uy] *)
 let filter_bounds (lower_x: int) (upper_x: int) (lower_y: int) (upper_y: int)
     (coordinate: int * int): bool = 
   let x = fst coordinate in 
   let y = snd coordinate in 
   x >= lower_x && x <= upper_x && y >= lower_y && y <= upper_y 
 
+(** [special_helper t c] selects tiles to contain special food based on the 
+    current map tiles [t] and the available coordinates [c]. *)
 let special_helper (tiles: map_tile array array) 
     (coordinates: coordinate list) : unit = 
   let coord_array = Array.of_list coordinates in
