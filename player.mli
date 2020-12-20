@@ -1,3 +1,7 @@
+
+
+(**The [Player.t] type contains information about the player's position, 
+   movement history, and animation sprites. *) 
 type t
 
 (** [new_player] is a hard-coded player with initial coordinates centered at 
@@ -38,6 +42,10 @@ val start_death: t -> t
    death animation has concluded, the function will return false. *) 
 val animate_death: t -> unit 
 
+(**[death_ended player] will return true if the last death animation for 
+   [player] has ended and false otherwise.  *) 
 val death_ended: t -> bool
 
+(** [reset_move player] will reset the [player] to its initial move animation,
+    a full circle.  *) 
 val reset_move: t -> unit

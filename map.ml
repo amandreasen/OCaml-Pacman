@@ -518,24 +518,23 @@ let draw_corner_full (tile: map_tile) (corner_type: corner) : unit =
    a pixel distance of [shift] from the tile side matching its orientation.*)
 let calculate_coordinates (dir: orientation) (margin: int) (tile_x: int)
     (tile_y: int) (shift: int) : point * point = 
-  let margin_fst = margin in 
   let margin_snd = tile_size - margin in 
   let shift_comp = tile_size - shift in
   match dir with 
   | Top -> 
-    let fst = (tile_x + margin_fst, tile_y) in 
+    let fst = (tile_x + margin, tile_y) in 
     let snd = (tile_x + margin_snd, tile_y) in 
     (fst, snd)
   | Bot -> 
-    let fst = (tile_x + margin_fst, tile_y + shift_comp) in 
+    let fst = (tile_x + margin, tile_y + shift_comp) in 
     let snd = (tile_x + margin_snd, tile_y + shift_comp) in
     (fst, snd)
   | Left -> 
-    let fst = (tile_x + shift_comp, tile_y + margin_fst) in
+    let fst = (tile_x + shift_comp, tile_y + margin) in
     let snd = (tile_x + shift_comp, tile_y + margin_snd) in 
     (fst, snd)
   | Right -> 
-    let fst = (tile_x, tile_y + margin_fst) in 
+    let fst = (tile_x, tile_y + margin) in 
     let snd = (tile_x, tile_y + margin_snd) in 
     (fst, snd)
 

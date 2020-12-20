@@ -12,11 +12,8 @@ type tile
     the tile's tile type and its pixel location in the GUI window.*) 
 type map_tile
 
-(** A [point] is of the form (x,y) and represents a pixel position in the GUI 
-    window. In (x,y), x is the x-coordinate of the pixel position and y is the
-    y-coordinate of the pixel position. *)
-
-
+(** A [fruit] contains a fruit sprite and the number of points the fruit is 
+    worth. *)
 type fruit = {
   sprite: Sprite.t;
   points: int; 
