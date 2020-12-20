@@ -171,6 +171,8 @@ let start_following g =
   g.is_following <- true;
   g.following_counter <- 1
 
+(** [get_sprite_dir] is the sprite that is looking in the direction that the 
+    ghost is moving in. *)
 let get_sprite_dir (g: t) (sprites: ghost_sprites) = 
   let sprite_list = 
     match g.direction with

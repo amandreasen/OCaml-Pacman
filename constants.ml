@@ -19,11 +19,8 @@ let move_amt = 10
 
 let sleep_time = 0.036
 
-(** [closeness_threshold] encompassess the nearest 8 tiles around the user.  *)
 let closeness_threshold = 50.0 *. sqrt 2.0  
 
-(** [max_follow_time] is the maximum number of seconds that a ghost will follow
-    the user. *)
 let max_follow_time = 100. *. sleep_time
 
 let max_role_rev_time = 100
@@ -36,10 +33,8 @@ let sprite_sheet =
 
 (* map constants *)
 
-(* point value for food *)
 let food_val = 1
 
-(* point value for special food *)
 let special_val = 5 
 
 (* Constants *)
