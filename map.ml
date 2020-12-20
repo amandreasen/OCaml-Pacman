@@ -293,13 +293,13 @@ let coordinate_to_position (coordinate: coordinate) (map_corner: point) :
   let x_position = x_coordinate * tile_size + map_x in 
   let y_position = y_coordinate * tile_size + map_y in 
   (x_position, y_position)
-
+(* 
 (** [is_center pos] returns true if the pixel position is the center of a map
     tile and false otherwise.  *) 
 let is_center (pos: point) : bool = 
   let x_mod = (fst pos) mod 100 in 
   let y_mod = (snd pos) mod 100 in 
-  (x_mod = 25 || x_mod = 75) && (y_mod = 25 || y_mod = 75)
+  (x_mod = 25 || x_mod = 75) && (y_mod = 25 || y_mod = 75) *)
 
 (**[get_tile_type pos map] checks the type of the tile given the [pos] and 
     the [map]. *)
@@ -324,11 +324,10 @@ let check_food (pos: point) (map: t) =
   let x = fst coordinate in 
   let y = snd coordinate in 
   let tile = map.tiles.(x).(y) in 
-  if is_center pos 
-  then match tile.tile_type with 
-    | Food | Special -> 
-      map.tiles.(x).(y) <- {tile with tile_type = Empty} 
-    | _ -> ()
+  match tile.tile_type with 
+  | Food | Special -> 
+    map.tiles.(x).(y) <- {tile with tile_type = Empty} 
+  | _ -> ()
 
 (** [check_valid p m i] is a helper function that will check if the new point
     [pos] is valid in the given [map] based on if the point is on the wall. If 
@@ -792,7 +791,7 @@ let food_count (map: t) : int =
   let tiles = map.tiles in 
   let check_food acc tile =
     match tile.tile_type with 
-    | Food | Special -> acc + 1 
+    | Food | Special -> acc + 1
     | _ -> acc 
   in
   let fold_col acc col = Array.fold_left check_food acc col in 
@@ -831,3 +830,10 @@ let generate_special (map: t) : unit =
   special_helper tiles upper_right; 
   special_helper tiles lower_left; 
   special_helper tiles lower_right
+
+let get_corner (map: t) (pos: point) : point = 
+  let coordinate = position_to_coordinate pos in 
+  let x = fst coordinate in 
+  let y = snd coordinate in 
+  let tile = map.tiles.(x).(y) in 
+  tile.bottom_left

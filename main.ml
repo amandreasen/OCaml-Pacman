@@ -8,8 +8,11 @@ open Ghost
 open Sprite
 open Constants
 
+(** The type [state] represents a game application state. *) 
 type state = Loading | Active | Paused | Waiting | Win | Lose 
 
+(** The [key] type represents a user keypress [k] with [Key k] and [None] 
+    if there is no keypress. *) 
 type key = None | Key of char
 
 type game = {
@@ -39,22 +42,13 @@ let apple =
 
 let grapes = 
   let img = sprite_from_sheet sprite_sheet 6 3 fruit_width fruit_height 2 in 
-  {sprite = img; points = 900}
+  {sprite = img; points = 1000}
 
 let fruits = [|cherry; strawberry; peach; apple; grapes;|]
 
 let maps = [|"standard"; "OCaml"; "3110"|]
 
 let fruit_num = Array.length fruits
-
-let tile_type str = 
-  ("Tile type: " ^ str)
-
-let food_count food = 
-  ("Food Count: " ^ string_of_int food)
-
-let check_move b = 
-  ("Can Move: " ^ string_of_bool b)
 
 let window_init (settings: string) : unit = 
   open_graph settings;
@@ -198,6 +192,8 @@ let rec update (game: game) : unit =
     | Waiting -> update_waiting game
   in 
   if game'.state <> Loading then draw game';
+  (* Graphics.draw_image (pts_1000 |> sprite_image |> Graphic_image.of_image) 25 
+     25; *)
   synchronize ();
   Unix.sleepf(sleep_time); 
   update game'

@@ -54,7 +54,7 @@ let check_tile_size = 51
 
 (*State constants*)
 let fruit_limit = 50
-let fruit_timer = 300
+let fruit_timer = 350
 
 let png_wl = 50
 
@@ -63,3 +63,5 @@ let ghost_width = 50
 let ghost_height = 50
 let eaten_time = 50
 let eaten_threshold = 15
+
+let label_time = 15

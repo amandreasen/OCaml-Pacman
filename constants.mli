@@ -112,3 +112,6 @@ val eaten_time: int
 (** [eaten_threshold] is the amount of time a ghost will wait before turning 
     white after being eaten by a player. *) 
 val eaten_threshold: int
+
+(** [label_time] is the amount of time a label should be displayed.*) 
+val label_time: int

@@ -21,6 +21,14 @@ type background = {
   blue: Graphics.image
 }
 
+(**A [label] contains a label sprite and a timer that shows how much longer 
+   the label should be displayed. *) 
+type label = {
+  label: Sprite.t;
+  position: point;
+  mutable timer: int
+}
+
 type t = {
   map_name: string;
   player : Player.t;
@@ -39,8 +47,36 @@ type t = {
   game_state: game_state;
   mutable role_reversed: bool;
   mutable reversal_timer : int;
-  ghosts_eaten: int
+  ghosts_eaten: int;
+  labels: label list
 }
+
+let pts_200 = 
+  sprite_from_sheet sprite_sheet 0 8 48 50 8
+
+let pts_400 = 
+  sprite_from_sheet sprite_sheet 0 8 48 50 56
+
+let pts_800 = 
+  sprite_from_sheet sprite_sheet 0 8 50 50 104
+
+let pts_1600 = 
+  sprite_from_sheet sprite_sheet 0 8 60 50 155
+
+let pts_100 = 
+  sprite_from_sheet sprite_sheet 0 9 47 50 10
+
+let pts_300 = 
+  sprite_from_sheet sprite_sheet 0 9 47 50 57
+
+let pts_500 = 
+  sprite_from_sheet sprite_sheet 0 9 48 50 105
+
+let pts_700 = 
+  sprite_from_sheet sprite_sheet 0 9 49 50 154
+
+let pts_1000 = 
+  sprite_from_sheet sprite_sheet 0 9 58 50 205
 
 let points state =
   state.points
@@ -73,24 +109,54 @@ let initial_state player map ghosts_entry backgrounds map_name lives = {
   game_state = Active;
   role_reversed = false;
   reversal_timer = 0;
-  ghosts_eaten = 0
+  ghosts_eaten = 0;
+  labels = [];
 } 
+
+(** [get_pts_image pts] returns the sprite of the points image corresponding 
+    to the point amount [pts]. *) 
+let get_pts_image (pts: int) : Sprite.t = 
+  match pts with 
+  | 100 -> pts_100
+  | 200 -> pts_200 
+  | 300 -> pts_300
+  | 400 -> pts_400 
+  | 500 -> pts_500
+  | 700 -> pts_700
+  | 800 -> pts_800 
+  | 1000 -> pts_1000
+  | 1600 -> pts_1600 
+  | _ -> failwith "invalid point amount"
+
+(** [make_label pts pos] will make a label with the appropriate sprite for the 
+    corresponding point amount [pts] with a bottom left corner of [pos]. *) 
+let make_label (pts: int) (pos: point) = 
+  let img = get_pts_image pts in
+  {label = img; position = pos; timer = label_time}
+
+(**[update_fruit value food state] returns the updated level [state] with 
+   a point counter incremented by [value], a food remaining value of [food], 
+   and a label where the fruit was eaten. *) 
+let update_fruit (value: int) (food: int) (state: t) : t = 
+  let corner = Player.get_position state.player |> get_corner state.map in 
+  let label = make_label value corner in 
+  {state with points = state.points + value; 
+              food_left = food; 
+              fruit_eaten = true;
+              labels = label :: state.labels} 
 
 (**[update_state_food value state] will update the points and available 
    fruit in [state] using the point value [value] to determine which tile the
    player interacted with in the current frame. *) 
 let update_state_food (value: int) (state: t) = 
-  let points = state.points in
-  let food_left = 
+  let food = 
     if value = food_val || value = special_val then state.food_left - 1 
     else state.food_left
   in
-  let fruit_eaten = if value > 10 then true else state.fruit_eaten in
-  let state' = {state with points = points + value; 
-                           food_left = food_left; 
-                           fruit_eaten = fruit_eaten;} 
+  let state' = if value > 10 then update_fruit value food state 
+    else {state with points = state.points + value; food_left = food} 
   in
-  if food_left = fruit_limit && not state.fruit_generated then begin 
+  if food = fruit_limit && not state.fruit_generated then begin 
     generate_fruit state.map;
     {state' with fruit_generated = true;
                  fruit_active = true;
@@ -172,7 +238,11 @@ let update_eaten (state: t) (ghost: Ghost.t) : t =
     set_state ghost "eaten"; 
     let eaten = min (state.ghosts_eaten + 1) 4 in 
     let points = get_ghost_value eaten in
-    {state with ghosts_eaten = eaten; points = state.points + points}
+    let corner = Player.get_position state.player |> get_corner state.map in
+    let label = make_label points corner in
+    {state with ghosts_eaten = eaten; 
+                points = state.points + points;
+                labels = label :: state.labels}
 
 (** [update_game_state state map] will return an updated level that represents
     the level [state] with the map [map] after ghost-player overlaps have been 
@@ -214,6 +284,17 @@ let update_timer (state: t) : unit =
     state.role_reversed <- false
   end 
 
+let update_fruit_timer (state: t) : t =
+  let timer = 
+    if state.fruit_timer > 0 then state.fruit_timer - 1 else 0 
+  in 
+  if timer = 0 && state.fruit_active then 
+    begin 
+      clear_fruit state.map;
+      {state with fruit_timer = timer; fruit_active = false}
+    end 
+  else {state with fruit_timer = timer} 
+
 (**[update_state] will return an updated level representing the updated level 
    [state].*) 
 let update_state (state: t) : t = 
@@ -223,16 +304,8 @@ let update_state (state: t) : t =
                |> update_state_food point_val 
   in 
   if state'.food_left = 0 then Player.reset_move state.player;
-  let timer = 
-    if state'.fruit_timer > 0 then state'.fruit_timer - 1 else 0 
-  in 
-  let state'' = update_special_food state' point_val in 
-  if timer = 0 && state'.fruit_active then 
-    begin 
-      clear_fruit state.map;
-      {state'' with fruit_timer = timer; fruit_active = false}
-    end 
-  else {state'' with fruit_timer = timer} 
+  let state'' = update_fruit_timer state' in 
+  update_special_food state'' point_val 
 
 (** [new_follower state ghost] is [state] with a new following ghost [ghost]. *)
 let new_follower state ghost = 
@@ -241,15 +314,16 @@ let new_follower state ghost =
 (** [remove_follower state ghost] is [state] the following ghost [ghost] 
     removed. *)
 let remove_follower state ghost = 
-  let rec find_follower acc = function 
-    |[] -> {state with follower_ghosts = acc}
-    |h::t -> begin 
-        if h = ghost 
-        then find_follower acc t 
-        else find_follower (h::acc) t
-      end 
-  in 
-  find_follower [] state.follower_ghosts
+  List.filter (fun g -> g <> ghost) state.follower_ghosts 
+(* let rec find_follower acc = function 
+   |[] -> {state with follower_ghosts = acc}
+   |h::t -> begin 
+      if h = ghost 
+      then find_follower acc t 
+      else find_follower (h::acc) t
+    end 
+   in 
+   find_follower [] state.follower_ghosts *)
 
 (** [make_ghosts_helper num map] is the ghost array of [num] ghosts. Initial 
     positions of the ghosts are determined based on [map]'s initial ghost 
@@ -585,6 +659,18 @@ let draw_lives state : unit =
   ignore (List.mapi (draw_helper 150 60) (lives_img_lst state)); 
   ()
 
+(** [draw_labels state] will draw all map labels in level [state] to the 
+    current open GUI window. *) 
+let draw_labels state : unit = 
+  let draw_helper label = 
+    let x = fst label.position in 
+    let y = snd label.position in
+    let img = label.label |> sprite_image |> Graphic_image.of_image in 
+    Graphics.draw_image img x y 
+  in 
+  ignore (List.map draw_helper state.labels);
+  ()
+
 (** [move_player user map key] moves [user]. The direction is determined by 
     trying to move [user] in the direction specified by the  keyboard input 
     [key], the previous keyboard input, the previous move made by [user], and if 
@@ -601,6 +687,7 @@ let move_player user map key =
     window. The player is drawn only if [display_player] is true. *) 
 let draw_game (state: t) (display_player: bool)  = 
   draw_current_map state.map state.map_backgrounds.blue;
+  draw_labels state;
   draw_lives state;
   if display_player then draw_player state.player else ();
   draw_ghosts state.ghosts
@@ -624,6 +711,16 @@ let init_level (map_name: string) (fruit: fruit) (num_ghosts: int)
     initial_state player map ghosts bgs map_name lives
   in make_level map_name
 
+(** [update_labels state] updates the countdown timers on all active 
+    labels and removes those with a timer of 0. *) 
+let update_labels (state: t) : t = 
+  let update_timer label = 
+    label.timer <- label.timer - 1 
+  in
+  ignore (List.map update_timer state.labels);
+  let labels = List.filter (fun label -> label.timer > 0) state.labels in 
+  {state with labels = labels}
+
 (**[update_active state key] will update an active level [state] with the
    user keypress [key]. *) 
 let update_active (state: t) (key: char) : t = 
@@ -634,7 +731,7 @@ let update_active (state: t) (key: char) : t =
   move_player user map key;  
   move_ghosts state ghosts map user; 
   update_ghosts state;
-  let state' = update_state state in
+  let state' = update_state state |> update_labels in
   check_food (Player.get_position user) map;
   state'
 
@@ -648,7 +745,7 @@ let reset_level (state: t) : t =
     Unix.sleep(1);
     {state with game_state = Active; 
                 ghosts = make_ghosts_helper state.num_ghosts state.map;
-                player = new_player();
+                player = new_player ();
                 lives = state.lives - 1}
   end
 
