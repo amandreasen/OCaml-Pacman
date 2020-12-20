@@ -195,8 +195,7 @@ let cs3110_maze =
   [|
     [|Wall (Corner (Bot, Left)); Wall Vert; Wall Vert; Wall Vert;
       Wall Vert; Wall Vert; Wall Vert; Wall Vert; Wall Vert;
-      Wall Vert; Wall(Corner (Top, Left))
-    |];
+      Wall Vert; Wall(Corner (Top, Left))|];
     [|Wall Horz; Food; Food; Food; Food; Food; Food; Food; Food; Food;
       Wall Horz|];
     [|Wall Horz; Food; Wall (End(Left)); Food; Wall (Corner (Bot, Left));
@@ -204,13 +203,13 @@ let cs3110_maze =
       Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Wall (End(Right));
       Food; Wall (End(Right)); Food; Wall Horz; Food; Wall Horz|];
-    [|Wall Horz; Food; Wall (End(Right)); Food; Food; Food; Food; Food; Wall (End(Right)); Food;
-      Wall Horz|];
+    [|Wall Horz; Food; Wall (End(Right)); Food; Food; Food; Food; Food; 
+      Wall (End(Right)); Food; Wall Horz|];
     [|Wall Horz; Food; Food; Food; Wall (End(Left)); Wall (Corner (Bot, Left));
       Wall (Corner (Top,Left)); Food; Food; Food; Wall Horz|];
     [|Wall Horz; Food; Wall (End Left); Food; Wall (Corner (Bot, Right));
-      Wall (Corner (Top, Right)); Wall (End (Right)); Food; Wall (End Left); Food; 
-      Wall Horz|];
+      Wall (Corner (Top, Right)); Wall (End (Right)); Food; Wall (End Left); 
+      Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; Food;
       Wall Horz|];
     [|Wall Horz; Food; Wall (End Right); Food; Wall (End(Bot)); Wall Vert;
@@ -229,27 +228,23 @@ let cs3110_maze =
       Food; Wall Horz; Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Food; Food; Food; Food; Wall Horz; Food;
       Wall Horz|];
-    [|Wall Horz; Food; Wall (End Right); Food; Wall (End(Left)); Wall (End(Left)); 
-      Wall (End(Left));
-      Food; Wall (End Right); Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Wall (End(Left));
+      Wall (End(Left)); Wall (End(Left)); Food; Wall (End Right); Food; 
+      Wall Horz|];
     [|Wall Horz; Food; Food; Food; Wall (Corner (Bot,Right));
       Wall Vert;
       Wall (Corner (Top,Right));
       Food; Food; Food; Wall Horz|];
-    [|Wall Horz; Food; Wall (End(Left)); Food; Food; Food; Food; Food; Wall (End(Left)); Food;
-      Wall Horz|];
+    [|Wall Horz; Food; Wall (End(Left)); Food; Food; Food; Food; Food; 
+      Wall (End(Left)); Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Wall (End(Bot)); Wall Vert; 
-      Wall (End(Top)); Food;
-      Wall Horz; Food;
-      Wall Horz|];
-    [|Wall Horz; Food; Wall (End Right); Food; Food; Food; Food; Food; Wall (End Right); Food;
-      Wall Horz|];
-    [|Wall Horz; Food; Food; Food; Wall (End (Bot)); Wall Vert; Wall (End (Top));
-      Food;
-      Food; Food;
-      Wall Horz|];
-    [|Wall Horz; Food; Wall (End(Left)); Food; Food; Food; Food; Food; Wall (End(Left)); Food;
-      Wall Horz|];
+      Wall (End(Top)); Food; Wall Horz; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End Right); Food; Food; Food; Food; Food; 
+      Wall (End Right); Food; Wall Horz|];
+    [|Wall Horz; Food; Food; Food; Wall (End (Bot)); Wall Vert; 
+      Wall (End (Top)); Food; Food; Food; Wall Horz|];
+    [|Wall Horz; Food; Wall (End(Left)); Food; Food; Food; Food; Food; 
+      Wall (End(Left)); Food; Wall Horz|];
     [|Wall Horz; Food; Wall Horz; Food; Wall (Corner(Bot,Left)); 
       Wall Vert;
       Wall (Corner (Top,Left)); Food; Wall Horz; Food;
@@ -293,13 +288,6 @@ let coordinate_to_position (coordinate: coordinate) (map_corner: point) :
   let x_position = x_coordinate * tile_size + map_x in 
   let y_position = y_coordinate * tile_size + map_y in 
   (x_position, y_position)
-(* 
-(** [is_center pos] returns true if the pixel position is the center of a map
-    tile and false otherwise.  *) 
-let is_center (pos: point) : bool = 
-  let x_mod = (fst pos) mod 100 in 
-  let y_mod = (snd pos) mod 100 in 
-  (x_mod = 25 || x_mod = 75) && (y_mod = 25 || y_mod = 75) *)
 
 (**[get_tile_type pos map] checks the type of the tile given the [pos] and 
     the [map]. *)
@@ -325,8 +313,7 @@ let check_food (pos: point) (map: t) =
   let y = snd coordinate in 
   let tile = map.tiles.(x).(y) in 
   match tile.tile_type with 
-  | Food | Special -> 
-    map.tiles.(x).(y) <- {tile with tile_type = Empty} 
+  | Food | Special -> map.tiles.(x).(y) <- {tile with tile_type = Empty} 
   | _ -> ()
 
 (** [check_valid p m i] is a helper function that will check if the new point
@@ -360,30 +347,6 @@ let check_move (pos: point) (map: t) (dir: point) (initialized: bool)=
   && check_valid bot_right map initialized 
   && check_valid bot_left map initialized
 
-(** [position_to_coordinate p] will convert a pixel position [p] in the GUI to 
-    a coordinate in the map array.
-    Requires: [p] is a valid pixel position in the map.*) 
-let position_to_coordinate (position: point) : coordinate = 
-  let map_shift = 100 in
-  let x_position = fst position - map_shift in 
-  let y_position = snd position - map_shift in 
-  let x_coordinate = x_position / tile_size in 
-  let y_coordinate = y_position / tile_size in 
-  (x_coordinate, y_coordinate)
-
-(** [coordinate_to_position c] will convert a map coordinate [c] to a pixel
-    position in the GUI window. 
-    Requires: [c] is a valid coordinate in the map array.*) 
-let coordinate_to_position (coordinate: coordinate) (map_corner: point) : 
-  point = 
-  let x_coordinate = fst coordinate in 
-  let y_coordinate = snd coordinate in 
-  let map_x = fst map_corner in 
-  let map_y = snd map_corner in 
-  let x_position = x_coordinate * tile_size + map_x in 
-  let y_position = y_coordinate * tile_size + map_y in 
-  (x_position, y_position)
-
 (** [check_food p m] will check if the tile at pixel position [p] in map [m] 
     is a Food tile. If it is, it will replace the Food tile with an Empty tile.
     If not, the functions does nothing.*) 
@@ -413,10 +376,8 @@ let make_tile (x: int) (y: int) (map_corner: point) (tile_type: tile) :
 let make_tiles (x_dim: int) (y_dim: int) (map_corner: point) 
     (tile_types : tile array array): map_tile array array = 
   let default_tile = 
-    {
-      tile_type = Empty;
-      bottom_left = map_corner;
-    }
+    {tile_type = Empty;
+     bottom_left = map_corner;}
   in
   let tile_array = Array.make_matrix y_dim x_dim default_tile in
   for i = 0 to y_dim - 1 do 
@@ -586,12 +547,10 @@ let draw_wall_lines (first: point) (second: point) (shift: int) : unit =
   let fst_y = snd first in 
   let snd_x = fst second in 
   let snd_y = snd second in 
-
   moveto fst_x fst_y;
   let endpoint_x = if fst_x = snd_x then fst_x + shift else fst_x in 
   let endpoint_y = if fst_y = snd_y then fst_y + shift else fst_y in 
   lineto endpoint_x endpoint_y;
-
   moveto snd_x snd_y;
   let endpoint_x = if fst_x = snd_x then snd_x + shift else snd_x  in 
   let endpoint_y = if fst_y = snd_y then snd_y + shift else snd_y in 
@@ -653,12 +612,10 @@ let draw_wall_normal (tile: map_tile) (orientation: wall) : unit =
     let fst = (tile_x + first, tile_y) in 
     let snd = (tile_x + second, tile_y) in
     draw_wall_lines fst snd tile_size 
-
   | Horz -> 
     let fst = (tile_x, tile_y + first) in 
     let snd = (tile_x, tile_y + second) in
     draw_wall_lines fst snd tile_size 
-
   | _ -> ()
 
 (**[draw_wall tile wall_type] draws a wall of type [wall_type] in the map 
@@ -672,8 +629,8 @@ let draw_wall (tile: map_tile) (wall_type: wall) : unit =
 
 (**[draw_food tile radius] will draw food in the map tile [tile] with a 
    radius [radius]. *) 
-let draw_food_tile (tile: map_tile) (radius: int) 
-    (food_color: Graphics.color): unit = 
+let draw_food_tile (tile: map_tile) (radius: int) (food_color: Graphics.color)
+  : unit = 
   set_color food_color;
   let tile_corner = tile.bottom_left in 
   let x_center = fst tile_corner + tile_size / 2 in 
@@ -697,14 +654,12 @@ let draw_food_helper (tile: map_tile) : unit =
 (** [draw_food_row] will draw all Food tiles in the tile array [food_row] to the
     GUI window. *)
 let draw_food_row (food_row: map_tile array) : unit = 
-  ignore (Array.map draw_food_helper food_row);
-  ()
+  ignore (Array.map draw_food_helper food_row)
 
 (**[draw_food map] will draw the appropriate food in all Food, Special, or Fruit 
    tiles in the map [map]. *) 
 let draw_food (map: t) : unit =
-  ignore (Array.map draw_food_row map.tiles);
-  ()
+  ignore (Array.map draw_food_row map.tiles)
 
 (**[draw_tile tile] will draw the correct display of the tile [tile] according
    to its tile type. Food tiles will be drawn the same as Empty tiles (the logic
@@ -717,15 +672,13 @@ let draw_tile (tile: map_tile) : unit =
 (**[draw_map_row] will draw the correct display of all tiles in the tile 
    row [map_row] according to the function [draw_tile]. *) 
 let draw_map_row (map_row : map_tile array) : unit = 
-  ignore (Array.map draw_tile map_row);
-  ()
+  ignore (Array.map draw_tile map_row)
 
 (**[draw_map map] will draw the correct display of all tiles in the map [map]
    according to the function [draw_tile].*) 
 let draw_map (map: t) (color: Graphics.color): unit = 
   Graphics.set_color color;
-  ignore (Array.map draw_map_row map.tiles);
-  ()
+  ignore (Array.map draw_map_row map.tiles)
 
 (**[select_tile mp t tt] selects a tile from the 2D map_tile array [map_tiles]
    that has a coordinate contained in [tiles] with the tile type [tile_type]. *)

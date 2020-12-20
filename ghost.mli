@@ -17,8 +17,8 @@ val get_position: t -> int * int
 val move: t -> int * int -> unit
 
 (** [prev_move ghost] is the previous move that the ghost [ghost] made as a 
-    tuple (x, y), where [x] is the number of pixels moved in the x-direction and 
-    [y] is the number of pixels moved in the y-direction. *)
+    tuple (x, y), where [x] is the number of pixels moved in the x-direction  
+    and [y] is the number of pixels moved in the y-direction. *)
 val prev_move: t -> int * int 
 
 (** [is_following ghost] returns true if the ghost [ghost] is currently 

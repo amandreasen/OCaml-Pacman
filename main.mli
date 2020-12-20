@@ -7,10 +7,12 @@ type key
 (** [game] represents the current game. *)
 type game
 
-(** [window_init] creates the initial window. *)
+(** [window_init settings] creates the initial window with the given 
+    [settings]. *)
 val window_init: string -> unit
 
-(** [select_ghosts] sets the number of ghosts based on the current level. *)
+(** [select_ghosts level] sets the number of ghosts based on the current 
+    [level]. *)
 val select_ghosts: int ->int
 
 (** [init_game] sets the features for starting a new game. *)

@@ -62,21 +62,25 @@ let new_player =
 let get_position player = 
   (player.x, player.y)
 
+(** [helper_new_dir player dir] is the new direction that [player] should look 
+    in after making a move by [dir]. *)
+let helper_new_dir player = function 
+  | (x,0) when x > 0 -> Right
+  | (x,0) when x < 0 -> Left
+  | (0,y) when y > 0 -> Up
+  | (0,y) when y < 0 -> Down
+  | _ -> player.direction
+
 let move (player : t) (dir : int * int) = 
-  let update_dir = 
-    match dir with 
-    | (x,0) when x > 0 -> Right
-    | (x,0) when x < 0 -> Left
-    | (0,y) when y > 0 -> Up
-    | (0,y) when y < 0 -> Down
-    | _ -> player.direction
-  in 
+  let update_dir = helper_new_dir player dir in 
   let counter = 
     if player.direction <> update_dir 
     then 0 
-    else if dir <> (0,0) || (dir = (0, 0) && player.move_counter <> 1)
-    then (player.move_counter + 1) mod 3
-    else player.move_counter
+    else begin 
+      if dir <> (0,0) || (dir = (0, 0) && player.move_counter <> 1)
+      then (player.move_counter + 1) mod 3
+      else player.move_counter
+    end 
   in 
   player.move_counter <- counter;
   player.direction <- update_dir; 

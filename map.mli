@@ -78,7 +78,3 @@ val initial_ghost_moves: t -> Constants.point array array
 val ghost_init_positions: t -> Constants.point array
 
 val get_corner: t -> Constants.point -> Constants.point
-
-(* (**[is_center (x,y)] returns true if ([x], [y]) is the center of a tile 
-   and false otherwise. *) 
-   val is_center: (int * int) -> bool *)

@@ -93,9 +93,11 @@ let check_key (key_char: char) : bool =
 let check_space (game: game) (key: key) (key_char: char) : game = 
   if key = Key ' ' && not (game.prev_key = Key ' ')
   then {game with state = Paused; prev_key = key}
-  else if check_key key_char 
-  then {game with prev_key = key}
-  else game
+  else begin 
+    if check_key key_char 
+    then {game with prev_key = key}
+    else game
+  end 
 
 (** [update_active_game game key key_char level] updates the [game] state and 
     sets the previous key as [key] based on the winning status and current 
@@ -107,9 +109,11 @@ let update_active_game (game: game) (key: key) (key_char: char)
   let game' = {game with current = level} in
   if win_code = 1 
   then {game' with state = Win; prev_key = key} 
-  else if win_code = -1
-  then {game' with state = Lose; prev_key = key} 
-  else check_space game' key key_char
+  else begin 
+    if win_code = -1
+    then {game' with state = Lose; prev_key = key} 
+    else check_space game' key key_char
+  end 
 
 (** [check_fruits game level] checks if there are still fruits that need to be
     given in a level of the [game] based on the current [level]. *)
@@ -177,7 +181,6 @@ let update_waiting (game: game) : game =
   Unix.sleep(2);
   {game with state = Active}
 
-
 (** [draw_labels game] draws the number of points and level of the [game] in the
     window. *)
 let draw_labels (game: game) : unit = 
@@ -195,8 +198,8 @@ let draw_fruits (game: game) : unit =
     let img = fruit.sprite |> sprite_image |> Graphic_image.of_image in 
     Graphics.draw_image img x y 
   in 
-  ignore (Array.mapi (draw_helper 1275 60) game.fruit_basket);
-  ()
+  ignore (Array.mapi (draw_helper 1275 60) game.fruit_basket) (* ; *)
+(* () *)
 
 (** [draw_end_game] draws the end game screen. *)
 let draw_end_game () : unit = 
@@ -231,8 +234,6 @@ let rec update (game: game) : unit =
     | Waiting -> update_waiting game
   in 
   if game'.state <> Loading then draw game';
-  (* Graphics.draw_image (pts_1000 |> sprite_image |> Graphic_image.of_image) 25 
-     25; *)
   synchronize ();
   Unix.sleepf(sleep_time); 
   update game'
@@ -241,8 +242,9 @@ let main (settings: string) : unit =
   window_init settings;
   auto_synchronize false;
   let game = init_game "standard" 0 0 [||] 0 3 in
-  ignore (update game);
-  ()
+  update game
+(* ignore (update game);
+   () *)
 
 (** () sets the window settings and calls the main to start the game. *)
 let () = 
