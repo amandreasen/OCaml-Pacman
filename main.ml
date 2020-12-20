@@ -199,7 +199,7 @@ let draw_fruits (game: game) : unit =
   ()
 
 (** [draw_end_game] draws the end game screen. *)
-let draw_end_game : unit = 
+let draw_end_game unit : unit = 
   let image = Png.load_as_rgb24("./sprites/end_game_screen.png") [] in
   let g = Graphic_image.of_image image in
   Graphics.draw_image g 500 300
@@ -211,7 +211,7 @@ let draw (game: game) : unit =
   draw_game level (check_visibility level);
   draw_labels game;
   draw_fruits game;
-  if game.state = Lose then draw_end_game
+  if game.state = Lose then draw_end_game ()
 
 (** [update game] updates the [game] based on its status through calling the 
     respective function.  *)

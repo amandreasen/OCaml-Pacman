@@ -55,7 +55,7 @@ val draw_labels: game -> unit
 val draw_fruits: game -> unit
 
 (** [draw_end_game] draws the end game screen if the player lost. *)
-val draw_end_game: unit
+val draw_end_game: unit -> unit
 
 (** [draw] draws the whole game screen *)
 val draw: game -> unit
