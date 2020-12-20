@@ -1,3 +1,6 @@
+(** Player is the Pacman character in the game. The user has control over 
+    the Pacman's movements. *)
+
 type t
 
 (** [new_player] is a hard-coded player with initial coordinates centered at 

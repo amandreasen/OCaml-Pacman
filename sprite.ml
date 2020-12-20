@@ -1,22 +1,7 @@
 open Graphics 
 open Images
 
-type t = 
-  {
-    sprite : Images.t; 
-    height : int;
-    width : int;
-  }
-
-let load_png str = 
-  Png.load_as_rgb24 ("./sprites/" ^ str) []
-
-let make_sprite str = 
-  {
-    sprite = load_png str; 
-    height = 45; 
-    width = 45;
-  }
+type t = Images.t
 
 let sprite_from_sheet (sheet: Images.t) (x: int) (y: int) (width: int) 
     (height: int) (shift: int) : t = 
@@ -25,8 +10,7 @@ let sprite_from_sheet (sheet: Images.t) (x: int) (y: int) (width: int)
   let x_pos = x * 50 in
   let y_pos = y * 50 in 
   let x_pos = if x_pos + width + shift < x_dim then x_pos + shift else x_pos in 
-  let img = Images.sub sheet x_pos y_pos width height in 
-  {sprite = img; height = height; width = width}
+  Images.sub sheet x_pos y_pos width height 
 
 let sprite_image sprite = 
-  sprite.sprite
+  sprite
