@@ -77,4 +77,6 @@ val initial_ghost_moves: t -> Constants.point array array
    based on the [map]. *)
 val ghost_init_positions: t -> Constants.point array
 
+(**[get_corner map pos] will return the bottom left corner position of the tile 
+   in [map] that contains the point [pos]. *) 
 val get_corner: t -> Constants.point -> Constants.point
