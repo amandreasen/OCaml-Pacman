@@ -315,6 +315,7 @@ let check_food (pos: point) (map: t) =
   match tile.tile_type with 
   | Food | Special -> map.tiles.(x).(y) <- {tile with tile_type = Empty} 
   | _ -> ()
+[@@coverage off]
 
 (** [check_valid p m i] is a helper function that will check if the new point
     [pos] is valid in the given [map] based on if the point is on the wall. If 
@@ -451,7 +452,7 @@ let make_map (corner: point) (maze_name: string) (fruit: fruit) : t =
   {
     tiles = tile_list; 
     player_tiles = player_tiles;
-    bottom_left = (0,0);
+    bottom_left = corner;
     fruit = fruit;
     init_ghost_moves = ghost_box_moves;
     init_ghost_locations = init_g_locs;
@@ -540,6 +541,7 @@ let calculate_coordinates (dir: orientation) (margin: int) (tile_x: int)
     let fst = (tile_x, tile_y + margin) in 
     let snd = (tile_x, tile_y + margin_snd) in 
     (fst, snd)
+[@@coverage off]
 
 (**[draw_wall_lines first second shift] will draw a double wall with the
    endpoint of line at [first] and the parallel endpoint of the other line at 
@@ -713,6 +715,7 @@ let select_tile (map_tiles: map_tile array array)
     counter := !counter + 1;
   done;
   !tile
+[@@coverage off]
 
 (** [generate_fruit m] generates the fruit in the map given a particular [m]. *)
 let generate_fruit (map: t) : unit = 
@@ -725,6 +728,7 @@ let generate_fruit (map: t) : unit =
     let y = snd pos in 
     tiles.(x).(y) <- {tile with tile_type = Fruit map.fruit}
   | _ -> ()
+[@@coverage off]
 
 (** [clear_fruit m] clears all the fruit in the map [m]. *)
 let clear_fruit (map: t) : unit = 
@@ -740,6 +744,7 @@ let clear_fruit (map: t) : unit =
       | _ -> ()
     done;
   done
+[@@coverage off]
 
 let get_tile_value (point: point) (map: t) : int = 
   let coordinate = position_to_coordinate point in 
@@ -770,6 +775,7 @@ let filter_bounds (lower_x: int) (upper_x: int) (lower_y: int) (upper_y: int)
   let x = fst coordinate in 
   let y = snd coordinate in 
   x >= lower_x && x <= upper_x && y >= lower_y && y <= upper_y 
+[@@coverage off]
 
 (** [special_helper t c] selects tiles to contain special food based on the 
     current map tiles [t] and the available coordinates [c]. *)
@@ -784,6 +790,7 @@ let special_helper (tiles: map_tile array array)
     let y = snd pos in 
     tiles.(x).(y) <- {tile with tile_type = Special}
   | _ -> ()
+[@@coverage off]
 
 let generate_special (map: t) : unit = 
   let tiles = map.tiles in
@@ -796,6 +803,7 @@ let generate_special (map: t) : unit =
   special_helper tiles upper_right; 
   special_helper tiles lower_left; 
   special_helper tiles lower_right
+[@@coverage off]
 
 let get_corner (map: t) (pos: point) : point = 
   let coordinate = position_to_coordinate pos in 

@@ -55,6 +55,13 @@ let player_move_attempt_test
                               Player.player_prev_attempt player)
         ~printer:pp_tuple)
 
+let player_death_ended_test 
+    (name: string)
+    (player: Player.t)
+    (expected_output: bool) : test = 
+  name >:: (fun _ -> assert_equal expected_output (Player.death_ended player)
+               ~printer: string_of_bool)
+
 let player_1 = new_player()
 
 let player_tests =
@@ -79,6 +86,9 @@ let player_tests =
    tile (0,-50)" player_1 (0,-50);
     player_move_attempt_test "starting at (225,275), attempt to move left
    (-50,0)" player_1 (-50,0);
+
+    player_death_ended_test "player that has started death animation has 
+   not ended it" (player_1 |> start_death) false;
   ]
 
 let ghost_position_test 
@@ -269,11 +279,19 @@ let map_init_positions
   name >:: (fun _ ->
       assert_equal expected_output (Map.ghost_init_positions map))
 
+let get_corner_test 
+    (name: string)
+    (map: Map.t)
+    (pos: point)
+    (expected_output: Constants.point) : test = 
+  name >:: (fun _ -> 
+      assert_equal expected_output (Map.get_corner map pos) ~printer: pp_tuple)
+
 let cherry =
   let img = sprite_from_sheet sprite_sheet 2 3 fruit_width fruit_height 2 in
   {sprite = img; points = 100}
 
-let standard_map = make_map (0, 0) "standard" cherry
+let standard_map = make_map (100, 100) "standard" cherry
 
 let standard_ghost_moves = 
   [|[|(0,0); (move_amt, 0); (0, move_amt); (0,move_amt)|]; 
@@ -349,6 +367,11 @@ let map_tests = [
     ocaml_ghost_positions;
   map_init_positions "initial positions for cs3110 map" cs3110_map 
     cs3110_ghost_positions;
+
+  get_corner_test "corner of tile center" standard_map (175, 175) (150, 150);
+  get_corner_test "corner of tile corner" standard_map (100, 100) (100, 100);
+  get_corner_test "corner of non-center tile position" standard_map (203, 167)
+    (200, 150)
 ]
 
 let suite =

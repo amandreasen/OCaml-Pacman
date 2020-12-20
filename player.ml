@@ -115,11 +115,13 @@ let start_death user =
 
 let reset_move user = 
   user.move_counter <- 0
+[@@coverage off]
 
 let animate_death user : unit =  
   Unix.sleepf(0.02);
   let move = user.move_counter in 
   if move < 12 then user.move_counter <- move + 1 else ()
+[@@coverage off]
 
 let death_ended user : bool = 
   user.dying && user.move_counter = 11
