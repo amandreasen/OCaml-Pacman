@@ -199,7 +199,7 @@ let draw_fruits (game: game) : unit =
   ()
 
 (** [draw_end_game] draws the end game screen. *)
-let draw_end_game unit : unit = 
+let draw_end_game () : unit = 
   let image = Png.load_as_rgb24("./sprites/end_game_screen.png") [] in
   let g = Graphic_image.of_image image in
   Graphics.draw_image g 500 300
