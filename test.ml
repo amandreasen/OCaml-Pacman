@@ -249,7 +249,7 @@ let map_tests = [
   tile_value_test "tile value of wall tile - OCaml map" (125, 125) ocaml_map 0;
   tile_value_test "tile value of wall tile - standard map" (125, 125)
     standard_map 0;
-  tile_value_test "tile value of wall tile - cs3110 map" (250, 165)
+  tile_value_test "tile value of wall tile - cs3110 map" (125, 125)
     cs3110_map 0;
 
   get_tile_type_test "food in ocaml map" (225, 175) ocaml_map "Food";

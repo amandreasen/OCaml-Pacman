@@ -256,7 +256,7 @@ let update_game_state state map =
   match overlapped_ghost with 
   | None -> state
   | Ghost g -> 
-    if state.role_reversed then update_eaten state g
+    if state.role_reversed && get_state g <> "active" then update_eaten state g
     else begin 
       Player.reset_move state.player;
       {state with game_state = Waiting; ghosts = [||]} 
