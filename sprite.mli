@@ -1,6 +1,6 @@
-open Images
-
 (** Sprite is the image generator for all items displayed in the game. *)
+
+open Images
 
 (** Sprite.t is the image conversion of a PNG. *)
 type t
