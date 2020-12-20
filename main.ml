@@ -200,7 +200,7 @@ let rec update (game: game) : unit =
     | Loading -> update_loading game
     | Waiting -> update_waiting game
   in 
-  draw game';
+  if game'.state <> Loading then draw game';
   synchronize ();
   Unix.sleepf(sleep_time); 
   update game'
