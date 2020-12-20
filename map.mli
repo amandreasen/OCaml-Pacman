@@ -22,13 +22,15 @@ type fruit = {
   points: int; 
 }
 
-(** [make_map point name] returns a Map.t with a bottom left corner at 
-    [point] and a tile layout according to the map name [name]. Fails if 
-    [name] is not a valid map name (current valid map names are "standard"
-    "OCaml", and "3110")*)
+(** [make_map point name fruit] returns a Map.t with a bottom left corner at 
+    [point] and a tile layout according to the map name [name]. The map will
+    generate the fruit [fruit] after a certain amount of food has been eaten.
+    Fails if [name] is not a valid map name (current valid map names are 
+    "standard", "OCaml", and "3110")*)
 val make_map: Constants.point -> string -> fruit -> t
 
-(**[draw_map map] will draw the map [map] to the active GUI window. *) 
+(**[draw_map map color] will draw the map [map] to the active GUI window
+   with the wall color [color]. *) 
 val draw_map: t -> Graphics.color -> unit
 
 (**[draw_food map] will draw all of the current food in [map] to the active
@@ -41,7 +43,7 @@ val draw_food: t -> unit
 val check_move: Constants.point -> t -> Constants.point -> bool -> bool
 
 (**[get_tile_type pos map] checks the type of the tile given the [pos] and 
-    the [map]. *)
+    the [map]. The tile type is returned as a string. *)
 val get_tile_type: Constants.point -> t -> string
 
 (**[check_food point map] will check if the tile in [map] at pixel position
@@ -67,8 +69,8 @@ val clear_fruit: t -> unit
 (**[generate_special map] will generate the special food given the [map]. *)
 val generate_special: t -> unit
 
-(**[initial_ghost_moves map] will generate the initial movement of the ghosts based
-   on the [map]. *)
+(**[initial_ghost_moves map] will generate the initial movement of the ghosts 
+   based on the [map]. *)
 val initial_ghost_moves: t -> Constants.point array array 
 
 (**[ghost_init_positions map] will generate the initial position of each ghost

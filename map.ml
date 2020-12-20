@@ -294,6 +294,8 @@ let coordinate_to_position (coordinate: coordinate) (map_corner: point) :
   let y_position = y_coordinate * tile_size + map_y in 
   (x_position, y_position)
 
+(** [is_center pos] returns true if the pixel position is the center of a map
+    tile and false otherwise.  *) 
 let is_center (pos: point) : bool = 
   let x_mod = (fst pos) mod 100 in 
   let y_mod = (snd pos) mod 100 in 
@@ -726,7 +728,8 @@ let draw_map (map: t) (color: Graphics.color): unit =
   ignore (Array.map draw_map_row map.tiles);
   ()
 
-(**[select_tile mp t tt] selects a tile*)
+(**[select_tile mp t tt] selects a tile from the 2D map_tile array [map_tiles]
+   that has a coordinate contained in [tiles] with the tile type [tile_type]. *)
 let select_tile (map_tiles: map_tile array array) 
     (tiles: coordinate array) (tile_type: tile) : map_tile = 
   let tile_size = Array.length tiles in 
