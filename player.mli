@@ -1,5 +1,3 @@
-
-
 (**The [Player.t] type contains information about the player's position, 
    movement history, and animation sprites. *) 
 type t

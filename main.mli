@@ -1,3 +1,5 @@
+(** Main launches the game and keeps track of the game state. *)
+
 (** [state] is the state of the game. *)
 type state
 

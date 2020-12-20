@@ -1,5 +1,8 @@
 open Sprite
 
+(** Ghost is an autonomously moving character in the game that can eat the 
+    Pacman. *)
+
 type t
 
 (** [new_ghost x y dir color] returns a new ghost with the initial pixel 

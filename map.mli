@@ -1,3 +1,6 @@
+(** Map is the maze that the game is played on. The maze holds information 
+    regarding available food, special food, and special fruit. *)
+
 (** A [Map.t] represents a game map. It contains information about the map's
     pixel location in the GUI, its height and width dimensions, and the tiles in 
     the map.*)  
