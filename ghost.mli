@@ -3,6 +3,8 @@
 
 open Sprite
 
+(** A Ghost.t contains information about a ghosts position in the map as well as
+    information that is used for animations or automated movements. *)
 type t
 
 (** [new_ghost x y dir color] returns a new ghost with the initial pixel 
