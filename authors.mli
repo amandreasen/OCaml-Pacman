@@ -26,5 +26,15 @@
 
  ************************************************************)  
 
+(************************************************************ 
+
+   Citations:
+
+   In our game, we used artwork from a publically available source:
+   (http://www.thealmightyguru.com/Wiki/
+   index.php?title=File:Pac-Man_-_ARC_-_Sprite_Sheet.png)
+
+ ************************************************************)  
+
 (** [hours_worked] is the number of hours we worked on this assignment. *)
 val hours_worked : int
