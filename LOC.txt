@@ -1,7 +1,12 @@
 In order to construct the mazes that the game is played on, we hard coded three 
 maps in [map.ml]. Each map is nearly 70 lines of code, and we did not count any 
-of these three mazes towards our lines of code count. 
+of these three mazes towards our lines of code count (total LOC from 
+hard-coded maps: 187). 
 
 Additionally, we created a file to store various constants that we use 
 throughout the code. We did not count the [constants.ml] or [constants.mli] 
-towards our lines of code either. 
+towards our lines of code either (total LOC from both files: 76). 
+
+Our current raw LOC total as measured with cloc is 2184 LOC. By removing 
+the LOC from both aforementioned sources, we get 2184 - 187 - 76 = 1921 LOC 
+as our true total LOC. 

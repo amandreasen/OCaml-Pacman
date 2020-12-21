@@ -30,7 +30,7 @@ line/terminal. Running the command [make play] will start the GUI.
 4. Navigate to the directory containing the source code in VS Code to see our 
 current progress.
 
-***NEW: 
+***NEW (MS2): 
 Ubuntu:
 
 1. Install png support for Ubuntu by running "sudo apt-get install libpng-dev".
@@ -42,9 +42,10 @@ Mac:
 1. Install camlimages using "sudo port install camlimages". If you have problems
 installing via your package manager, use the opam installation instead. 
 
-***NEW
-1. Run 'opam update', then 'opam upgrade' to upgrade packages to newest 
-versions.
+***NEW (MS3)
+1. You may not have the Graphic_image module installed by default. If this is 
+the case (indicated by errors), run 'opam update', then 'opam upgrade' to 
+upgrade packages to newest versions (estimated time: 5 - 10 min).
 
 If you are on Mac, make sure you have XQuartz installed and launch the program 
 prior to running the code. 

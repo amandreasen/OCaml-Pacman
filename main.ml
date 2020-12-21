@@ -214,6 +214,10 @@ let draw (game: game) : unit =
   draw_game level (check_visibility level);
   draw_labels game;
   draw_fruits game;
+  if game.state = Paused then begin 
+    moveto 725 675;
+    draw_string "Paused"
+  end;
   if game.state = Lose then draw_end_game ()
 
 (** [update game] updates the [game] based on its status through calling the 
