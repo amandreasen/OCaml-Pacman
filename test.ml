@@ -2,8 +2,18 @@
     majority of our testing was done by play testing. By setting our initial 
     number of lives to a higher value than normal, we were able to get to higher
     levels and ensure our functionality works as expected. However, we were able 
-    to test functions that are not involved in drawing. We used bisect coverage 
-    to ensure that our tests cover as much functionality as possible. *)
+    to test functions that are not involved in drawing. In our unit test cases, 
+    we used a combination of black-box and glass-box testing to verify our code.
+    The majority of these test cases are focused on verifying the correctness of 
+    functions in [player.mli], [ghost.mli], and [map.mli]; some of these test 
+    cases involve a series of function applications which allows a clear 
+    analysis of correctness in the system. The functions in [constants.mli], 
+    [main.mli], [state.mli], and [sprite.mli] could not be tested in an 
+    automated way and were tested through play testing. We used bisect coverage 
+    to ensure that our tests cover as much functionality as possible. Our 
+    testing demonstrates the correctness of the system because it has a 
+    quantitative measurement for the code tested with unit cases, and the visual 
+    aspects are clearly either correct or incorrect when we launch the game. *)
 
 open OUnit2
 open Ghost
