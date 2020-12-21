@@ -23,7 +23,7 @@ play:
 	$(OCAMLBUILD) $(MAIN) && ./$(MAIN)
 
 zip:
-	zip finalproject.zip *.ml* INSTALL.TXT _tags Makefile
+	zip finalproject.zip *.ml* INSTALL.TXT LOC.txt _tags Makefile
 
 docs: docs-public docs-private
 
