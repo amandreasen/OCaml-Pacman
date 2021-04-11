@@ -4,6 +4,6 @@ This is a graphical-interface implementation of the classic PAC-MAN game. The ai
 
 ## Authors and Acknowledgements
 Authors of this project:
-Amanda Andreasen
-Rochelle Kris
-Akshaya Raghavan
+Amanda Andreasen,
+Rochelle Kris,
+Akshaya Raghavan,
