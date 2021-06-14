@@ -25,6 +25,5 @@ This project is a clone of the classic PAC-MAN game in OCaml. Users interact wit
 
 ## Authors and Acknowledgements
 Authors of this project:
-Amanda Andreasen,
-Rochelle Kris,
-Akshaya Raghavan,
+
+Amanda Andreasen, Rochelle Kris, and Akshaya Raghavan
