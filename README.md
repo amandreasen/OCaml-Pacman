@@ -3,7 +3,7 @@
 
 This project is a clone of the classic PAC-MAN game in OCaml. Users interact with the game through a graphical user interface (GUI). The objective of the game is to move the player character (yellow pac-man) through a maze to collect food while avoiding the ghosts that move through the level -- collecting food increases the score while colliding with a ghost decreases the player's life count. When a player collects all food on a map, the player progresses to a new level with a different map. The game continues until the player has lost all lives. There are special features to enhance gameplay such as animation, variable map design, fruit collectibles, and the addition of powerups that allow the player to consume ghosts for extra points.
 
-
+![](README_images/pacman_gif.gif)
 
 *Languages:* OCaml \
 *Libraries:* Graphics (GUI and animation), Camlimages (PNG image support)
